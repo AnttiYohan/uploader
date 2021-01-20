@@ -9,6 +9,7 @@ template.innerHTML =
   <label class='login__label' for="password">password:</label>
   <input class='login__input--password' type='password' name='password' />
   <button class='login__button'>login</button>
+  <div class='login__response'></div>
 </div>`;
 
 /**
@@ -69,10 +70,15 @@ class LoginView extends WCBase
         }
         .login__button {
             margin-top: 16px;
-            font-wight: 200;
+            font-weight: 200;
             height: ${props.lineHeight};
             color: ${props.buttonColor};
             background-color: ${props.buttonBg};
+        }
+        .login__response {
+            margin: 16px auto;
+            color: #f45;
+            font-weight: 200;
         }
         `);
 
