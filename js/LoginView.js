@@ -1,0 +1,163 @@
+import { WCBase, props } from './WCBase';
+
+const 
+template = document.createElement("template");
+template.innerHTML =
+`<div class='login'>
+  <label class='login__label' for="email">email:</label>
+  <input class='login__input--email'    type='text'     name='email' />
+  <label class='login__label' for="password">password:</label>
+  <input class='login__input--password' type='password' name='password' />
+  <button class='login__button'>login</button>
+</div>`;
+
+/**
+ * 
+ */
+class LoginView extends WCBase
+{
+    constructor(api = {})
+    {
+        super();
+        
+        // -----------------------------------------------
+        // - Setup member properties
+        // -----------------------------------------------
+
+        this.mToken = '';
+
+        // -----------------------------------------------
+        // - Setup ShadowDOM: set stylesheet and content
+        // - from template 
+        // -----------------------------------------------
+
+        this.attachShadow({mode : "open"});
+        this.setupStyle
+        (`* {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .clickable {
+            cursor: pointer;
+        }
+        .zoomable {
+            transition: transform .15s ease-in-out;
+        }
+        .zoomable:hover {
+            transform: scale3D(1.1, 1.1, 1.1);
+        }
+        .login {
+            display: flex;
+            flex-direction: column;
+            margin: 16px auto;
+            max-width: 400px;
+            width: 50%;
+            height: fit-content;
+        }
+        .login__label {
+            color: #888;
+            font-weight: 200;
+            height: ${props.lineHeight};
+        }
+        .login__input {
+            background-color: ${props.inputBg};
+            color: ${props.inputColor};
+            border-bottom: 2px solid ${props.inputBorderGlare};
+            height: ${props.lineHeight};
+        }
+        .login__button {
+            margin-top: 16px;
+            font-wight: 200;
+            height: ${props.lineHeight};
+            color: ${props.buttonColor};
+            background-color: ${props.buttonBg};
+        }
+        `);
+
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+        // ---------------------------
+        // - Save element references
+        // ---------------------------
+
+        // ----------------------------------------------------------------
+        // - Define event listeners to listen for TableView's custom events
+        // ----------------------------------------------------------------
+
+        // ---------------------------
+        // - Setup login functionality
+        // ---------------------------
+
+        const emailInput    = this.shadowRoot.querySelector('.login__input--email');
+        const passwordInput = this.shadowRoot.querySelector('.login__input--password');
+        const button        = this.shadowRoot.querySelector('.login__button');
+
+        const context = this;
+
+        button.addEventListener
+        ('click', e => {
+
+            const email     = emailInput.value;
+            const password  = passwordInput.value;
+
+            const response = context.performLogin( email, password );
+
+            if ( response )
+            {
+                if ( response instanceof Promise )
+                {
+                    response.then
+                    ( json => {
+
+                        for (let key in json)
+                        {
+                            console.log(`key: ${key}, value: ${json[key]}`);
+                        }
+
+                    }).catch(err => { console.log(err)});
+                }
+                console.log( `Response: ${response}`);
+            }
+            else console.log( `Response is undefide `);
+        });
+
+    }
+
+    /**
+     * Builds and executes the perform_login HTTP Request
+     * from Babyfoodworld API
+     * 
+     * @param {string} email 
+     * @param {string} password 
+     */
+    async performLogin(email, password)
+    {
+        if ( email.length > 1 && password.length > 5 )
+        {
+            const 
+            formData = new FormData();
+            formData.append('email', email);
+            formData.append('password', password);
+
+            const response = await fetch
+            (
+                'https://babyfoodworld.app/perform_login',
+                {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    body: formData
+                }
+            );
+
+            return await response.json();
+        }
+
+        return undefined;
+    }
+
+}
+
+window.customElements.define('login-view', LoginView);
