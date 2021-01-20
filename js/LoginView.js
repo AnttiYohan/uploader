@@ -1,4 +1,4 @@
-import { WCBase, props } from './WCBase';
+import { WCBase, props } from './WCBase.js';
 
 const 
 template = document.createElement("template");
@@ -149,7 +149,8 @@ class LoginView extends WCBase
 
             const response = await fetch
             (
-                'https://babyfoodworld.app/perform_login',
+                //'https://babyfoodworld.app/perform_login',
+                'http://localhost:8080',
                 {
                     method: 'POST',
                     mode: 'no-cors',
