@@ -17,7 +17,7 @@ template.innerHTML =
  */
 class LoginView extends WCBase
 {
-    constructor(api = {})
+    constructor()
     {
         super();
         
@@ -69,6 +69,7 @@ class LoginView extends WCBase
             height: ${props.lineHeight};
         }
         .login__button {
+            cursor: pointer;
             margin-top: 16px;
             font-weight: 200;
             height: ${props.lineHeight};
@@ -87,6 +88,8 @@ class LoginView extends WCBase
         // ---------------------------
         // - Save element references
         // ---------------------------
+
+        this.mRootElement = this.shadowRoot.querySelector('.login');
 
         // ----------------------------------------------------------------
         // - Define event listeners to listen for TableView's custom events
@@ -108,29 +111,49 @@ class LoginView extends WCBase
             const email     = emailInput.value;
             const password  = passwordInput.value;
 
-            const response = context.performLogin( email, password );
+            LoginView
+                .performLogin(email, password)
+                .then(response => {
 
-            if ( response )
-            {
-                if ( response instanceof Promise )
-                {
-                    response.then
-                    ( json => {
+                    console.log(`Login response: ${response}`);
 
-                        for (let key in json)
-                        {
-                            console.log(`key: ${key}, value: ${json[key]}`);
-                        }
+                    const json = JSON.parse(response);
 
-                    }).catch(err => { console.log(err)});
-                }
-                console.log( `Response: ${response}`);
-            }
-            else console.log( `Response is undefide `);
+                    if (json) for (let key in json)
+                    {
+                        console.log(`key: ${key}, value: ${json[key]}`);
+                        this.handleResponse(json);
+                    }
+
+                   
+                })
+                 .catch(error => { console.log(`Login fail: ${error}`); } );
+
         });
 
     }
 
+    handleResponse(json)
+    {
+        if (json.hasOwnProperty('token'))
+        {
+            const token = json['token'];
+
+            // - Store token to the localstorage
+
+            localStorage.setItem('token', token);
+
+            // ------------------------------------
+            // - Notify the uploaderview to refresh
+            // ------------------------------------
+
+            window.dispatchEvent( new CustomEvent("login-event") );
+
+            // ------------------------------------
+            // - Turn login off
+            // ------------------------------------
+        }
+    }
     /**
      * Builds and executes the perform_login HTTP Request
      * from Babyfoodworld API
@@ -138,7 +161,7 @@ class LoginView extends WCBase
      * @param {string} email 
      * @param {string} password 
      */
-    async performLogin(email, password)
+    static async performLogin(email, password)
     {
         if ( email.length > 1 && password.length > 5 )
         {
@@ -150,16 +173,16 @@ class LoginView extends WCBase
             const response = await fetch
             (
                 //'https://babyfoodworld.app/perform_login',
-                'http://localhost:8080',
+                'http://localhost:8080/perform_login',
                 {
                     method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
+                    /*credentials: 'include',*/
+                    /*mode: 'no-cors',*/
                     body: formData
                 }
             );
-
-            return await response.json();
+            
+            return await response.text();
         }
 
         return undefined;
