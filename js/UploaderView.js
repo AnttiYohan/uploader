@@ -7,6 +7,22 @@ template.innerHTML =
   <header>
     <h3>uploader</h3>
   </header>
+  <div class='uploader__frame'>
+    <label  class='uploader__label--text'>Name</label>
+    <input  class='uploader__input  recipe_name'       type='text'>
+    <label  class='uploader__label--optionlist'>Mealtypes:</label>
+    <div    class='uploader__optionlist recipe_mealtype'>
+      <label  class='uploader__label--checkbox'>Breakfast</label>
+      <input  class='uploader__checkbox breakfast' type='checkbox'>
+      <label  class='uploader__label--checkbox'>Lunch</label>
+      <input  class='uploader__checkbox lunch'     type='checkbox'>
+    </div>
+    <label  class='uploader__label--checkbox'>Has gluten</label>
+    <input  class='uploader__checkbox  recipe_has_gluten' type='checkbox'>
+    <label  class='uploader__label--file'>Cover image</label>
+    <input  class='uploader__input  recipe_image' type='file'>
+    <button class='uploader__button recipe'>send recipe</button>
+  </div>
 </div>`;
 
 /**
@@ -49,7 +65,6 @@ class UploaderView extends WCBase
         }
         .uploader {
             display: ${this.mDisplay};
-            display: flex;
             flex-direction: column;
             margin: 16px auto;
             max-width: 1400px;
@@ -75,15 +90,45 @@ class UploaderView extends WCBase
         // - Save element references
         // ---------------------------
 
+        this.mRootElement = this.shadowRoot.querySelector('.uploader');
+        this.mRecipeButton = this.shadowRoot.querySelector('.uploader__button');
+
         // ----------------------------------------------------------------
-        // - Define event listeners to listen for TableView's custom events
+        // - Define event listeners to listen for LoginView's custom events
         // ----------------------------------------------------------------
+
+        window.addEventListener
+        (
+            "login-event", 
+            e =>
+            {
+                console.log(`UploaderView - login-event catched`);
+
+                // ----------------------------------
+                // - Grab the token from local store
+                // ----------------------------------
+
+                this.mToken = localStorage.getItem('token');
+
+                // ----------------------------------
+                // - Turn the root element display on
+                // ----------------------------------
+
+                this.mRootElement.style.display = 'flex';
+            },
+            true
+        );
 
         // ---------------------------
         // - Setup login functionality
         // ---------------------------
 
-        const button        = this.shadowRoot.querySelector('.uploader__button');
+
+    }
+
+    checkLoginStatus()
+    {
+
     }
 
 }
