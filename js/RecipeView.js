@@ -1,11 +1,14 @@
-import { WCBase, props } from './WCBase.js';
-import { ProductView } from './ProductView.js';
+import { WCBase, props, RECIPE_URL } from './WCBase.js';
+import { ProductDto }    from './dto/ProductDto.js';
+import { RecipeDto }     from './dto/RecipeDto.js';
 
 const 
 template = document.createElement("template");
 template.innerHTML =
 `<div class='uploader'>
-  <product-view></product-view>
+  <header>
+    <h3>uploader</h3>
+  </header>
 </div>`;
 
 /**
@@ -22,7 +25,7 @@ class UploaderView extends WCBase
         // -----------------------------------------------
 
         this.mToken = '';
-        this.mDisplay = 'flex';
+        this.mDisplay = 'none';
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -125,9 +128,56 @@ class UploaderView extends WCBase
     // ----------------------------------------------
     
 
-  
+    /**
+     * Builds and executes the getRecipes HTTP Request
+     * 
+     */
+    async getRecipes()
+    {         
+        const response = await fetch
+        (
+            //'https://babyfoodworld.app/perform_login',
+            'http://localhost:8080/recipe',
+            {
+                method: 'GET',
+            }
+        );
+        
+        return await response.text();
+    }
+
+    /**
+     * Builds and executes the addRecipe HTTP Request
+     * from Babyfoodworld API
+     * 
+     * @param {RecipeDto} dto 
+     * @param {File}      file 
+     */
+    async addRecipe(dto, file)
+    {
+        if ( email.length > 1 && password.length > 5 )
+        {
+            const 
+            formData = new FormData();
+            formData.append('name',      dto.name );
+            formData.append('hasGluten', dto.hasGluten );
+            formData.append('image',     file );
+
+            const response = await fetch
+            (
+                //'https://babyfoodworld.app/perform_login',
+                'http://localhost:8080/recipe',
+                {
+                    method: 'POST',
+                    body: formData
+                }
+            );
+            
+            return await response.text();
+        }
+
+        return undefined;
+    }
 }
 
 window.customElements.define('uploader-view', UploaderView);
-
-export { UploaderView };
