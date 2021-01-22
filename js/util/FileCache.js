@@ -85,7 +85,7 @@ class FileCache
      * @param  {boolean} useToken
      * @return {Promise} response
      */
-    static async getRequest(route, useToken = true)
+    static async getRequest(route, useToken = true, useStore = true)
     {
         console.log(`getRequest - route ${route}, use token: ${useToken}`);
 
@@ -108,11 +108,15 @@ class FileCache
         // - Write cache
         // -----------------------------------
 
-        try {
+        if (useStore)
+        {
+            try {
 
             localStorage.setItem(route, text);
 
-        } catch (error){}
+            } catch (error){}
+        }
+
         return text;
 
     }
@@ -124,7 +128,7 @@ class FileCache
      * @param  {string}  route 
      * @return {Promise} response
      */
-    static async getRequestWithToken(route)
+    static async getRequestWithToken(route, useStore = true)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
 
@@ -149,8 +153,72 @@ class FileCache
         // - Write cache
         // -----------------------------------
 
-        localStorage.setItem(route, text);
-        console.log(`Cache written - route ${route}, cahce: ${text}`);
+        if (useStore)
+        {
+            try {
+
+                localStorage.setItem(route, text);
+                console.log(`Cache written - route ${route}, cahce: ${text}`);
+
+            } catch (error){}
+        }
+
+
+
+        return text;
+    }
+
+    // ------------------------------------------------
+    // -
+    // - POST -- Write methods
+    // -
+    // ------------------------------------------------
+
+    /**
+     * Performs a HTTP POST Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {object}  dto
+     * @param  {File}    imageFile 
+     * @return {Promise} response
+     */
+    static async postDtoAndImage(route, dto, imageFile)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+
+        console.log(`HTTP POST Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+
+        const 
+        formData = new FormData();
+        formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+        formData.append('image', imageFile);
+
+        const response = await fetch
+        (
+            route,
+            {
+                method: 'POST',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
 
         return text;
     }
@@ -194,7 +262,6 @@ class FileCache
         // -----------------------------------
 
         FileCache.clearCache(route);
-        console.log(`Cache cleared - route ${route}`);
 
         return text;
     }
