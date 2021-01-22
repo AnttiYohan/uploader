@@ -4,8 +4,15 @@ import { ProductView } from './ProductView.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='uploader'>
-  <product-view></product-view>
+`<div class='tab'>
+  <div class='tab__headerframe'>
+    <div class='tab__header product'>Product
+    </div>
+    <div class='tab__header recipe'>Recipe
+    </div>
+  </div>
+  <product-view class='view__product'></product-view>
+  <recipe-view  class='view__recipe'></recipe-view>
 </div>`;
 
 /**
@@ -23,6 +30,7 @@ class UploaderView extends WCBase
 
         this.mToken = '';
         this.mDisplay = 'flex';
+        this.mMode = 'product';
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -45,6 +53,25 @@ class UploaderView extends WCBase
         }
         .zoomable:hover {
             transform: scale3D(1.1, 1.1, 1.1);
+        }
+        .tab__headerframe {
+            display: flex;
+            width: 100vw;
+            height: 48px;
+        }
+        .tab__header {
+            display: flex;
+            margin: auto;
+            font-weight: 400;
+            color: ${props.disabled};
+            background: ${props.grey};
+        }
+        .tab__header.active {
+            display: flex;
+            margin: auto;
+            font-weight: 400;
+            color: #fff;
+            background: ${props.red};
         }
         .uploader {
             display: ${this.mDisplay};
@@ -73,8 +100,43 @@ class UploaderView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mRecipeButton = this.shadowRoot.querySelector('.uploader__button');
+        this.mRootElement = this.shadowRoot.querySelector('.tab');
+        this.mProductTab = this.shadowRoot.querySelector('.tab__header.product');
+        this.mRecipeTab  = this.shadowRoot.querySelector('.tab__header.recipe');
+
+        this.mProductView = this.shadowRoot.querySelector('.view__product');
+        this.mRecipeView  = this.shadowRoot.querySelector('.view__recipe');
+
+        // ----------------------------------------------------------------
+        // - Define tab functionality
+        // ----------------------------------------------------------------
+
+        this.mProductTab.addEventListener
+        (
+            "click",
+            e => 
+            {
+                this.openProductView();
+            }
+        );
+
+        this.mRecipeTab.addEventListener
+        (
+            "click",
+            e => 
+            {
+                this.openRecipeView();
+            }
+        );
+
+        if (this.mMode === 'recipe')
+        {
+            this.openRecipeView();
+        }
+        else
+        {
+            this.openProductView();
+        }
 
         // ----------------------------------------------------------------
         // - Define event listeners to listen for LoginView's custom events
@@ -109,11 +171,29 @@ class UploaderView extends WCBase
 
     }
 
-    checkLoginStatus()
+    openProductView()
     {
+        //if ( this.mProductView.style.display === 'none')
+        //{
+            this.mProductView.style.display = 'block';
+            this.mRecipeView.style.display  = 'none';
+        //}
 
+        this.mProductTab.classList.add('active');
+        this.mRecipeTab.classList.remove('active');
     }
 
+    openRecipeView()
+    {
+        //if ( this.mRecipeView.style.display === 'none')
+        //{
+            this.mRecipeView.style.display  = 'block';
+            this.mProductView.style.display = 'none';
+        //}
+
+        this.mRecipeTab.classList.add('active');
+        this.mProductTab.classList.remove('active');
+    }
     // ---------------------------------------------
     // - HTTP Request methods
     // - --------------------
