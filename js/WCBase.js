@@ -84,15 +84,54 @@ const props =
     small_font_size: "12px",
     checkmark_height: "16px",
     checkmark_width: "32px",
-    checkmark_label_left: "40px"
-}
+    checkmark_label_left: "40px",
+    ingredient_height: "24px"
+};
+
+// ----------------------------------------
+// - App enums
+// ---------------------------------------
+
+const MEASURE_UNIT_ENUM =
+[
+    'ML', 
+    'LITER', 
+    'GR', 
+    'KG', 
+    'PIECES', 
+    'CUP', 
+    'CUPS', 
+    'TSP', 
+    'TBSP', 
+    'CLOVE', 
+    'CAN', 
+    'CANS', 
+    'SLICE', 
+    'SLICES', 
+    'A_PINCH_OF', 
+    'NONE'    
+];
+
+const MEALTYPES_ENUM =
+[
+    'BREAKFAST', 
+    'LUNCH', 
+    'DINNER', 
+    'SNACK', 
+    'DESSERT', 
+    'APPETIZER', 
+    'SALAD', 
+    'SOUP', 
+    'SMOOTHIE', 
+    'BEVERAGES'    
+];
 
 // ---------------------------------------
 // - HTTP Request constants
 // ---------------------------------------
 
 const API_URL = 'http://localhost:8080';
-const LOGIN_URL = `${API_URL}/login`;
+const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
 const RECIPE_URL = `${API_URL}/recipe`;
 const PRODUCT_URL = `${API_URL}/product/fridge`;
@@ -102,9 +141,11 @@ export
 {
      WCBase, 
      props,
+     MEASURE_UNIT_ENUM,
+     MEALTYPES_ENUM,
      LOGIN_URL,
      LOGOUT_URL,
      RECIPE_URL,
      PRODUCT_URL,
      STEP_BY_STEP_URL
-}
+};
