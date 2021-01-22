@@ -1,7 +1,5 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL } from './WCBase.js';
-import { ProductDto }    from './dto/ProductDto.js';
-import { RecipeDto } from "./dto/RecipeDto.js";
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, newTagClassAttrs } from './util/elemfactory.js';
+import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, newTagClassAttrs, numberInputClass, selectClassIdOptionList } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
 const 
@@ -14,13 +12,17 @@ template.innerHTML =
   <div class='uploader__frame'>
     <label  class='uploader__label--text'>Title</label>
     <input  class='uploader__input  recipe_title' type='text'>
-    <label  class='uploader__label--file'>Image</label>
-    <input  class='uploader__input  recipe_image' type='file'>
-    <label  class='uploader__label--select'>Ingredients/label>
-    <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
-    </select>
+    <label  class='uploader__label--file'>Image
+      <input  class='uploader__input  recipe_image' type='file'>
+    </label>
+    <label  class='uploader__label--select'>Add Ingredient:
+        <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
+        </select>
+    </label>
+
     <div class='uploader__list ingredients'>
     </div>
+
     <label  class='uploader__label--select'>Season</label>
     <select class='uploader__select recipe_season' name='season'>
       <option value='WINTER'>winter</option>
@@ -141,18 +143,80 @@ class RecipeView extends WCBase
         }
         .uploader__list
         {
+            margin-top: 24px;
+            margin-bottom: 24px;
             background-color: ${props.lightgrey};
             border-left: 1px solid ${props.grey};
-            box-shadow: -1px 1px 3px 4px rgba(0,0,0,0.25);
         }
-        .uploader__item
+        .ingredient__frame
+        {
+            display: flex;
+            flex-direction: column;
+            padding: 4px;
+            color: #222;
+            font-size: ${props.small_font_size};
+            text-shadow: 0 2px 10px ${props.blue};
+            border-bottom: 1px solid ${props.green};
+        }
+        .ingredient__row
+        {
+            padding: 4px;
+            display: flex;
+            flex-direction: row;
+            height: 32px;
+        }
+        .ingredient__title
+        {
+            flex-basis: 60%;
+            color: #222;
+            font-size: ${props.small_font_size};
+            text-shadow: 0 2px 10px ${props.blue};
+            height: ${props.ingredient_height};
+            margin-left: 8px;
+        }
+        .ingredient__amount
+        {
+            background: transparent;
+            outline: none;
+            border-top: 0;
+            border-left: 0;
+            border-right: 0;
+            border-bottom: 2px solid ${props.darkgrey};
+            max-width: 50px;
+            color: #222;
+            font-size: ${props.small_font_size};
+            text-shadow: 0 2px 10px ${props.blue};
+            margin-left: 8px;
+            height: ${props.ingredient_height};
+        }
+        .ingredient__unit
+        {
+            background: transparent;
+            outline: none;
+            border-top: 0;
+            border-left: 0;
+            border-right: 0;
+            border-bottom: 2px solid ${props.darkgrey};
+            color: #222;
+            font-size: ${props.small_font_size};
+            text-shadow: 0 2px 10px ${props.blue};
+            height: ${props.ingredient_height};
+        }
+        .ingredient__category
         {
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
-            height: 24px;
-            margin-left: 8px;
-            border-bottom: 1px solid ${props.green};
+            min-height: 32px;
+            padding: 8px;
+        }
+        .ingredient__button--remove
+        {
+            margin-left: 4px;
+            margin-top: 4px;
+            width: 16px;
+            height: 16px;
+            background-image: url('assets/icon_cancel');
         }
         .uploader__label--text,
         .uploader__label--file,
@@ -164,6 +228,7 @@ class RecipeView extends WCBase
             height: 24px;
         }
         .uploader__checkboxgroup {
+            margin-top: 24px;
             border: 1px solid ${props.lightgrey};
             margin-left: ${props.checkmark_width};
         }
@@ -375,6 +440,15 @@ class RecipeView extends WCBase
 
     setProductObjects(products)
     {
+        const units = 
+        [
+            "gr",
+            "tsp",
+            "tbsp",
+            "ml",
+            "liter"
+        ];
+
         this.mProductObjects = products;
 
         console.log(`Product list received at recipeview, size: ${products.length}`);
@@ -390,7 +464,7 @@ class RecipeView extends WCBase
                 {"data-id":product.id}, 
                 product.name
             );
-            option.value = product.name;
+            option.value = product.id;
 
             this.mIngredientsInput.appendChild
             (
@@ -407,9 +481,51 @@ class RecipeView extends WCBase
 
                 console.log(`change target: ${value}`);
 
+                let product = null;
+
+                for (const p of products)
+                {
+                    console.log(`product: ${p} - ${value}`);
+                    if (Number(p.id) === Number(value))
+                    {
+                        product = p;
+                        break;
+                    }
+                }
+
+                const
+                uploaderItem = newTagClassAttrs("div", "ingredient__frame", {"data-id":value});
+
+                const 
+                removeButton = newTagClass("div", "ingredient__button--remove");
+                removeButton.addEventListener
+                (
+                    "click",
+                    inner =>
+                    {
+                        uploaderItem.remove();
+                    }  
+                );
+
+                uploaderItem.appendChild
+                (
+                    newTagClassChildren
+                    (
+                        "div",
+                        "ingredient__row",
+                        [
+                            removeButton,
+                            newTagClassHTML("div", "ingredient__title", product.name),
+                            numberInputClass("ingredient__amount"),
+                            selectClassIdOptionList("div", "ingredient__unit", units)
+                        ]
+                    ) 
+                );
+                uploaderItem.appendChild(newTagClassHTML("div", "ingredient__category", product.productCategory));
+
                 this.mIngredientsList.appendChild
                 (
-                    newTagClassAttrs("div", "uploader__item", {"data-id":value}, value)
+                    uploaderItem
                 );
             }
         );
