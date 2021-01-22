@@ -1,5 +1,4 @@
 import { WCBase, props, PRODUCT_URL } from './WCBase.js';
-import { ProductDto }    from './dto/ProductDto.js';
 import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -30,7 +29,7 @@ template.innerHTML =
       <option value='OTHERS'>Others</option>
       <option value='NONE'>None</option>
     </select>
-    <label  class='uploader__label--select'>Measure unit</label>
+    <!--label  class='uploader__label--select'>Measure unit</label>
     <select class='uploader__select product_measure_unit' name='measure_unit'>
       <option value='ML'>ml</option>
       <option value='LITER'>liter</option>
@@ -47,10 +46,7 @@ template.innerHTML =
       <option value='SLICES'>slices</option>
       <option value='A_PINCH_OF'>pinch</option>
       <option value='NONE'>none</option>
-    </select>
-
-    <label class='uploader__label--text'>Nutritional info</label>
-    <input class='uploader__input product_nutritional_info' type='text'>
+    </select-->
 
     <!-- Checkbox options -->
 
@@ -284,7 +280,6 @@ class ProductView extends WCBase
         this.mNameInput         = this.shadowRoot.querySelector('.uploader__input.product_name');
         this.mFileInput         = this.shadowRoot.querySelector('.uploader__input.product_image');
         this.mCategoryInput     = this.shadowRoot.querySelector('.uploader__select.product_category');
-        this.mMeasureUnitInput  = this.shadowRoot.querySelector('.uploader__select.product_measure_unit');
         
         this.mHasAllergensInput = this.shadowRoot.querySelector('.uploader__checkbox.has_allergens');
         this.mHasEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
@@ -342,10 +337,9 @@ class ProductView extends WCBase
 
                 if ( dto && imageFile )
                 {
-                    this
-                        .addProduct(dto, imageFile)
-                        .then(response => {
-
+                    this.addProduct(dto, imageFile)
+                        .then(response => 
+                        {
                             console.log(`addProduct response ok: ${response}`);
 
                             // --------------------------
@@ -355,20 +349,15 @@ class ProductView extends WCBase
 
                             this.loadProducts();
                         })
-                        .catch(error => {
-
-                            console.log(`addProduct response fail: ${error}`);
-
-                        });
+                        .catch(error => { console.log(`addProduct response fail: ${error}`); });
                 }
                 else
                 {
                     console.log(`Add proper data and image file`);
                 }
-
-
             }
         );
+
         //this.mToken = localStorage.getItem('token');
 
         //if ( ! this.mToken  )
@@ -376,37 +365,27 @@ class ProductView extends WCBase
             this.mToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGRldi5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJBRE1JTiJ9XSwiaWF0IjoxNjEwNjcxNDQzLCJleHAiOjE2MTE1MzU0NDN9.DN1lz-DrZVTBvCHJnM81nNYCxWle-IaWPdAlQgfan6o';
         //}
 
-        FileCache.setToken(this.mToken);
-
+        // FileCache.setToken(this.mToken);
         this.loadProducts();
-
     }
 
+    /**
+     * Read products from cache or from server
+     */
     loadProducts()
     {
-        //const data = this.getProducts();
-
-        this
-            .getProducts()
-            .then(data => {
-
-                console.log(`Product response: ${data}`);
-                
-                try {
-                
+        this.getProducts()
+            .then
+            (data => 
+            {    
+                try 
+                {
                     const list = JSON.parse(data);
-
-                    //console.log(`PArsed data: ${list}`);
-
                     if ( list ) this.generateList(list);
-
-                } catch (error) {}
+                } 
+                catch (error) {}
             })
-            .catch(error => {
-
-                console.log(`Could not read products: ${error}`);
-
-            });
+            .catch(error => { console.log(`Could not read products: ${error}`); });
     }
 
     /**
@@ -417,21 +396,14 @@ class ProductView extends WCBase
     compileDto()
     {
         const name = this.mNameInput.value;
-        const amount = 1.0;
         const productCategory = ProductView.selectValue(this.mCategoryInput);
-        const measureUnit = ProductView.selectValue(this.mMeasureUnitInput);
         const hasAllergens = this.mHasAllergensInput.checked;
         const hasEggs = this.mHasEggsInput.checked;
         const hasNuts = this.mHasNutsInput.checked;
         const hasLactose = this.mHasLactoseInput.checked;
         const hasGluten = this.mHasGlutenInput.checked;
-        const userId = 2;
 
-        if 
-        ( 
-            name.length === 0 ||
-            userId === null
-        )
+        if ( name.length === 0 || productCategory.length === 0 )
         {
             return null;
         }
@@ -439,23 +411,15 @@ class ProductView extends WCBase
         const dataObject =
         {
             name,
-            amount,
             productCategory,
-            measureUnit,
             hasAllergens,
             hasEggs,
             hasNuts,
             hasLactose,
-            hasGluten,
-            userId
+            hasGluten
         };
 
-        return { 
-
-            title: 'product',
-            data: JSON.stringify(dataObject)
-
-        };
+        return { title: 'product', data: JSON.stringify(dataObject) };
     }
 
     /**
@@ -479,89 +443,70 @@ class ProductView extends WCBase
         return elem.options[elem.selectedIndex].value;
     }
 
+    /**
+     * Generates the product list
+     * 
+     * @param {array} list 
+     */
     generateList(list)
     {
-        console.log(`Product amount: ${list.length}`);
-
         deleteChildren(this.mProductList);
         this.mProductObjects = [];
 
-        if ( Array.isArray(list) ) for (const item of list)
+        if ( Array.isArray(list) )
         {
-            const id = item.id;
-            const name = item.name;
-            const amount = item.amount ? item.amount : 1.0;
-            const measureUnit = item.measureUnit;
-            const productCategory = item.productCategory;
-           
-            // - Add a product reference
-            this.mProductObjects.push
-            (new ProductDto(
-                id, name, amount, measureUnit, productCategory
-            ));
-
-            console.log(`Generates item: ${name}`);
-
-            const 
-            imgElem = newTagClass("img", "list__thumbnail");
-            
-            if ( item.imageFile !== null )
+            window.dispatchEvent(new CustomEvent("product-list", {detail: list}));
+            for (const item of list)
             {
-                console.log(`Image file is present`);
-                imgElem.src = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
-            }
+                const id = item.id;
+                const name = item.name;
+                const productCategory = item.productCategory;
+            
+                // - Add a product reference
+                this.mProductObjects.push( { id, name, productCategory } );
 
-            console.log(`Image element: ${imgElem}`);
-
-            // -------------------------------------
-            // - Generate a remove button for this 
-            // - Product Item
-            // -------------------------------------
-
-            const 
-            removeButton = newTagClass("button", "uploader__button--remove");
-            removeButton.addEventListener
-            (
-                "click",
-                e =>
+                const imgElem = newTagClass("img", "list__thumbnail");
+                
+                if ( item.imageFile !== null )
                 {
-                    this.removeProduct(id);
+                    console.log(`Image file is present`);
+                    imgElem.src = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
                 }
-            );
 
-            this.mProductList.appendChild
-            (
-                newTagClassChildren
+                // -------------------------------------
+                // - Generate a remove button for this 
+                // - Product Item
+                // -------------------------------------
+
+                const 
+                removeButton = newTagClass("button", "uploader__button--remove");
+                removeButton.addEventListener( "click", e => { this.removeProduct(id); } );
+
+                // ---------------------------------------
+                // - Setup a new row into the product list
+                // ---------------------------------------
+
+                this.mProductList.appendChild
                 (
-                    "div",
-                    "list__item",
-                    [
-                        imgElem,
-                        newTagClassHTML
-                        (
-                            "p",
-                            "list__paragraph",
-                            `${name}, ${productCategory}, ${id}`
-                        ),
-                        removeButton
-                    ]
-                )
-            );
+                    newTagClassChildren
+                    (
+                        "div",
+                        "list__item",
+                        [
+                            imgElem,
+                            newTagClassHTML
+                            (
+                                "p",
+                                "list__paragraph",
+                                `${name}, ${productCategory}, ${id}`
+                            ),
+                            removeButton
+                        ]
+                    )
+                );
+            }
         }
-
-        console.log(`Items in list ready`);
     }
-
-    // ---------------------------------------------
-    // - HTTP Request methods
-    // - --------------------
-    // - (1) getRecipes
-    // - (2) addRecipe
-    // - (3) addStepByStep
-    // - (4) updateStepByStep
-    // - (5) removeStepByStep
-    // ----------------------------------------------
-    
 
     /**
      * Builds and executes the getProducts HTTP Request
@@ -570,7 +515,6 @@ class ProductView extends WCBase
     getProducts()
     {         
         return FileCache.getCached(PRODUCT_URL);
-        //return FileCache.getRequest(PRODUCT_URL);
     }
 
     /**
