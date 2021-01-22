@@ -126,6 +126,22 @@ const MEALTYPES_ENUM =
     'BEVERAGES'    
 ];
 
+const PRODUCT_CATEGORY_ENUM =
+[
+    'FRUITS',
+    'VEGETABLES',
+    'BREAD_AND_PASTRY',
+    'SPICES',
+    'MEAT',
+    'DAIRY',
+    'SEAFOOD',
+    'OTHERS',
+    'FROZEN_AND_CONVENIENCE',
+    'GRAINS',
+    'DRINKS',
+    'NONE'
+];
+
 // ---------------------------------------
 // - HTTP Request constants
 // ---------------------------------------
@@ -144,9 +160,11 @@ export
      props,
      MEASURE_UNIT_ENUM,
      MEALTYPES_ENUM,
+     PRODUCT_CATEGORY_ENUM,
      LOGIN_URL,
      LOGOUT_URL,
      RECIPE_URL,
      PRODUCT_URL,
+     FRIDGE_PRODUCT_URL,
      STEP_BY_STEP_URL
 };
