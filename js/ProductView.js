@@ -49,9 +49,8 @@ template.innerHTML =
       <option value='NONE'>none</option>
     </select>
 
-    <label class='uploader__label--text'>Nutritional info
-      <input class='uploader__input product_nutritional_info' type='text'>
-    </label>
+    <label class='uploader__label--text'>Nutritional info</label>
+    <input class='uploader__input product_nutritional_info' type='text'>
 
     <!-- Checkbox options -->
 
@@ -149,9 +148,13 @@ class ProductView extends WCBase
             height: 100vh;
         }
         .uploader__label--text,
+        .uploader__label--file,
         .uploader__label--select {
             display: block;
-            height: ${props.lineHeight};
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            height: 24px;
         }
         .uploader__checkboxgroup {
             border: 1px solid ${props.lightgrey};
@@ -185,12 +188,18 @@ class ProductView extends WCBase
             height: ${props.checkmark_height};
             width: ${props.checkmark_width};
             background-color: ${props.disabled};
+            background-image: url('assets/icon_cancel');
+            background-origin: content-box;
+            background-repeat: no-repeat;
+            background-position-x: left;
+            transition: background-position .15s ease-in-out, background-color .5s ease-in-out;
         }
         .uploader__label--checkbox:hover ~ .uploader__checkmark {
             background-color: ${props.lightgrey};
         }
         .uploader__label--checkbox .uploader__checkbox:checked ~ .uploader__checkmark {
             background-color: ${props.red};
+            background-position-x: right;
         }
         /* Checkmark indicator when not checked */
         .uploader__checkmark:after {
@@ -204,25 +213,27 @@ class ProductView extends WCBase
         }
         /* Style the checkmark */
         .uploader__label--checkbox .uploader__checkmark:after {
-            left: 9px;
-            top: 5px;
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 3px 3px 0;
-            transform: rotate(45deg);
+            background-position-x: right;
         }
-        .uploader__input {
+        .uploader__input,
+        .uploader__select {
             height: ${props.lineHeight};
+            margin-bottom: 12px;
         }
         .uploader__button {
+            cursor: pointer;
+            border-radius: 4px;
             margin-top: 16px;
-            font-weight: 200;
+            font-size: ${props.header_font_size};
+            font-weight: 300;
             height: ${props.lineHeight};
-            color: ${props.buttonColor};
-            background-color: ${props.buttonBg};
+            color: #fff;
+            background-color: ${props.red};
         }
         .uploader__button--remove {
+            cursor: pointer;
+            position: absolute;
+            right: 0;
             margin: 16px;
             width: 32px;
             height: 32px;
@@ -241,8 +252,15 @@ class ProductView extends WCBase
             display: flex;
             height: 64px;
         }
+        .list__paragraph {
+            text-align: center;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            margin: 16px;
+            height: 32px;
+        }
         .list__thumbnail {
-
             margin: 8px;
             width: 48px;
             height: 48px;
