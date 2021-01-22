@@ -134,7 +134,8 @@ const API_URL = 'http://localhost:8080';
 const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
 const RECIPE_URL = `${API_URL}/recipe`;
-const PRODUCT_URL = `${API_URL}/product/fridge`;
+const PRODUCT_URL = `${API_URL}/product`;
+const FRIDGE_PRODUCT_URL = `${PRODUCT_URL}/fridge`;
 const STEP_BY_STEP_URL = `${RECIPE_URL}/sbs`;
 
 export 
