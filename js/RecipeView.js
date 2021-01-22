@@ -1,4 +1,4 @@
-import { WCBase, props, RECIPE_URL, PRODUCT_URL } from './WCBase.js';
+import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, newTagClassAttrs, numberInputClass, selectClassIdOptionList } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -15,6 +15,14 @@ template.innerHTML =
     <label  class='uploader__label--file'>Image
       <input  class='uploader__input  recipe_image' type='file'>
     </label>
+
+    <label  class='uploader__label'>Preparation time</label>
+      <input class='uploader__input recipe_preparation_time' type='number'>
+
+    <label  class='uploader__label'>Age in months</label>
+      <input class='uploader__input recipe_age' type='number'>
+
+
     <label  class='uploader__label--select'>Add Ingredient:
         <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
         </select>
@@ -22,6 +30,35 @@ template.innerHTML =
 
     <div class='uploader__list ingredients'>
     </div>
+
+    <label for='instructions'  class='uploader__label--text'>Instructions</label>
+    <textarea class='uploader__textarea recipe_instructions' name='instructions' rows="8"></textarea>
+    
+    <label class='uploader__label--checkbox'>Fingerfood
+        <input class='uploader__checkbox fingerfood' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>
+    <label class='uploader__label--checkbox'>Cook
+        <input class='uploader__checkbox cook' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>
+    <label class='uploader__label--checkbox'>Has Eggs
+        <input class='uploader__checkbox has_eggs' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>
+    <label class='uploader__label--checkbox'>Has Nuts
+        <input class='uploader__checkbox has_nuts' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>
+    <label class='uploader__label--checkbox'>Has Lactose
+        <input class='uploader__checkbox has_lactose' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>
+    <label class='uploader__label--checkbox'>Has Gluten
+        <input class='uploader__checkbox has_gluten' type='checkbox'>
+        <span class='uploader__checkmark'></span>
+    </label>            
+
 
     <label  class='uploader__label--select'>Season</label>
     <select class='uploader__select recipe_season' name='season'>
@@ -77,8 +114,17 @@ template.innerHTML =
         </label>
     </div>
 
+    <label  class='uploader__label--text'>Storage info</label>
+    <input  class='uploader__input  recipe_storage' type='text'>
+  
+    <label  class='uploader__label--text'>Tips</label>
+    <input  class='uploader__input  recipe_tips' type='text'>
+  
+    <label  class='uploader__label'>Nutritional value</label>
+    <input  class='uploader__input  recipe_nutritional_value' type='number'>
     <button class='uploader__button add_recipe'>Add</button>
   </div>
+
 
   <!-- Existing recipe frame -->
   <div class='uploader__frame recipe_list'>
@@ -102,6 +148,7 @@ class RecipeView extends WCBase
         this.mToken   = token;
         this.mRecipeObjects = [];
         this.mProductObjects = [];
+        this.mProductMap = {};
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -139,7 +186,7 @@ class RecipeView extends WCBase
             flex-direction: column;
             margin: 16px auto;
             max-width: 600px;
-            height: 100vh;
+            /*height: 100vh;*/
         }
         .uploader__list
         {
@@ -213,11 +260,13 @@ class RecipeView extends WCBase
         .ingredient__button--remove
         {
             margin-left: 4px;
-            margin-top: 4px;
+            margin-top: 2px;
             width: 16px;
             height: 16px;
             background-image: url('assets/icon_cancel');
+            background-repeat: no-repeat;
         }
+        .uploader__label,
         .uploader__label--text,
         .uploader__label--file,
         .uploader__label--select {
@@ -226,11 +275,6 @@ class RecipeView extends WCBase
             font-weight: 200;
             color: #222;
             height: 24px;
-        }
-        .uploader__checkboxgroup {
-            margin-top: 24px;
-            border: 1px solid ${props.lightgrey};
-            margin-left: ${props.checkmark_width};
         }
         .uploader__label--checkbox {
             cursor: pointer;
@@ -287,11 +331,26 @@ class RecipeView extends WCBase
         .uploader__label--checkbox .uploader__checkmark:after {
             background-position-x: right;
         }
+        .uploader__checkboxgroup {
+            margin-top: 24px;
+            border: 1px solid ${props.lightgrey};
+            margin-left: ${props.checkmark_width};
+        }
         .uploader__input,
         .uploader__select {
             height: ${props.lineHeight};
             margin-bottom: 12px;
         }
+        .uploader__textarea {
+            margin-bottom: ${props.lineHeight};
+            height: 100px;
+            padding: 8px;
+            color: #222;
+            font-size: ${props.small_font_size};
+            font-weight: 300;
+            border: 1px solid ${props.lightgrey};
+        }
+
         .uploader__button {
             cursor: pointer;
             border-radius: 4px;
@@ -354,13 +413,43 @@ class RecipeView extends WCBase
 
         this.mTitleInput        = this.shadowRoot.querySelector('.uploader__input.recipe_title');
         this.mFileInput         = this.shadowRoot.querySelector('.uploader__input.recipe_image');
+        this.mPrepTimeInput     = this.shadowRoot.querySelector('.uploader__input.recipe_preparation_time');
+        this.mAgeInput          = this.shadowRoot.querySelector('.uploader__input.recipe_age');
+        
         this.mIngredientsInput  = this.shadowRoot.querySelector('.uploader__select.recipe_ingredients');
         this.mIngredientsList   = this.shadowRoot.querySelector('.uploader__list.ingredients');
+        this.mInstructionsInput = this.shadowRoot.querySelector('.uploader__textarea.recipe_instructions');
+
+        // - Checkboxes
+
+        this.mFingerfoodInput   = this.shadowRoot.querySelector('.uploader__checkbox.fingerfood');
+        this.mCookInput         = this.shadowRoot.querySelector('.uploader__checkbox.cook');
+        this.mHasEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
+        this.mHasNutsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_nuts');
+        this.mHasLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
+        this.mHasGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
+
         this.mSeasonInput       = this.shadowRoot.querySelector('.uploader__select.recipe_season');
      
         // - Mealtype checkboxes
 
-        this.mMealtypeBreakfast = this.shadowRoot.querySelector('.uploader__checkbox.breakfast');
+        this.mMealtypeMap =
+        {
+            "BREAKFAST": this.shadowRoot.querySelector('.uploader__checkbox.breakfast'),
+            "LUNCH":     this.shadowRoot.querySelector('.uploader__checkbox.lunch'),
+            "DINNER":    this.shadowRoot.querySelector('.uploader__checkbox.dinner'),
+            "SNACK":     this.shadowRoot.querySelector('.uploader__checkbox.snack'),
+            "DESSERT":   this.shadowRoot.querySelector('.uploader__checkbox.dessert'),
+            "APPETIZER": this.shadowRoot.querySelector('.uploader__checkbox.appetizer'),
+            "SALAD":     this.shadowRoot.querySelector('.uploader__checkbox.salad'),
+            "SOUP":      this.shadowRoot.querySelector('.uploader__checkbox.soup'),
+            "SMOOTHIE":  this.shadowRoot.querySelector('.uploader__checkbox.smoothie'),
+            "BEVERAGES": this.shadowRoot.querySelector('.uploader__checkbox.beverages')
+        };
+
+        this.mStorageInfoInput  = this.shadowRoot.querySelector('.uploader__input.recipe_storage');
+        this.mTipsInput         = this.shadowRoot.querySelector('.uploader__input.recipe_tips');
+        this.mNutritionInput    = this.shadowRoot.querySelector('.uploader__input.recipe_nutritional_value');
 
         // ------------------------------
         // - Setup button click listeners
@@ -438,6 +527,11 @@ class RecipeView extends WCBase
         );
     }
 
+    /**
+     * Update the internal product list
+     * 
+     * @param {array} products 
+     */
     setProductObjects(products)
     {
         const units = 
@@ -449,7 +543,7 @@ class RecipeView extends WCBase
             "liter"
         ];
 
-        this.mProductObjects = products;
+        //this.mProductObjects = products;
 
         console.log(`Product list received at recipeview, size: ${products.length}`);
 
@@ -479,7 +573,23 @@ class RecipeView extends WCBase
             {
                 const value = e.target.value;
 
-                console.log(`change target: ${value}`);
+                // --------------------------------------
+                // - Go through the objects, find out if
+                // - The the product is chosen
+                // --------------------------------------
+
+                console.log(`Ingredients list children: ${this.mIngredientsList.children.length}`);
+
+                let match = false;
+
+                for (const elem of this.mIngredientsList.children)
+                {
+                    if (elem.getAttribute('data-id') === value)
+                    {
+                        console.log(`The object is already chosen`);
+                        return;
+                    }
+                }
 
                 let product = null;
 
@@ -491,6 +601,12 @@ class RecipeView extends WCBase
                         product = p;
                         break;
                     }
+                }
+
+                if (! product)
+                {
+                    console.log(`The chosen product wasn't in the product object list`);
+                    return;
                 }
 
                 const
@@ -517,16 +633,13 @@ class RecipeView extends WCBase
                             removeButton,
                             newTagClassHTML("div", "ingredient__title", product.name),
                             numberInputClass("ingredient__amount"),
-                            selectClassIdOptionList("div", "ingredient__unit", units)
+                            selectClassIdOptionList("div", "ingredient__unit", MEASURE_UNIT_ENUM)
                         ]
                     ) 
                 );
                 uploaderItem.appendChild(newTagClassHTML("div", "ingredient__category", product.productCategory));
 
-                this.mIngredientsList.appendChild
-                (
-                    uploaderItem
-                );
+                this.mIngredientsList.appendChild( uploaderItem );
             }
         );
     }
@@ -559,17 +672,82 @@ class RecipeView extends WCBase
     }
 
     /**
-     * Returns a recipe dto
+     * Returns a recipe dto from the inputs
      * 
      * @returns {object}
      */
     compileDto()
     {
         const title = this.mTitleInput.value;
+        const preparationTimeInMinutes = this.mPrepTimeInput.value;
+        const monthsOld = this.mAgeInput.value;
+
+        // --------------------------------------
+        // - Ingredients (Products)
+        // --------------------------------------
+
+        const products = [];
+
+        for (const elem of this.mIngredientsList.children)
+        {
+            const id = elem.getAttribute('data-id');
+            const name = elem.querySelector('.ingredient__title').textContent;
+            const amount = elem.querySelector('.ingredient__amount').value;
+            const measureUnit = RecipeView.selectValue(elem.querySelector('.ingredient__unit'));
+            const productCategory = elem.querySelector('.ingredient__category').textContent;;
+            const recipeId = 0;
+            const userId = 1; 
+            if (id) products.push
+            (
+                {
+                    name,
+                    amount,
+                    measureUnit,
+                    productCategory,
+                    userId
+                }
+            );
+        }
+
+        const instructions = this.mInstructionsInput.value;
+
+        // ---------------------------------------
+        // - Checkbox inputs
+        // ---------------------------------------
+
+        const fingerFood = this.mFingerfoodInput.checked;
+        const cook = this.mCookInput.checked;
+        const hasEggs = this.mHasEggsInput.checked;
+        const hasNuts = this.mHasNutsInput.checked;
+        const hasLactose = this.mHasLactoseInput.checked;
+        const hasGluten = this.mHasGlutenInput.checked;
+
+        const season = RecipeView.selectValue(this.mSeasonInput);
+
+        // - Mealtypes
+        const mealTypes = [];
+
+        for (const item of MEALTYPES_ENUM)
+        {
+            if (this.mMealtypeMap[item].checked)
+            {
+                console.log(`Mealtype ${item} checked`);
+                mealTypes.push({name:item});
+            }
+        }
+
+        const storageInfo = this.mStorageInfoInput.value;
+        const tips = this.mTipsInput.value;
+        const nutritionalValue = this.mNutritionInput.value;
+        const hasStapByStep = false;
 
         if 
         ( 
-            title.length === 0 
+            title.length === 0 ||
+            prepTime < 1 ||
+            age < 1 ||
+            instructions.length === 0 ||
+            ingredients.length === 0
         )
         {
             return null;
