@@ -222,6 +222,16 @@ class ProductView extends WCBase
             color: ${props.buttonColor};
             background-color: ${props.buttonBg};
         }
+        .uploader__button--remove {
+            margin: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            background-image: url('assets/icon_cancel.svg');
+        }
         .uploader__response {
             margin: 16px auto;
             color: #f45;
@@ -485,6 +495,22 @@ class ProductView extends WCBase
 
             console.log(`Image element: ${imgElem}`);
 
+            // -------------------------------------
+            // - Generate a remove button for this 
+            // - Product Item
+            // -------------------------------------
+
+            const 
+            removeButton = newTagClass("button", "uploader__button--remove");
+            removeButton.addEventListener
+            (
+                "click",
+                e =>
+                {
+                    this.removeProduct(id);
+                }
+            );
+
             this.mProductList.appendChild
             (
                 newTagClassChildren
@@ -498,7 +524,8 @@ class ProductView extends WCBase
                             "p",
                             "list__paragraph",
                             `${name}, ${productCategory}, ${id}`
-                        )
+                        ),
+                        removeButton
                     ]
                 )
             );
@@ -525,6 +552,7 @@ class ProductView extends WCBase
     getProducts()
     {         
         return FileCache.getCached(PRODUCT_URL);
+        //return FileCache.getRequest(PRODUCT_URL);
     }
 
     /**
@@ -551,7 +579,17 @@ class ProductView extends WCBase
      */
     removeProduct(id)
     {
-        return FileCache.delete(PRODUCT_URL, id);
+        console.log(`Remove product ${id} called`);
+        FileCache
+            .delete(PRODUCT_URL, id)
+            .then(response => {
+                console.log(`Remove prodcut response: ${response}`);
+
+                this.loadProducts();
+            })
+            .catch(error => {
+                console.log(`Remove product exception catched: ${error}`);
+            });
     }
 }
 
