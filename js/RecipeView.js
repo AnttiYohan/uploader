@@ -129,6 +129,7 @@ template.innerHTML =
   <!-- Existing recipe frame -->
   <div class='uploader__frame recipe_list'>
   </div>
+  <button class='uploader__button force_reload'>refresh</button>
 </div>`;
 
 /**
@@ -361,6 +362,19 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
         }
+        .uploader__button--edit {
+            cursor: pointer;
+            position: absolute;
+            right: 48px;
+            margin: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_edit.svg');
+        }
         .uploader__button--remove {
             cursor: pointer;
             position: absolute;
@@ -404,8 +418,10 @@ class RecipeView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton   = this.shadowRoot.querySelector('.uploader__button.add_recipe');
+        this.mRootElement   = this.shadowRoot.querySelector('.uploader');
+        this.mAddButton     = this.shadowRoot.querySelector('.uploader__button.add_recipe');
+        this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button.force_reload');
+        this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
 
         // ------------------
         // - Input references
@@ -452,6 +468,7 @@ class RecipeView extends WCBase
         this.mNutritionInput    = this.shadowRoot.querySelector('.uploader__input.recipe_nutritional_value');
 
         // ------------------------------
+        // ------------------------------
         // - Setup button click listeners
         // ------------------------------
 
@@ -474,33 +491,31 @@ class RecipeView extends WCBase
 
                 if ( dto && imageFile )
                 {
-                    this
-                        .addRecipe(dto, imageFile)
-                        .then(response => {
-
+                    this.addRecipe(dto, imageFile)
+                        .then(response => 
+                        {
                             console.log(`addRecipe response ok: ${response}`);
-
-                            // --------------------------
-                            // - Cache cleared, 
-                            // - Read all from server
-                            // --------------------------
-
                             this.loadRecipes();
                         })
-                        .catch(error => {
-
+                        .catch(error => 
+                        {
                             console.log(`addRecipe response fail: ${error}`);
-
                         });
                 }
                 else
                 {
                     console.log(`Add proper data and image file`);
                 }
-
-
             }
         );
+
+        this.mRefreshButton.addEventListener
+        ("click", e => 
+        {
+             FileCache.clearCache(RECIPE_URL);
+             this.loadRecipes(); 
+        });
+
         //this.mToken = localStorage.getItem('token');
 
         //if ( ! this.mToken  )
@@ -510,7 +525,8 @@ class RecipeView extends WCBase
 
         //FileCache.setToken(this.mToken);
 
-        //this.loadRecipes();
+        this.loadRecipes();
+
         window.addEventListener
         (
             "product-list", 
@@ -534,19 +550,7 @@ class RecipeView extends WCBase
      */
     setProductObjects(products)
     {
-        const units = 
-        [
-            "gr",
-            "tsp",
-            "tbsp",
-            "ml",
-            "liter"
-        ];
-
-        //this.mProductObjects = products;
-
         console.log(`Product list received at recipeview, size: ${products.length}`);
-
         deleteChildren(this.mIngredientsInput);
 
         for (const product of products)
@@ -579,8 +583,6 @@ class RecipeView extends WCBase
                 // --------------------------------------
 
                 console.log(`Ingredients list children: ${this.mIngredientsList.children.length}`);
-
-                let match = false;
 
                 for (const elem of this.mIngredientsList.children)
                 {
@@ -633,7 +635,7 @@ class RecipeView extends WCBase
                             removeButton,
                             newTagClassHTML("div", "ingredient__title", product.name),
                             numberInputClass("ingredient__amount"),
-                            selectClassIdOptionList("div", "ingredient__unit", MEASURE_UNIT_ENUM)
+                            selectClassIdOptionList("ingredient__unit", "", MEASURE_UNIT_ENUM)
                         ]
                     ) 
                 );
@@ -679,7 +681,7 @@ class RecipeView extends WCBase
     compileDto()
     {
         const title = this.mTitleInput.value;
-        const preparationTimeInMinutes = this.mPrepTimeInput.value;
+        const prepareTimeInMinutes = this.mPrepTimeInput.value;
         const monthsOld = this.mAgeInput.value;
 
         // --------------------------------------
@@ -690,21 +692,22 @@ class RecipeView extends WCBase
 
         for (const elem of this.mIngredientsList.children)
         {
-            const id = elem.getAttribute('data-id');
+            const systemProductId = elem.getAttribute('data-id');
             const name = elem.querySelector('.ingredient__title').textContent;
             const amount = elem.querySelector('.ingredient__amount').value;
             const measureUnit = RecipeView.selectValue(elem.querySelector('.ingredient__unit'));
             const productCategory = elem.querySelector('.ingredient__category').textContent;;
             const recipeId = 0;
             const userId = 1; 
-            if (id) products.push
+            if ( systemProductId ) products.push
             (
                 {
                     name,
                     amount,
                     measureUnit,
                     productCategory,
-                    userId
+                    userId,
+                    systemProductId
                 }
             );
         }
@@ -714,9 +717,11 @@ class RecipeView extends WCBase
         // ---------------------------------------
         // - Checkbox inputs
         // ---------------------------------------
+        const hasStepByStep = false;
 
         const fingerFood = this.mFingerfoodInput.checked;
-        const cook = this.mCookInput.checked;
+        const hasToCook = this.mCookInput.checked;
+        const hasAllergens = false;
         const hasEggs = this.mHasEggsInput.checked;
         const hasNuts = this.mHasNutsInput.checked;
         const hasLactose = this.mHasLactoseInput.checked;
@@ -736,18 +741,23 @@ class RecipeView extends WCBase
             }
         }
 
+        // ---------------------------------------------
+        // - Optional fields
+        // ----------------------------------------------
+
         const storageInfo = this.mStorageInfoInput.value;
+        const interestingInfo = 'default';
         const tips = this.mTipsInput.value;
-        const nutritionalValue = this.mNutritionInput.value;
-        const hasStapByStep = false;
+        const nutritionValue = this.mNutritionInput.value;
+
 
         if 
         ( 
             title.length === 0 ||
-            prepTime < 1 ||
-            age < 1 ||
+            prepareTimeInMinutes < 1 ||
+            monthsOld < 1 ||
             instructions.length === 0 ||
-            ingredients.length === 0
+            products.length === 0
         )
         {
             return null;
@@ -755,15 +765,28 @@ class RecipeView extends WCBase
 
         const dataObject =
         {
-            title
+            title,
+            instructions,
+            prepareTimeInMinutes,
+            monthsOld,
+            season,
+            mealTypes,
+            interestingInfo,
+            tips,
+            storageInfo,
+            fingerFood,
+            hasStepByStep,
+            products,
+            nutritionValue,
+            hasToCook,
+            hasAllergens,
+            hasEggs,
+            hasNuts,
+            hasLactose,
+            hasGluten
         };
 
-        return { 
-
-            title: 'recipe',
-            data: JSON.stringify(dataObject)
-
-        };
+        return { title: 'recipe', data: JSON.stringify(dataObject) };
     }
 
     /**
@@ -789,27 +812,27 @@ class RecipeView extends WCBase
 
     generateList(list)
     {
-        console.log(`Product amount: ${list.length}`);
+        console.log(`RecipeView::generateList() -- Recipe amount: ${list.length}`);
 
         deleteChildren(this.mRecipeList);
         this.mRecipeObjects = [];
 
-        if ( Array.isArray(list) ) for (const item of list)
+        for (const recipe of list)
         {
-            const id = item.id;
-            const title = item.title;
+            const id = recipe.id;
+            const title = recipe.title;
            
-            // - Add a product reference
-            this.mRecipeObjects.push
-            ({title});
+            console.log(`Generating recipe list id: ${id}, title: ${title}`);
 
-            const 
-            imgElem = newTagClass("img", "list__thumbnail");
+            // - Add a product reference
+            this.mRecipeObjects.push({title});
+
+            const imgElem = newTagClass("img", "list__thumbnail");
             
-            if ( item.imageFile !== null )
+            if ( recipe.image !== null )
             {
                 console.log(`Image file is present`);
-                imgElem.src = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
+                imgElem.src = `data:${recipe.image.fileType};base64,${recipe.image.data}`;
             }
 
             console.log(`Image element: ${imgElem}`);
@@ -841,7 +864,7 @@ class RecipeView extends WCBase
                 }
             );
 
-            this.mRecipetList.appendChild
+            this.mRecipeList.appendChild
             (
                 newTagClassChildren
                 (
@@ -853,7 +876,7 @@ class RecipeView extends WCBase
                         (
                             "p",
                             "list__paragraph",
-                            `${title}, ${productCategory}, ${id}`
+                            `${title}, ${id}`
                         ),
                         editButton,
                         removeButton
@@ -862,9 +885,28 @@ class RecipeView extends WCBase
             );
         }
 
-        console.log(`Items in list ready`);
+        console.log(`RecipeView()Items in list ready`);
     }
 
+   /**
+    * Read recipes from cache or from server
+    */
+    loadRecipes()
+    {
+        this.getRecipes()
+            .then
+            (data => 
+            {    
+                console.log(`LoadRecipes(): ${data}`);
+                try 
+                {
+                    const list = JSON.parse(data);
+                    if ( list ) this.generateList(list);
+                } 
+                catch (error) {}
+            })
+            .catch(error => { console.log(`Could not read recipes: ${error}`); });
+    }
     // ---------------------------------------------
     // - HTTP Request methods
     // - --------------------
