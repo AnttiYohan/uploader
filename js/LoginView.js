@@ -1,4 +1,4 @@
-import { WCBase, props } from './WCBase.js';
+import { WCBase, props, LOGIN_URL } from './WCBase.js';
 
 const 
 template = document.createElement("template");

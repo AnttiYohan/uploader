@@ -1,33 +1,21 @@
-import ProductDto from './ProductDto.js';
 
 /**
  * Recipe Data Transfer Object Class
  */
-export class RecipeDto
+class RecipeDto
 {
-    constructor(name, season, mealTypes, hasGluten, hasEgg)
+    constructor
+    (
+        pTitle,
+        pInstructions,
+        pFingerFood
+    )
     {
-        this.mProducts  = [];
+        this.title = pTitle;
+        this.instructions = pInstructions;
+        this.season = pSeason;
 
-        this.mName      = name;
-        this.mSeason    = season;
-    
-        // -----------------------------
-        // - Create array of mealtype
-        // - objects
-        // -----------------------------
-
-        if (Array.isArray(mealTypes)) for (const mealType of mealTypes)
-        {
-            this.mMealTypes.push({name: mealType});
-        }
-
-        // -----------------------------
-        // - Boolean properties
-        // -----------------------------
-
-        this.mHasGluten = hasGluten;
-        this.mHasEgg    = hasEgg;
+        this.products = [];
     }
 
     /**
@@ -36,7 +24,7 @@ export class RecipeDto
      */
     addProduct(productDto)
     {
-        this.mProducts.push(prodcutDto);
+        this.products.push(prodcutDto);
     }
 
     get name()
@@ -62,3 +50,5 @@ export class RecipeDto
     }
 
 }
+
+export { RecipeDto }

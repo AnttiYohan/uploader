@@ -18,7 +18,7 @@ template.innerHTML =
     <select class='uploader__select product_category' name='product_category'>
       <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
       <option value='FRUITS'>Fruits</option>
-      <option value='VEGETABLES'>Fruits</option>
+      <option value='VEGETABLES'>Vegetables</option>
       <option value='SPICES'>Spices</option>
       <option value='GRAINS'>Grains</option>
       <option value='DAIRY'>Dairy</option>

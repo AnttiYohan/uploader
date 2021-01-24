@@ -1,5 +1,15 @@
 import { WCBase, props, RECIPE_URL, STEP_BY_STEP_URL } from './WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, setSelectedIndex } from './util/elemfactory.js';
+import 
+{ 
+    newTagClass, 
+    newTagClassChildren, 
+    newTagClassHTML, 
+    deleteChildren, 
+    setSelectedIndex, 
+    inputClassValue, 
+    numberInputClass,
+    fileInputClass 
+} from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
 const 
@@ -46,8 +56,14 @@ template.innerHTML =
 
     <!-- Step by step list -->
 
-    <div class='editor__division'></div>
-    <h3  class='editor__subheader'>Steps</h3>
+    <div class='editor__division'>
+    </div>
+    <div class='editor__rowset'>
+      <h3  class='editor__subheader'>Steps</h3>
+      <button class='editor__button--new new_recipe_step'></button>
+    </div>
+    <div class='step__editor'>
+    </div>
     <div class='step__frame'>
     </div>
 
@@ -271,6 +287,26 @@ class RecipeEditor extends WCBase
             background-color: ${props.green};
             background-image: url('assets/icon_update.svg');
         }
+        .editor__button--new {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_add_circle.svg');
+        }
+        .editor__button--save {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            background-image: url('assets/icon_save.svg');
+        }
         .editor__response {
             margin: 16px auto;
             color: #f45;
@@ -283,7 +319,9 @@ class RecipeEditor extends WCBase
         .step__rowset {
             display: flex;
             flex-direction: row;
-            height: ${props.lineHeight};
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .step__box {
             border: 4px solid #fff;
@@ -293,7 +331,30 @@ class RecipeEditor extends WCBase
             font-weight: 200;
             color: #222;
             width: 32px;
-            height: 32px;
+            height
+        }
+        .step__label {
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            height: ${props.lineHeight};
+        }
+        .step__input {
+            font-size: ${props.small_font_size};
+            font-weight: 300;
+            color: #222;
+            outline: none;
+            background: transparent;
+            border-bottom: 2px solid ${props.darkgrey};
+        }
+        .step__button--delete
+        {
+            margin-left: 4px;
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+            background-image: url('assets/icon_cancel');
+            background-repeat: no-repeat;
         }
         .editor__image {
             width: 32px;
@@ -303,6 +364,8 @@ class RecipeEditor extends WCBase
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
+        this.mIsStepEditorOpen = false;
+
         // ---------------------------
         // - Save element references
         // ---------------------------
@@ -310,9 +373,23 @@ class RecipeEditor extends WCBase
         this.mRootElement = this.shadowRoot.querySelector('.editor');
         this.mResetButton = this.shadowRoot.querySelector('.editor__button--reset');
         this.mRecipeImage = this.shadowRoot.querySelector('.editor__image.recipe_image');
+        this.mStepEditor  = this.shadowRoot.querySelector('.step__editor');
         this.mStepList    = this.shadowRoot.querySelector('.step__frame');
         this.mProductList = this.shadowRoot.querySelector('.product__frame');
 
+        this.mNewStepButton = this.shadowRoot.querySelector('.editor__button--new.new_recipe_step');
+        this.mNewStepButton.addEventListener
+        (
+            "click",
+            e =>
+            {
+                if ( ! this.mIsStepEditorOpen )
+                {
+                    this.openStepEditor();
+                }
+            }
+        );
+        
         // ---------------------------
         // - Input references
         // ---------------------------
@@ -425,7 +502,202 @@ class RecipeEditor extends WCBase
         this.mTipsInput        = recipeDto.tips;
         this.mNutritionInput   = recipeDto.nutritionValue;
         this.mInterestingInfo  = recipeDto.interestingInfo;
+
+        this.initProducts(recipeDto.products);
         
+    }
+
+    /**
+     * -------------------------
+     * Opens the New Step Editor
+     * -------------------------
+     */
+    openStepEditor()
+    {
+        this.mIsStepEditorOpen = true;
+
+        // -----------------------------
+        // - Text row
+        // -----------------------------
+
+        const textInput = inputClassValue("step__input", "text");
+
+        this.mStepEditor.appendChild
+        (
+            newTagClassChildren
+            (
+                "div",
+                "step__rowset",
+                [
+                    newTagClassHTML("p", "step__label", "Text"),
+                    textInput
+                ]
+            )
+        );
+
+        // -----------------------------
+        // - Step number row
+        // -----------------------------
+
+        const stepNumberInput = numberInputClass("step__input");
+
+        this.mStepEditor.appendChild
+        (
+            newTagClassChildren
+            (
+                "div",
+                "step__rowset",
+                [
+                    newTagClassHTML("p", "step__label", "Step number"),
+                    stepNumberInput
+                ]
+            )
+        );
+
+        // -----------------------------
+        // - Image row
+        // -----------------------------
+
+        const imageFileInput = fileInputClass("step__input");
+                
+        this.mStepEditor.appendChild
+        (
+            newTagClassChildren
+            (
+                "div",
+                "step__rowset",
+                [
+                    newTagClassHTML("p", "step__label", "Image"),
+                    imageFileInput
+                ]
+            )
+        );
+
+        // -----------------------------
+        // - Add step row
+        // -----------------------------
+
+        const 
+        addStepButton = newTagClass("button", "editor__button--save");
+        addStepButton.addEventListener
+        (
+            "click",
+            e => 
+            {
+                // -----------------------------
+                // - Validate inputs
+                // -----------------------------
+                let file = null;
+
+                if ('files' in imageFileInput && imageFileInput.files.length)
+                {
+                    file = imageFileInput.files[0];
+                }
+
+                if 
+                ( 
+                    textInput.value.length &&
+                    stepNumberInput.value,
+                    file
+                )
+                {
+                    this.addStep
+                    (
+                        {
+                            stepNumber: stepNumberInput.value,
+                            text: textInput.value,
+                            image: file
+                        }
+                    );
+                }
+            }
+        );
+
+        this.mStepEditor.appendChild
+        (
+            newTagClassChildren
+            (
+                "div",
+                "step__rowset",
+                [
+                    newTagClassHTML("p", "step__label", "Add step"),
+                    addStepButton
+                ]
+            )
+        );
+
+    }
+
+    /**
+     * Uploads the step and closes the editor
+     * @param {*} step 
+     */
+    addStep(step)
+    {
+        console.log(`Add step: ${step.stepNumber}, ${step.text}`);
+
+        this.generateStepList([step]);
+        deleteChildren(this.mStepEditor);
+        this.mIsStepEditorOpen = false;
+    }
+
+    generateStepList(list)
+    {
+        //deleteChildren(this.mStepList);
+
+        for (const step of list)
+        {
+            const 
+            deleteButton = newTagClass("div", "step__button--delete");
+            deleteButton.addEventListener
+            (
+                "click",
+                e =>
+                {
+                    console.log(`Delete ${step.text}`);
+                }
+            );
+
+            const 
+            imageElement = newTagClass("img", "step__box");
+            imageElement.src = step.image;
+
+            this.mStepList.appendChild
+            (
+                newTagClassChildren
+                (
+                    "div",
+                    "step__rowset",
+                    [
+                        deleteButton,
+                        imageElement,
+                        newTagClassHTML("p", "step__label", `${step.stepNumber}: ${step.text}`)
+                    ]
+                )
+            );
+        }
+    }
+
+    initProducts(products)
+    {
+        console.log(`RecipeEditor::initProducts, amt: ${products.length}`);
+
+        deleteChildren(this.mProductList);
+
+        for (const product of products)
+        {
+            console.log(`Product: ${product.name}`);
+
+            // -----------------------------------
+            // - Append a product item
+            // -----------------------------------
+
+            this.mProductList.appendChild
+            (
+
+            )
+
+        }
     }
 
     // ----------------------------------------------

@@ -598,6 +598,22 @@ function numberInputMinMaxDefault(min, max, defaultValue)
 }
 
 /**
+ * Creates a File Input Element
+ * 
+ * @return {HTMLImageElement} 
+ */
+function fileInputClass(cls = "")
+{
+    const
+    elem = document.createElement("input");
+    elem.setAttribute("type", "file");
+
+    if (cls.length) elem.setAttribute("class", cls);
+
+    return elem;
+}
+
+/**
  * Creates a Checkbox Input Element with class
  * 
  * @param  {string}           cls 
@@ -736,6 +752,7 @@ export
     numberInputClass,
     numberInputMinMaxDefault,
     checkboxClass,
+    fileInputClass,
     deleteChildren,
     selectValue,
     setSelectedIndex
