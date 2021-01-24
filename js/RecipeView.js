@@ -1,5 +1,15 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, newTagClassAttrs, numberInputClass, selectClassIdOptionList } from './util/elemfactory.js';
+import 
+{ 
+    newTagClass, 
+    newTagClassChildren, 
+    newTagClassHTML, 
+    deleteChildren, 
+    newTagClassAttrs, 
+    numberInputClass, 
+    selectClassIdOptionList,
+    setSelectedIndex
+} from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
 const 
@@ -122,6 +132,10 @@ template.innerHTML =
   
     <label  class='uploader__label'>Nutritional value</label>
     <input  class='uploader__input  recipe_nutritional_value' type='number'>
+
+    <label  class='uploader__label--text'>Interesting info</label>
+    <input  class='uploader__input  recipe_interesting_info' type='text'>
+
     <button class='uploader__button add_recipe'>Add</button>
   </div>
 
@@ -129,7 +143,7 @@ template.innerHTML =
   <!-- Existing recipe frame -->
   <div class='uploader__frame recipe_list'>
   </div>
-  <button class='uploader__button force_reload'>refresh</button>
+  <button class='uploader__button--refresh force_reload'>refresh</button>
 </div>`;
 
 /**
@@ -387,6 +401,19 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_cancel.svg');
+        }
+        .uploader__button--refresh {
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            margin: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_refresh.svg');
         }
         .uploader__response {
             margin: 16px auto;
@@ -819,7 +846,7 @@ class RecipeView extends WCBase
 
         for (const recipe of list)
         {
-            const id = recipe.id;
+            const id    = recipe.id;
             const title = recipe.title;
            
             console.log(`Generating recipe list id: ${id}, title: ${title}`);
