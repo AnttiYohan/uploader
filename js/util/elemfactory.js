@@ -716,6 +716,39 @@ function setSelectedIndex(elem, value)
     }
 }
 
+/**
+ * Listens to an image input change event and
+ * when an image file is chosen, adds it as a
+ * thumbnail to an <img> element
+ * 
+ * @param {HTMLFileInputElement} input 
+ * @param {HTMLImageElement}     elem 
+ */
+function setImageFileInputThumbnail(input, elem)
+{
+    input.onchange = e =>
+    {
+        const file = input.files[0];
+
+        if ( file && file.type.startsWith('image/') )
+        {
+            elem.classList.add("obj");
+            elem.file = file;
+
+            const reader = new FileReader();
+            reader.onload = (function(pElem)
+            {
+                return e =>
+                {
+                    pElem.src = e.target.result;
+                }
+            })(elem);
+            
+            reader.readAsDataURL(file);
+        }
+    }
+}
+
 export
 {
     newTag,
@@ -755,5 +788,6 @@ export
     fileInputClass,
     deleteChildren,
     selectValue,
-    setSelectedIndex
+    setSelectedIndex,
+    setImageFileInputThumbnail
 }
