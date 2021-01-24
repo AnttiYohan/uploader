@@ -8,7 +8,8 @@ import
     setSelectedIndex, 
     inputClassValue, 
     numberInputClass,
-    fileInputClass 
+    fileInputClass,
+    setImageFileInputThumbnail
 } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -558,7 +559,35 @@ class RecipeEditor extends WCBase
         // - Image row
         // -----------------------------
 
+        const imageElement = newTagClass("img", "step__box");
         const imageFileInput = fileInputClass("step__input");
+
+        setImageFileInputThumbnail(imageFileInput, imageElement);
+        /*
+        imageFileInput.onchange = e =>
+        {
+            const file = imageFileInput.files[0];
+
+            if ( file && file.type.startsWith('image/') )
+            {
+                console.log(`File type: ${file.type}`);
+            
+
+                imageElement.classList.add("obj");
+                imageElement.file = file;
+
+                const reader = new FileReader();
+                reader.onload = (function(pImg)
+                {
+                    return e =>
+                    {
+                        pImg.src = e.target.result;
+                    }
+                })(imageElement);
+                
+                reader.readAsDataURL(file);
+            }
+        }*/
                 
         this.mStepEditor.appendChild
         (
@@ -567,7 +596,7 @@ class RecipeEditor extends WCBase
                 "div",
                 "step__rowset",
                 [
-                    newTagClassHTML("p", "step__label", "Image"),
+                    imageElement,
                     imageFileInput
                 ]
             )
