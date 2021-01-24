@@ -652,7 +652,7 @@ function selectClassIdOptionList(cls, id, list)
 function optionValueHTML(value)
 {
     const
-    elem = document.createElement("OPTION");
+    elem = document.createElement("option");
     elem.setAttribute("value", value);
     elem.innerHTML = value;
 
@@ -668,6 +668,36 @@ function optionValueHTML(value)
 function deleteChildren(elem)
 {  
     while (elem.firstChild) elem.removeChild(elem.lastChild);
+}
+
+/**
+ * Reads the selected value
+ * 
+ * @param {HTMLOptionElement} elem 
+ */
+function selectValue(elem)
+{
+    return elem.options[elem.selectedIndex].value;
+}
+
+/**
+ * Sets the selected index
+ * 
+ * @param {HTMLSelectElement}   elem
+ * @param {string}              value
+ */
+function setSelectedIndex(elem, value)
+{
+    const length = elem.options.length;
+
+    for (let i = 0; i < length; i++)
+    {
+        if (elem.options[i].value === value)
+        {
+            elem.selectedIndex = i;
+            break;
+        }
+    }
 }
 
 export
@@ -706,5 +736,7 @@ export
     numberInputClass,
     numberInputMinMaxDefault,
     checkboxClass,
-    deleteChildren
+    deleteChildren,
+    selectValue,
+    setSelectedIndex
 }
