@@ -580,6 +580,24 @@ function numberInputClass(cls = "")
 }
 
 /**
+ * Creates a Input Number Element and assigns a value
+ * 
+ * @return {HTMLImageElement} 
+ */
+function numberInputClassValue(cls, value)
+{
+    const
+    elem = document.createElement("input");
+    elem.setAttribute("type", "number");
+
+    if (cls.length) elem.setAttribute("class", cls);
+
+    elem.value = value;
+
+    return elem;
+}
+
+/**
  * Creates a Input Number Element with min|max|defaultValue
  * 
  * @param  {number}           min 
@@ -749,6 +767,26 @@ function setImageFileInputThumbnail(input, elem)
     }
 }
 
+/**
+ * Sets an image to img element
+ */
+function setImageThumbnail(elem, file)
+{
+    elem.classList.add("obj");
+    elem.file = file;
+
+    const reader = new FileReader();
+    reader.onload = (function(pElem)
+    {
+        return e =>
+        {
+            pElem.src = e.target.result;
+        }
+    })(elem);
+    
+    reader.readAsDataURL(file);
+}
+
 export
 {
     newTag,
@@ -783,11 +821,13 @@ export
     inputClassId,
     selectClassIdOptionList,
     numberInputClass,
+    numberInputClassValue,
     numberInputMinMaxDefault,
     checkboxClass,
     fileInputClass,
     deleteChildren,
     selectValue,
     setSelectedIndex,
-    setImageFileInputThumbnail
+    setImageFileInputThumbnail,
+    setImageThumbnail
 }
