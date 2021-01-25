@@ -1,4 +1,5 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
+import { RecipeEditor } from './RecipeEditor.js';
 import 
 { 
     newTagClass, 
@@ -6,7 +7,8 @@ import
     newTagClassHTML, 
     deleteChildren, 
     newTagClassAttrs, 
-    numberInputClass, 
+    numberInputClass,
+    selectValue,
     selectClassIdOptionList,
     setSelectedIndex
 } from './util/elemfactory.js';
@@ -15,16 +17,28 @@ import { FileCache } from './util/FileCache.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='uploader'>
+`<div>
+
+  <!-- The editor is connected here when utilized -->
+
+  <div class='uploader__frame editor_node'>
+  </div>
   <!--header>
     <h3 class='uploader__header'>Recipes</h3>
   </header-->
+
+  <!-- Wrapper for the whole recipe view, display set to none while in editor -->
+  <div class='uploader view_node'>
+
+  <!-- New Recipe Frame -->
   <div class='uploader__frame'>
     <label  class='uploader__label--text'>Title</label>
     <input  class='uploader__input  recipe_title' type='text'>
-    <label  class='uploader__label--file'>Image
+
+    <div class='uploader__row'>
+      <label  class='uploader__label--file'>Image</label>
       <input  class='uploader__input  recipe_image' type='file'>
-    </label>
+    </div>
 
     <label  class='uploader__label'>Preparation time</label>
       <input class='uploader__input recipe_preparation_time' type='number'>
@@ -33,10 +47,11 @@ template.innerHTML =
       <input class='uploader__input recipe_age' type='number'>
 
 
-    <label  class='uploader__label--select'>Add Ingredient:
+    <div class='uploader__row'>
+        <label  class='uploader__label--select'>Add Ingredient:</label>
         <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
         </select>
-    </label>
+    </div>
 
     <div class='uploader__list ingredients'>
     </div>
@@ -70,13 +85,15 @@ template.innerHTML =
     </label>            
 
 
-    <label  class='uploader__label--select'>Season</label>
-    <select class='uploader__select recipe_season' name='season'>
-      <option value='WINTER'>winter</option>
-      <option value='SPRING'>spring</option>
-      <option value='SUMMER'>summer</option>
-      <option value='AUTUMN'>autumn</option>
-    </select>
+    <div class='uploader__row'>
+        <label  class='uploader__label--select'>Season</label>
+        <select class='uploader__select recipe_season' name='season'>
+            <option value='WINTER'>winter</option>
+            <option value='SPRING'>spring</option>
+            <option value='SUMMER'>summer</option>
+            <option value='AUTUMN'>autumn</option>
+        </select>
+    </div>
 
     <label class='uploader__label--text'>Meal types</label>
 
@@ -136,14 +153,22 @@ template.innerHTML =
     <label  class='uploader__label--text'>Interesting info</label>
     <input  class='uploader__input  recipe_interesting_info' type='text'>
 
-    <button class='uploader__button add_recipe'>Add</button>
+    <button class='uploader__button--save add_recipe'></button>
   </div>
 
 
-  <!-- Existing recipe frame -->
-  <div class='uploader__frame recipe_list'>
+  <!-- Existing recipe list wrapper -->
+
+  <div class='uploader__frame'>
+    <div class='uploader__row'>
+      <button class='uploader__button--refresh force_reload'>refresh</button>
+    </div>
+    <div class='uploader__frame recipe_list'>
+    </div>
   </div>
-  <button class='uploader__button--refresh force_reload'>refresh</button>
+
+  </div> <!-- End of recipe view wrapper -->
+
 </div>`;
 
 /**
@@ -164,6 +189,9 @@ class RecipeView extends WCBase
         this.mRecipeObjects = [];
         this.mProductObjects = [];
         this.mProductMap = {};
+
+        this.mAvailableProducts = [];
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -203,6 +231,12 @@ class RecipeView extends WCBase
             max-width: 600px;
             /*height: 100vh;*/
         }
+        .uploader__row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding: 4px;
+        }
         .uploader__list
         {
             margin-top: 24px;
@@ -225,6 +259,7 @@ class RecipeView extends WCBase
             padding: 4px;
             display: flex;
             flex-direction: row;
+            justify-content: space-between;
             height: 32px;
         }
         .ingredient__title
@@ -271,7 +306,7 @@ class RecipeView extends WCBase
             text-shadow: 0 2px 10px ${props.blue};
             min-height: 32px;
             padding: 8px;
-        }
+        } 
         .ingredient__button--remove
         {
             margin-left: 4px;
@@ -376,10 +411,18 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
         }
+        .uploader__button--save {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            background-image: url('assets/icon_save.svg');
+        }
         .uploader__button--edit {
             cursor: pointer;
-            position: absolute;
-            right: 48px;
             margin: 16px;
             width: 32px;
             height: 32px;
@@ -389,10 +432,8 @@ class RecipeView extends WCBase
             background-color: ${props.blue};
             background-image: url('assets/icon_edit.svg');
         }
-        .uploader__button--remove {
+        .uploader__button--delete {
             cursor: pointer;
-            position: absolute;
-            right: 0;
             margin: 16px;
             width: 32px;
             height: 32px;
@@ -404,8 +445,6 @@ class RecipeView extends WCBase
         }
         .uploader__button--refresh {
             cursor: pointer;
-            position: absolute;
-            right: 0;
             margin: 16px;
             width: 32px;
             height: 32px;
@@ -422,6 +461,7 @@ class RecipeView extends WCBase
         }
         .list__item {
             display: flex;
+            justify-content: space-between;
             height: 64px;
         }
         .list__paragraph {
@@ -446,8 +486,10 @@ class RecipeView extends WCBase
         // ---------------------------
 
         this.mRootElement   = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton     = this.shadowRoot.querySelector('.uploader__button.add_recipe');
-        this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button.force_reload');
+        this.mViewNode      = this.shadowRoot.querySelector('.view_node');
+        this.mEditorNode    = this.shadowRoot.querySelector('.uploader__frame.editor_node');
+        this.mAddButton     = this.shadowRoot.querySelector('.uploader__button--save.add_recipe');
+        this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
         this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
 
         // ------------------
@@ -552,7 +594,18 @@ class RecipeView extends WCBase
 
         //FileCache.setToken(this.mToken);
 
+        // ---------------------------------------------
+        // - Read all recipes from the cache of form the
+        // - Server
+        // ---------------------------------------------
+
         this.loadRecipes();
+
+        // ---------------------------------------------
+        // - Listens to an event from the product view
+        // - That notifies this view with new list of
+        // - Products
+        // ----------------------------------------------
 
         window.addEventListener
         (
@@ -577,6 +630,14 @@ class RecipeView extends WCBase
      */
     setProductObjects(products)
     {
+        // --------------------------------------
+        // - Store available product list so that
+        // - it may be passed to the
+        // - Recipe editor in its entirety
+        // --------------------------------------
+
+        this.mAvailableProducts = products;
+
         console.log(`Product list received at recipeview, size: ${products.length}`);
         deleteChildren(this.mIngredientsInput);
 
@@ -591,10 +652,7 @@ class RecipeView extends WCBase
             );
             option.value = product.id;
 
-            this.mIngredientsInput.appendChild
-            (
-                option
-            );
+            this.mIngredientsInput.appendChild(option);
         }
 
         this.mIngredientsInput.addEventListener
@@ -675,7 +733,7 @@ class RecipeView extends WCBase
 
     loadProducts()
     {
-        //const data = this.getProducts();
+        console.log(`RecipeView::loadProducts()`);
 
         this
             .getProducts()
@@ -687,7 +745,7 @@ class RecipeView extends WCBase
                 
                     const list = JSON.parse(data);
 
-                    //console.log(`PArsed data: ${list}`);
+                    console.log(`PArsed data: ${list}`);
 
                     if ( list ) this.generateList(list);
 
@@ -722,7 +780,7 @@ class RecipeView extends WCBase
             const systemProductId = elem.getAttribute('data-id');
             const name = elem.querySelector('.ingredient__title').textContent;
             const amount = elem.querySelector('.ingredient__amount').value;
-            const measureUnit = RecipeView.selectValue(elem.querySelector('.ingredient__unit'));
+            const measureUnit = selectValue(elem.querySelector('.ingredient__unit'));
             const productCategory = elem.querySelector('.ingredient__category').textContent;;
             const recipeId = 0;
             const userId = 1; 
@@ -754,7 +812,7 @@ class RecipeView extends WCBase
         const hasLactose = this.mHasLactoseInput.checked;
         const hasGluten = this.mHasGlutenInput.checked;
 
-        const season = RecipeView.selectValue(this.mSeasonInput);
+        const season = selectValue(this.mSeasonInput);
 
         // - Mealtypes
         const mealTypes = [];
@@ -832,11 +890,12 @@ class RecipeView extends WCBase
         return null; 
     }
 
-    static selectValue(elem)
-    {
-        return elem.options[elem.selectedIndex].value;
-    }
-
+    /**
+     * Generates the list of existing recipes
+     * --------------------------------------
+     * 
+     * @param {array} list 
+     */
     generateList(list)
     {
         console.log(`RecipeView::generateList() -- Recipe amount: ${list.length}`);
@@ -864,10 +923,10 @@ class RecipeView extends WCBase
 
             console.log(`Image element: ${imgElem}`);
 
-            // -------------------------------------
-            // - Generate a remove button for this 
-            // - Product Item
-            // -------------------------------------
+            // ----------------------------------------
+            // - Create editor button that opens
+            // - up a recipe editor for this recipe
+            // ----------------------------------------
 
             const 
             editButton = newTagClass("button", "uploader__button--edit");
@@ -876,9 +935,15 @@ class RecipeView extends WCBase
                 "click",
                 e =>
                 {
-                    this.editRecipe(id);
+                    this.mViewNode.style.display = 'none';
+                    const editor = new RecipeEditor(recipe, this.mViewNode, this.mAvailableProducts);
+                    this.mEditorNode.appendChild(editor);
                 }
             );
+
+            // ----------------------------------------
+            // - Create button that DELETEs this recipe
+            // ----------------------------------------
 
             const 
             removeButton = newTagClass("button", "uploader__button--remove");
@@ -890,6 +955,11 @@ class RecipeView extends WCBase
                     this.removeRecipe(id);
                 }
             );
+
+            // ----------------------------------------
+            // - Finally add this row into the existing
+            // - Recipes list
+            // ----------------------------------------
 
             this.mRecipeList.appendChild
             (
@@ -917,6 +987,7 @@ class RecipeView extends WCBase
 
    /**
     * Read recipes from cache or from server
+    * --------------------------------------
     */
     loadRecipes()
     {
@@ -947,7 +1018,7 @@ class RecipeView extends WCBase
 
     /**
      * Builds and executes the getProducts HTTP Request
-     * 
+     * ------------------------------------------------
      */
     getRecipes()
     {         
