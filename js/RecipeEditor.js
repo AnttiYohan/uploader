@@ -1,4 +1,6 @@
 import { WCBase, props, RECIPE_URL, STEP_BY_STEP_URL } from './WCBase.js';
+import { StepMenu }    from './StepMenu.js';
+import { ProductMenu } from './ProductMenu.js';
 import 
 { 
     newTagClass, 
@@ -9,7 +11,8 @@ import
     inputClassValue, 
     numberInputClass,
     fileInputClass,
-    setImageFileInputThumbnail
+    setImageFileInputThumbnail,
+    setImageThumbnail
 } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -17,9 +20,10 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<div class='editor'>
-  <!--header>
+  <header>
     <h3 class='editor__header'>Recipe editor</h3>
-  </header-->
+  </header>
+  
   <div class='recipe__frame'>
 
     <!-- basic info -->
@@ -59,22 +63,15 @@ template.innerHTML =
 
     <div class='editor__division'>
     </div>
-    <div class='editor__rowset'>
-      <h3  class='editor__subheader'>Steps</h3>
-      <button class='editor__button--new new_recipe_step'></button>
-    </div>
-    <div class='step__editor'>
-    </div>
-    <div class='step__frame'>
-    </div>
+    <step-menu     class='step_menu'></step-menu>
 
     <!-- Ingredient Product list -->
-
-    <div class='editor__division'></div>
-    <h3  class='editor__subheader'>Steps</h3>
-    <div class='product__frame'>
+    <div class='editor__division'>
     </div>
+    <product-menu class='product_menu'></product-menu>
 
+    <div class='editor__division'>
+    </div>
     <!-- Season Selection -->
 
     <label  class='editor__label'>Season</label>
@@ -130,6 +127,11 @@ template.innerHTML =
             <span class='editor__checkmark'></span>
         </label>
     </div>
+
+    <div class='editor__rowset'>
+      <label class='editor__label'>Exit editor</label>
+      <button class='editor__button--exit'></button>
+    </div>
   </div> <!-- editor__frame -->
 </div>`;
 
@@ -138,7 +140,7 @@ template.innerHTML =
  */
 class RecipeEditor extends WCBase
 {
-    constructor(recipeDto, image)
+    constructor(recipeDto, parentView, availableProducts)
     {
         super();
         
@@ -147,8 +149,8 @@ class RecipeEditor extends WCBase
         // -----------------------------------------------
 
         this.mRecipeDto = recipeDto;
-        this.mImage     = image;
-
+        this.mParentView = parentView;
+        this.mAvailableProducts = availableProducts;
         this.mDisplay = 'flex';
         this.mProductObjects = [];
 
@@ -308,6 +310,16 @@ class RecipeEditor extends WCBase
             background-color: ${props.red};
             background-image: url('assets/icon_save.svg');
         }
+        .editor__button--exit {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            background-image: url('assets/ic_left.svg');
+        }
         .editor__response {
             margin: 16px auto;
             color: #f45;
@@ -363,8 +375,15 @@ class RecipeEditor extends WCBase
         }
         `);
 
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
 
+        window.addEventListener("productmenuconnected", e => 
+        {
+            this.handleProductMenuEvent(e);
+        }, true);
+
+
+
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
         this.mIsStepEditorOpen = false;
 
         // ---------------------------
@@ -374,22 +393,18 @@ class RecipeEditor extends WCBase
         this.mRootElement = this.shadowRoot.querySelector('.editor');
         this.mResetButton = this.shadowRoot.querySelector('.editor__button--reset');
         this.mRecipeImage = this.shadowRoot.querySelector('.editor__image.recipe_image');
-        this.mStepEditor  = this.shadowRoot.querySelector('.step__editor');
-        this.mStepList    = this.shadowRoot.querySelector('.step__frame');
-        this.mProductList = this.shadowRoot.querySelector('.product__frame');
+        this.mStepMenu    = this.shadowRoot.querySelector('.step_menu');
+        this.mProductMenu = this.shadowRoot.querySelector('.product_menu');
 
-        this.mNewStepButton = this.shadowRoot.querySelector('.editor__button--new.new_recipe_step');
-        this.mNewStepButton.addEventListener
-        (
-            "click",
-            e =>
-            {
-                if ( ! this.mIsStepEditorOpen )
-                {
-                    this.openStepEditor();
-                }
-            }
-        );
+        this.mExitButton = this.shadowRoot.querySelector('.editor__button--exit');
+        this.mExitButton.addEventListener
+        ("click", e => 
+        { 
+            this.mParentView.style.display = 'flex';
+            this.remove();
+            delete this;
+        });
+
         
         // ---------------------------
         // - Input references
@@ -423,7 +438,7 @@ class RecipeEditor extends WCBase
         this.mTitleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
         this.mImageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
         this.mPrepareTimeInput  = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
-        this.mAgeInput          = this.shadowRoot.querySelector('.ediotr__input.recipe_age');
+        this.mAgeInput          = this.shadowRoot.querySelector('.editor__input.recipe_age');
         this.mInstructionsInput = this.shadowRoot.querySelector('.editor__input.recipe_instructions');
 
         // ----------------------------
@@ -460,23 +475,31 @@ class RecipeEditor extends WCBase
         this.mStorageInfoInput  = this.shadowRoot.querySelector('.editor__input.recipe_storage');
         this.mTipsInput         = this.shadowRoot.querySelector('.editor__input.recipe_tips');
         this.mNutritionInput    = this.shadowRoot.querySelector('.editor__input.recipe_nutritional_value');
-        this.mInterestingInfo   = this.shadowRoot.querySelector('.editor__input.recipe:interesting_info');
+        this.mInterestingInfo   = this.shadowRoot.querySelector('.editor__input.recipe_interesting_info');
 
+        //this.initTest(recipeDto);
+        //this.initEditor(recipeDto);
     }
 
-    initEditor(recipeDto, image)
+    initTest(dto)
+    {
+        for (let key in dto)
+        {
+            console.log(`Set: ${key}: ${dto[key]}`);
+        }
+    }
+
+    initEditor(recipeDto)
     {
         this.mRecipeDto = recipeDto;
-        this.mImage     = image;
-        // Setup image
-
-        this.mRecipeImage = image;
-        //this.mFileInput.files.push(image);
 
         this.mTitleInput.value = recipeDto.title;
-        this.mPrepareTimeInput = recipeDto.prepareTimeInMinutes;
-        this.mAgeInput = recipeDto.monthsOld;
-        this.mSeasonInput = setSelectedIndex(recipeDto.season);
+        this.mRecipeImage.src = `data:${recipeDto.image.fileType};base64,${recipeDto.image.data}`;
+
+
+        this.mPrepareTimeInput.value = recipeDto.prepareTimeInMinutes;
+        this.mAgeInput.value = recipeDto.monthsOld;
+        setSelectedIndex(this.mSeasonInput, recipeDto.season);
         
         // ----------------------
         // - Parse meal types
@@ -484,8 +507,16 @@ class RecipeEditor extends WCBase
 
         for (const mt of recipeDto.mealTypes)
         {
+            console.log(`Mealtype: ${mt} - ${mt.name}`);
             const keys = Object.keys(mt);
-            this.mMealtypeMap[keys[0]].checked = mt;
+            const key = keys[0];
+            console.log(`Mealtype ${key} : ${mt['name']}`);
+
+            if ( mt.name && mt.name in this.mMealtypeMap)
+            {
+                this.mMealtypeMap[mt.name].checked = true;
+            }
+        
         }
 
         // -----------------------------
@@ -504,8 +535,17 @@ class RecipeEditor extends WCBase
         this.mNutritionInput   = recipeDto.nutritionValue;
         this.mInterestingInfo  = recipeDto.interestingInfo;
 
-        this.initProducts(recipeDto.products);
+        //this.initProducts(recipeDto.products);
         
+        console.log(`ProductMenu: ${this.mProductMenu}`);
+
+        this.mProductMenu.setupProductList(recipeDto.products);
+        this.mProductMenu.setupAvailableProducts(this.mAvailableProducts);
+
+        if (recipeDto.stepBySteps)
+        {
+            this.mStepMenu.setupStepList( recipeDto.stepBySteps);
+        }
     }
 
     /**
@@ -563,31 +603,6 @@ class RecipeEditor extends WCBase
         const imageFileInput = fileInputClass("step__input");
 
         setImageFileInputThumbnail(imageFileInput, imageElement);
-        /*
-        imageFileInput.onchange = e =>
-        {
-            const file = imageFileInput.files[0];
-
-            if ( file && file.type.startsWith('image/') )
-            {
-                console.log(`File type: ${file.type}`);
-            
-
-                imageElement.classList.add("obj");
-                imageElement.file = file;
-
-                const reader = new FileReader();
-                reader.onload = (function(pImg)
-                {
-                    return e =>
-                    {
-                        pImg.src = e.target.result;
-                    }
-                })(imageElement);
-                
-                reader.readAsDataURL(file);
-            }
-        }*/
                 
         this.mStepEditor.appendChild
         (
@@ -763,6 +778,22 @@ class RecipeEditor extends WCBase
 
     }
 
+    connectedCallback()
+    {
+        console.log("RecipeEditor::callback connected");
+
+    }
+
+    disconnectedCallback()
+    {
+        console.log("RecipeView::callback connected");
+    }  
+
+    handleProductMenuEvent(event)
+    {
+        console.log(`onproductmenu event catched, handing by initiating the editor`);
+        this.initEditor(this.mRecipeDto);
+    }
 }
 
 window.customElements.define('recipe-editor', RecipeEditor);
