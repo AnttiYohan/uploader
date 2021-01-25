@@ -1,5 +1,5 @@
 import { WCBase, props } from './WCBase.js';
-import { RecipeEditor } from './RecipeEditor.js';
+/*import { RecipeEditor } from './RecipeEditor.js';*/
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
 
@@ -13,11 +13,11 @@ template.innerHTML =
     <div class='tab__header recipe'>Recipe
     </div>
   </div>
-  <recipe-editor></recipe-editor>
-  <!--
+  <!-- recipe-editor></recipe-editor -->
+  
   <product-view class='view__product'></product-view>
   <recipe-view  class='view__recipe'></recipe-view>
-    -->
+
   </div>`;
 
 /**
