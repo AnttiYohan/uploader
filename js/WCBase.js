@@ -45,15 +45,6 @@ class WCBase extends HTMLElement
         this.mTitle = value;
     }
 
-    connectedCallback()
-    {
-        console.log("EditableField::callback connected");
-    }
-
-    disconnectedCallback()
-    {
-        console.log("EditableField::callback connected");
-    }  
 }
 
 const props = 
