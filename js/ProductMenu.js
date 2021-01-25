@@ -24,7 +24,7 @@ template.innerHTML =
      <select class='editor__select available_products' name='recipe_ingredients'>
      </select>
    </div>
-   <div  class='editor__rowset new_product'>
+   <div  class='editor__frame new_product'>
    </div>
 
     <!-- Edit existing products -->
@@ -224,7 +224,7 @@ class ProductMenu extends WCBase
         // ---------------------------
 
         this.mProductsAvailable = this.shadowRoot.querySelector('.editor__select.available_products');
-        this.mNewProductEntry = this.shadowRoot.querySelector('.editor__rowset.new_product');
+        this.mNewProductEntry = this.shadowRoot.querySelector('.editor__frame.new_product');
         this.mProductList = this.shadowRoot.querySelector('.editor__frame.utilized_products');
 
         const products = 
@@ -256,14 +256,15 @@ class ProductMenu extends WCBase
         ];
 
         //this.setupProductList(products);
-        this.setupAvailableProducts(products);
+        //this.setupAvailableProducts(products);
         
     }
 
     /**
      * Generates the list of already utilized products
+     * -----------------------------------------------
      * 
-     * @param {*} products 
+     * @param {array} products 
      */
     setupProductList(products)
     {
@@ -342,8 +343,12 @@ class ProductMenu extends WCBase
      */
     setupAvailableProducts(products)
     {
+        console.log(`Available product amt: ${products.length}`);
+
         for (const product of products)
         {
+
+            console.log(`Product: ${product.name}`);
             const option = newTagClassAttrs
             (
                 "option", 
@@ -470,7 +475,17 @@ class ProductMenu extends WCBase
     // - Update method section
     // ----------------------------------------------
 
+    connectedCallback()
+    {
+        console.log("ProductMenu::callback connected");
+        //this.dispatchEvent(new CustomEvent("productmenuconnected"));
+        window.dispatchEvent(new CustomEvent("productmenuconnected"));
+    }
 
+    disconnectedCallback()
+    {
+        console.log("ProductMenu::callback connected");
+    }  
 
 }
 
