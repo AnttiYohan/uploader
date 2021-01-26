@@ -76,7 +76,14 @@ const props =
     checkmark_height: "16px",
     checkmark_width: "32px",
     checkmark_label_left: "40px",
-    ingredient_height: "24px"
+    ingredient_height: "24px",
+    admin_bar_height: "48px",
+    admin_bar_bg: "#ffeeee",
+    logo_side: "48px",
+    uploader_max_width: "600px",
+    button_side: "32px",
+    frame_width: "300px",
+    inner_pad: "4px"
 };
 
 // ----------------------------------------
