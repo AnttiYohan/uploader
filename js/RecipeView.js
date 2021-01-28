@@ -400,7 +400,9 @@ class RecipeView extends WCBase
             font-weight: 300;
             border: 1px solid ${props.lightgrey};
         }
-
+        .uploader__iconframe {
+            display: flex;
+        }
         .uploader__button {
             cursor: pointer;
             border-radius: 4px;
@@ -410,6 +412,8 @@ class RecipeView extends WCBase
             height: ${props.lineHeight};
             color: #fff;
             background-color: ${props.red};
+            background-repeat: no-repeat;
+            background-origin_ center;
         }
         .uploader__button--save {
             cursor: pointer;
@@ -420,6 +424,8 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_save.svg');
+            background-repeat: no-repeat;
+            background-origin_ center;
         }
         .uploader__button--edit {
             cursor: pointer;
@@ -431,6 +437,8 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.blue};
             background-image: url('assets/icon_edit.svg');
+            background-repeat: no-repeat;
+            background-origin_ center;
         }
         .uploader__button--delete {
             cursor: pointer;
@@ -442,10 +450,14 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_cancel.svg');
+            background-repeat: no-repeat;
+            background-origin_ center;
         }
         .uploader__button--refresh {
             cursor: pointer;
-            margin: 16px;
+            position: absolute;
+            left: ${props.logo_side};
+            top: 16px;
             width: 32px;
             height: 32px;
             border-radius: 4px;
@@ -453,6 +465,15 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.blue};
             background-image: url('assets/icon_refresh.svg');
+            background-repeat: no-repeat;
+            background-origin_ center;
+        }
+        .mg-vt-left-16
+        {
+            margin-top: 16px;
+            margin-bottom: 16px;
+            margin-left: 16px;
+            margin-right: 0;
         }
         .uploader__response {
             margin: 16px auto;
@@ -476,6 +497,12 @@ class RecipeView extends WCBase
             margin: 8px;
             width: 48px;
             height: 48px;
+        }
+        @media (max-width: ${props.uploader_max_width})
+        {
+            .uploader  {
+                flex-direction: column;
+            }
         }
         `);
 
@@ -584,15 +611,6 @@ class RecipeView extends WCBase
              FileCache.clearCache(RECIPE_URL);
              this.loadRecipes(); 
         });
-
-        //this.mToken = localStorage.getItem('token');
-
-        //if ( ! this.mToken  )
-        //{
-            this.mToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGRldi5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJBRE1JTiJ9XSwiaWF0IjoxNjEwNjcxNDQzLCJleHAiOjE2MTE1MzU0NDN9.DN1lz-DrZVTBvCHJnM81nNYCxWle-IaWPdAlQgfan6o';
-        //}
-
-        //FileCache.setToken(this.mToken);
 
         // ---------------------------------------------
         // - Read all recipes from the cache of form the
@@ -929,7 +947,7 @@ class RecipeView extends WCBase
             // ----------------------------------------
 
             const 
-            editButton = newTagClass("button", "uploader__button--edit");
+            editButton = newTagClass("button", "uploader__button--edit mg-vt-left-16");
             editButton.addEventListener
             (
                 "click",
@@ -946,7 +964,7 @@ class RecipeView extends WCBase
             // ----------------------------------------
 
             const 
-            removeButton = newTagClass("button", "uploader__button--remove");
+            removeButton = newTagClass("button", "uploader__button--delete");
             removeButton.addEventListener
             (
                 "click",
@@ -966,7 +984,7 @@ class RecipeView extends WCBase
                 newTagClassChildren
                 (
                     "div",
-                    "list__item",
+                    "uploader__row",
                     [
                         imgElem,
                         newTagClassHTML
@@ -975,8 +993,15 @@ class RecipeView extends WCBase
                             "list__paragraph",
                             `${title}, ${id}`
                         ),
-                        editButton,
-                        removeButton
+                        newTagClassChildren
+                        (
+                            "div",
+                            "uploader__iconframe",
+                            [
+                                editButton,
+                                removeButton
+                            ]
+                        )
                     ]
                 )
             );
