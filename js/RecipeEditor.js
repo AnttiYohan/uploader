@@ -140,7 +140,7 @@ template.innerHTML =
  */
 class RecipeEditor extends WCBase
 {
-    constructor(recipeDto, parentView, availableProducts)
+    constructor(recipeDto, parent, viewNode, availableProducts)
     {
         super();
         
@@ -149,7 +149,8 @@ class RecipeEditor extends WCBase
         // -----------------------------------------------
 
         this.mRecipeDto = recipeDto;
-        this.mParentView = parentView;
+        this.mParentContext = parent;
+        this.mParentView = viewNode;
         this.mAvailableProducts = availableProducts;
         this.mDisplay = 'flex';
         this.mProductObjects = [];
@@ -415,9 +416,67 @@ class RecipeEditor extends WCBase
             delete this;
         });
 
+        // -----------------------------------------------------------------------------------
+        // - Recipe Title update input/button
+        // -----------------------------------------------------------------------------------
 
         this.mTitleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
-        this.mImageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
+        const titleButton       = this.shadowRoot.querySelector('.editor__button.recipe_title');
+        titleButton.addEventListener
+        ('click', e => 
+        {  
+            if (this.mTitleInput.value.length)
+            {
+                this.updateTitleById(this.mTitleInput.value)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updateTitle response: ${data}`);
+                        //FileCache.clearCache(RECIPE_URL);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updateTitle request error: ${error}`);
+
+                    });
+            }
+        });
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe Image update input/button
+        // -----------------------------------------------------------------------------------
+
+        //this.mImageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
+        const imageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
+        const imageButton       = this.shadowRoot.querySelector('.editor__button.recipe_image');
+        imageButton.addEventListener
+        ('click', e => 
+        {
+            if ('files' in imageInput && imageInput.files.length)
+            {
+                const file = imageInput.files[0];
+
+                this.updateImage(file)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updateImage response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updateImage fail: ${error}`);
+
+                    });
+
+            }
+        });
+
         this.mPrepareTimeInput  = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
         this.mAgeInput          = this.shadowRoot.querySelector('.editor__input.recipe_age');
         this.mInstructionsInput = this.shadowRoot.querySelector('.editor__input.recipe_instructions');
@@ -725,9 +784,28 @@ class RecipeEditor extends WCBase
     // - Update method section
     // ----------------------------------------------
 
-    updateTitle(newTitle)
+    updateTitleById(newTitle)
     {
+        return FileCache.putFieldStringById
+        (
+            RECIPE_URL, 
+            'title', 
+            newTitle, 
+            'recipeId', 
+            this.mRecipeDto.id
+        );
+    }
 
+    updateImage(file)
+    {
+        return FileCache.putImageById
+        (
+            RECIPE_URL,
+            'recipeId',
+            this.mRecipeDto.id,
+            'image',
+            file
+        );
     }
 
     updatePrepareTime(newTime)
