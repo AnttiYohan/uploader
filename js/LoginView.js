@@ -1,15 +1,28 @@
+import { UploaderView } from './UploaderView.js';
+import { deleteChildren } from './util/elemfactory.js';
+import { FileCache } from './util/FileCache.js';
 import { WCBase, props, LOGIN_URL } from './WCBase.js';
 
 const 
 template = document.createElement("template");
 template.innerHTML =
 `<div class='login'>
-  <label class='login__label' for="email">email:</label>
-  <input class='login__input--email'    type='text'     name='email' />
-  <label class='login__label' for="password">password:</label>
-  <input class='login__input--password' type='password' name='password' />
-  <button class='login__button'>login</button>
-  <div class='login__response'></div>
+    <div class='login__rowset root_frame'>
+  
+        <div class='login__frame'>
+            <div class='login__row'>
+                <label class='login__label' for="email">email:</label>
+                <input class='login__input email'    type='text'     name='email' />
+            </div>
+            <div class='login__row'>
+                <label class='login__label' for="password">password:</label>
+                <input class='login__input password' type='password' name='password' />
+            </div>
+        </div>
+        <div class='login__frame'>
+          <button class='login__button'></button>
+        </div>
+    </div>
 </div>`;
 
 /**
@@ -25,8 +38,19 @@ class LoginView extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        this.mToken = '';
+        const token = localStorage.getItem('token');
+        this.mUploaderView = new UploaderView(this, token);
 
+        if (token && token.length)
+        {
+            console.log(`Token found: ${token}`);
+            this.mToken = token;
+            FileCache.setToken(token);
+        }
+        else
+        {
+            console.log(`Token not found`);
+        }
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -51,37 +75,66 @@ class LoginView extends WCBase
         }
         .login {
             display: flex;
+            width: 500px;
+            height: 80vh;
+            margin: 100px auto;
+        }
+        .editor__subheader {
+            font-size: ${props.header_font_size};
+            color: ${props.darkgrey};
+        }
+        .login__division {
+            height: ${props.lineHeight};
+            padding: 8px 0;
+            background-color: ${props.disabled};
+        }
+        .login__frame {
+            display: flex;
             flex-direction: column;
             margin: 16px auto;
-            max-width: 400px;
-            width: 50%;
-            height: fit-content;
+        }
+        .login__rowset {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+        .login__row {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: 48px;
+            padding: 8px;
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .login__label {
-            color: #888;
+            font-size: ${props.text_font_size};
             font-weight: 200;
-            height: ${props.lineHeight};
-        }
-        .login__input {
-            background-color: ${props.inputBg};
-            color: ${props.inputColor};
-            border-bottom: 2px solid ${props.inputBorderGlare};
+            color: #222;
             height: ${props.lineHeight};
         }
         .login__button {
+            margin: 24px 32px;
             cursor: pointer;
-            margin-top: 16px;
-            font-weight: 200;
-            height: ${props.lineHeight};
-            color: ${props.buttonColor};
-            background-color: ${props.buttonBg};
-        }
-        .login__response {
-            margin: 16px auto;
-            color: #f45;
-            font-weight: 200;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            bdeackground-image: url('assets/icon_account.svg');
         }
         `);
+
+        if (token && token.length)
+        {
+            console.log(`Token length: ${token.length}`);
+            this.shadowRoot.appendChild(this.mUploaderView);
+            return;
+        }
+        else
+        {
+            console.log(`Token undefined`);
+        }
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
@@ -99,8 +152,9 @@ class LoginView extends WCBase
         // - Setup login functionality
         // ---------------------------
 
-        const emailInput    = this.shadowRoot.querySelector('.login__input--email');
-        const passwordInput = this.shadowRoot.querySelector('.login__input--password');
+        const mRootFrame    = this.shadowRoot.querySelector('.login__rowset.root_frame');
+        const emailInput    = this.shadowRoot.querySelector('.login__input.email');
+        const passwordInput = this.shadowRoot.querySelector('.login__input.password');
         const button        = this.shadowRoot.querySelector('.login__button');
 
         const context = this;
@@ -152,6 +206,11 @@ class LoginView extends WCBase
             // ------------------------------------
             // - Turn login off
             // ------------------------------------
+            
+            deleteChildren(this.shadowRoot);
+
+            this.shadowRoot.appendChild(this.mUploaderView);
+            
         }
     }
     /**
@@ -172,8 +231,7 @@ class LoginView extends WCBase
 
             const response = await fetch
             (
-                //'https://babyfoodworld.app/perform_login',
-                'http://localhost:8080/perform_login',
+                LOGIN_URL,
                 {
                     method: 'POST',
                     /*credentials: 'include',*/
@@ -188,6 +246,22 @@ class LoginView extends WCBase
         return undefined;
     }
 
+    // ----------------------------------------------
+    // - Update method section
+    // ----------------------------------------------
+
+    connectedCallback()
+    {
+        console.log("LoginView::callback connected");
+    }
+
+    disconnectedCallback()
+    {
+        console.log("LoginView::callback connected");
+    }  
+
 }
 
 window.customElements.define('login-view', LoginView);
+
+export { LoginView };
