@@ -9,6 +9,7 @@ template.innerHTML =
   <!--header>
     <h3 class='uploader__header'>Products</h3>
   </header-->
+  <button class='uploader__button--refresh'></button>
   <div class='uploader__frame'>
     <label  class='uploader__label--text'>Name</label>
     <input  class='uploader__input  product_name' type='text'>
@@ -92,7 +93,7 @@ template.innerHTML =
  */
 class ProductView extends WCBase
 {
-    constructor(token = undefined)
+    constructor(token)
     {
         super();
         
@@ -104,6 +105,12 @@ class ProductView extends WCBase
         this.mToken   = token;
         this.mProductObjects = [];
 
+        console.log(`ProductView::token: ${token}`);
+
+        if (token && token.length)
+        {
+            FileCache.setToken(token);
+        }
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -141,7 +148,7 @@ class ProductView extends WCBase
             flex-direction: column;
             margin: 16px auto;
             max-width: 600px;
-            height: 100vh;
+            width: 300px;
         }
         .uploader__label--text,
         .uploader__label--file,
@@ -184,7 +191,7 @@ class ProductView extends WCBase
             height: ${props.checkmark_height};
             width: ${props.checkmark_width};
             background-color: ${props.disabled};
-            background-image: url('assets/icon_cancel');
+            background-image: url('assets/icon_circle.svg');
             background-origin: content-box;
             background-repeat: no-repeat;
             background-position-x: left;
@@ -225,11 +232,11 @@ class ProductView extends WCBase
             height: ${props.lineHeight};
             color: #fff;
             background-color: ${props.red};
+            background-repeat: no-repeat;
+            background-origin: center;
         }
-        .uploader__button--remove {
+        .product__button--delete {
             cursor: pointer;
-            position: absolute;
-            right: 0;
             margin: 16px;
             width: 32px;
             height: 32px;
@@ -238,6 +245,23 @@ class ProductView extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_cancel.svg');
+            background-repeat: no-repeat;
+            background-origin: center;
+        }
+        .uploader__button--refresh {
+            cursor: pointer;
+            position: absolute;
+            left: ${props.logo_side};
+            top: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_refresh.svg');
+            background-repeat: no-repeat;
+            background-origin: center;
         }
         .uploader__response {
             margin: 16px auto;
@@ -261,6 +285,31 @@ class ProductView extends WCBase
             width: 48px;
             height: 48px;
         }
+        .product__row {
+            width: ${props.frame_width};
+            display: grid;
+            grid-template-columns: 64px auto 48px 48px;
+            margin: auto;
+        }
+        .product__img {
+            width: 48px;
+            height: 48px;
+            margin: 8px;
+        }
+        .product__label {
+            text-align: center;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            margin: 16px;
+            height: 32px;
+        }
+        @media (max-width: ${props.uploader_max_width})
+        {
+            .uploader  {
+                flex-direction: column;
+            }
+        }
         `);
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -272,6 +321,14 @@ class ProductView extends WCBase
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
         this.mAddButton   = this.shadowRoot.querySelector('.uploader__button.add_product');
         this.mProductList = this.shadowRoot.querySelector('.uploader__frame.product_list');
+        
+        const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
+        refreshButton.addEventListener
+        ("click", e => 
+        { 
+            FileCache.clearCache(PRODUCT_URL);
+            this.loadProducts();
+        });
 
         // ------------------
         // - Input references
@@ -358,12 +415,8 @@ class ProductView extends WCBase
             }
         );
 
-        //this.mToken = localStorage.getItem('token');
+        this.mToken = localStorage.getItem('token');
 
-        //if ( ! this.mToken  )
-        //{
-            this.mToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGRldi5jb20iLCJhdXRoIjpbeyJhdXRob3JpdHkiOiJBRE1JTiJ9XSwiaWF0IjoxNjEwNjcxNDQzLCJleHAiOjE2MTE1MzU0NDN9.DN1lz-DrZVTBvCHJnM81nNYCxWle-IaWPdAlQgfan6o';
-        //}
 
         // FileCache.setToken(this.mToken);
         this.loadProducts();
@@ -465,7 +518,7 @@ class ProductView extends WCBase
                 // - Add a product reference
                 this.mProductObjects.push( { id, name, productCategory } );
 
-                const imgElem = newTagClass("img", "list__thumbnail");
+                const imgElem = newTagClass("img", "product__img");
                 
                 if ( item.imageFile !== null )
                 {
@@ -479,7 +532,7 @@ class ProductView extends WCBase
                 // -------------------------------------
 
                 const 
-                removeButton = newTagClass("button", "uploader__button--remove");
+                removeButton = newTagClass("button", "product__button--delete");
                 removeButton.addEventListener( "click", e => { this.removeProduct(id); } );
 
                 // ---------------------------------------
@@ -491,13 +544,13 @@ class ProductView extends WCBase
                     newTagClassChildren
                     (
                         "div",
-                        "list__item",
+                        "product__row",
                         [
                             imgElem,
                             newTagClassHTML
                             (
                                 "p",
-                                "list__paragraph",
+                                "product__label",
                                 `${name}, ${productCategory}, ${id}`
                             ),
                             removeButton
