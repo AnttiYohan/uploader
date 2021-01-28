@@ -78,6 +78,39 @@ class FileCache
     }
 
     /**
+     * Initiates a read to the cache, 
+     * -----------------------------
+     * if not
+     * found, performs a HTTP GET Request
+     * 
+     * @param  {string}  route 
+     * @param  {object}  params
+     * @param  {boolean} useToken
+     * @return {Promise} response 
+     */
+    static getCachedWithParams(route, params, useToken = true)
+    {
+        let serialized = null;
+
+        try {
+         
+            serialized = localStorage.getItem(route);
+        
+        } catch (error) {}
+
+        console.log(`getCached: cache = ${serialized}`);
+
+        if ( ! serialized )
+        {
+            console.log(`Cache was empty, HTTP request initiated`);
+            return FileCache.getRequestWithTokenAndParams(route, params);
+        }
+
+        console.log(`Cache found, return from local store`);
+        return Promise.resolve(serialized);
+    }
+
+    /**
      * Performs a HTTP GET Request
      * with or without Authorization headers and bearer token
      * 
@@ -164,6 +197,60 @@ class FileCache
         }
 
 
+
+        return text;
+    }
+
+        /**
+     * Performs a HTTP GET Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route 
+     * @return {Promise} response
+     */
+    static async getRequestWithTokenAndParams(route, params, useStore = true)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+
+        console.log(`Authorization: ${bearer}`);
+       
+        let path = '';
+        
+        for (let key in params)
+        {
+            path += `/${params[key]}`;
+        }
+
+        console.log(`getRequest Params path: ${path}`);
+
+        const response = await fetch
+        (
+            route + path,
+            {
+                method: 'GET',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                }
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Write cache
+        // -----------------------------------
+
+        if (useStore)
+        {
+            try {
+
+                localStorage.setItem(route, text);
+                console.log(`Cache written - route ${route}, cahce: ${text}`);
+
+            } catch (error){}
+        }
 
         return text;
     }
