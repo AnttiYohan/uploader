@@ -72,16 +72,20 @@ template.innerHTML =
 
     <div class='editor__division'>
     </div>
+
     <!-- Season Selection -->
 
-    <label  class='editor__label'>Season</label>
-    <select class='editor__select recipe_season' name='season'>
-      <option value='WINTER'>winter</option>
-      <option value='SPRING'>spring</option>
-      <option value='SUMMER'>summer</option>
-      <option value='AUTUMN'>autumn</option>
-    </select>
-
+    <div class='editor__selectrow'>
+      <label  class='editor__label'>Season</label>
+      <select class='editor__select recipe_season' name='season'>
+        <option value='WINTER'>winter</option>
+        <option value='SPRING'>spring</option>
+        <option value='SUMMER'>summer</option>
+        <option value='AUTUMN'>autumn</option>
+      </select>
+      <button class='editor__button season'></button>
+    </div>
+      
     <label class='editor__label'>Meal types</label>
 
     <div class='editor__checkboxgroup mealtypes_group'>
@@ -202,6 +206,13 @@ class RecipeEditor extends WCBase
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+            height: 48px;
+            padding: 8px;
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__selectrow {
+            display: grid;
+            grid-template-columns: 128px auto 64px;
             height: 48px;
             padding: 8px;
             border-bottom: 1px solid ${props.lightgrey};
