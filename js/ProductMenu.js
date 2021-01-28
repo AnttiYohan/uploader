@@ -472,7 +472,7 @@ class ProductMenu extends WCBase
 
 
     // ----------------------------------------------
-    // - Update method section
+    // - Lifecycle callbacks
     // ----------------------------------------------
 
     connectedCallback()
