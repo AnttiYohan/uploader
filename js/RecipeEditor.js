@@ -375,20 +375,30 @@ class RecipeEditor extends WCBase
         }
         `);
 
+        // ----------------------------------------------------------
+        // - Listen for child component connected events
+        // ----------------------------------------------------------
 
-        window.addEventListener("productmenuconnected", e => 
+        window.addEventListener
+        ("productmenuconnected", e => 
         {
             this.handleProductMenuEvent(e);
-        }, true);
+        }, 
+        true);
 
-
+        window.addEventListener
+        ("stepmenuconnected", e => 
+        {
+            this.handleStepMenuEvent(e);
+        }, 
+        true);
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
         this.mIsStepEditorOpen = false;
 
-        // ---------------------------
+        // ------------------------------------------------------------
         // - Save element references
-        // ---------------------------
+        // ------------------------------------------------------------
 
         this.mRootElement = this.shadowRoot.querySelector('.editor');
         this.mResetButton = this.shadowRoot.querySelector('.editor__button--reset');
@@ -404,35 +414,6 @@ class RecipeEditor extends WCBase
             this.remove();
             delete this;
         });
-
-        
-        // ---------------------------
-        // - Input references
-        // ---------------------------
-
-        /*
-        const dataObject =
-        {
-            title,
-            instructions,
-            prepareTimeInMinutes,
-            monthsOld,
-            season,
-            mealTypes,
-            interestingInfo,
-            tips,
-            storageInfo,
-            fingerFood,
-            hasStepByStep,
-            products,
-            nutritionValue,
-            hasToCook,
-            hasAllergens,
-            hasEggs,
-            hasNuts,
-            hasLactose,
-            hasGluten
-        };*/
 
 
         this.mTitleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
@@ -542,10 +523,6 @@ class RecipeEditor extends WCBase
         this.mProductMenu.setupProductList(recipeDto.products);
         this.mProductMenu.setupAvailableProducts(this.mAvailableProducts);
 
-        if (recipeDto.stepBySteps)
-        {
-            this.mStepMenu.setupStepList( recipeDto.stepBySteps);
-        }
     }
 
     /**
@@ -778,6 +755,10 @@ class RecipeEditor extends WCBase
 
     }
 
+    // ----------------------------------------------------------------
+    // - Lifacycle callbacks and child component event callbackcs
+    // ----------------------------------------------------------------
+
     connectedCallback()
     {
         console.log("RecipeEditor::callback connected");
@@ -793,6 +774,19 @@ class RecipeEditor extends WCBase
     {
         console.log(`onproductmenu event catched, handing by initiating the editor`);
         this.initEditor(this.mRecipeDto);
+    }
+
+    handleStepMenuEvent(event)
+    {
+        console.log(`onproductmenu event catched, handing by initiating the editor`);
+        this.mStepMenu.setRecipeId(this.mRecipeDto.id);
+
+        if (this.mRecipeDto.stepBySteps)
+        {
+            console.log(`handleStepMenuEvent: steps: ${this.mRecipeDto.stepBySteps}`);
+            console.log(`step amount: ${this.mRecipeDto.stepBySteps.length}`);
+            this.mStepMenu.generateList(this.mRecipeDto.stepBySteps);
+        }
     }
 }
 
