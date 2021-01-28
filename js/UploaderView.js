@@ -2,30 +2,41 @@ import { WCBase, props } from './WCBase.js';
 /*import { RecipeEditor } from './RecipeEditor.js';*/
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
+import { LoginView } from './LoginView.js';
+import { FileCache } from './util/FileCache.js';
+import { deleteChildren } from './util/elemfactory.js';
 
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='tab'>
-  <div class='tab__headerframe'>
-    <div class='tab__header product'>Product
-    </div>
-    <div class='tab__header recipe'>Recipe
-    </div>
-  </div>
+`<div class='uploader'>
+ 
+   <!-- The admin bar in the heade -->
+
+  <header class='uploader__adminframe'>
+    <div class='uploader__adminbar'>
+      <div class='uploader__tabframe'>
+        <img class='uploader__logo' src='assets/logo-small.png' />
+        <div class='uploader__tab product'>Product</div>
+        <div class='uploader__tab recipe'>Recipe</div>
+      </div>
+      <div class='uploader__logout'></div>
+    </div> 
+  </header>
+
   <!-- recipe-editor></recipe-editor -->
   
   <product-view class='view__product'></product-view>
   <recipe-view  class='view__recipe'></recipe-view>
 
-  </div>`;
+</div>`;
 
 /**
  * 
  */
 class UploaderView extends WCBase
 {
-    constructor()
+    constructor(loginView, token)
     {
         super();
         
@@ -33,9 +44,12 @@ class UploaderView extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        this.mToken = '';
-        this.mDisplay = 'flex';
-        this.mMode = 'product';
+        console.log(`Token: ${token}`);
+
+        this.mLoginView = loginView;
+        this.mToken     = token;
+        this.mDisplay   = 'flex';
+        this.mMode      = 'login';
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -59,31 +73,61 @@ class UploaderView extends WCBase
         .zoomable:hover {
             transform: scale3D(1.1, 1.1, 1.1);
         }
-        .tab__headerframe {
-            display: flex;
-            width: 100vw;
-            height: 48px;
+        .uploader {
+            display: ${this.mDisplay};
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            height: fit-content;
         }
-        .tab__header {
+        .uploader__adminframe {
+            width: 100vw;
+            background-color: ${props.admin_bar_bg};
+            height: ${props.admin_bar_height};
+            border-bottom: 1px solid rgba(0,0,0,0.33);
+        }
+        .uploader__adminbar {
             display: flex;
-            margin: auto;
+            justify-content: space-around;
+            margin: 0 auto;
+            max-width: ${props.uploader_max_width};
+        }
+        .uploader__logo {
+            height: 46px;;
+            width: auto;
+            margin: 1px 0;
+        }
+        .uploader__logout {
+            cursor: pointer;
+            margin: 8px;
+            width: ${props.button_side};
+            height: ${props.button_side};
+            background-image: url('assets/icon_account.svg');
+        }
+        .uploader__tabframe {
+            display: flex;
+            flex-direction: row;
+        }
+        .uploader__tab {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
             font-weight: 400;
             color: ${props.disabled};
             background: ${props.grey};
+            margin-bottom: 1px;
+            border-left: 1px solid ${props.darkgrey};
         }
-        .tab__header.active {
-            display: flex;
-            margin: auto;
+        .uploader__tab.active {
+            padding: 8px;
             font-weight: 400;
             color: #fff;
             background: ${props.red};
         }
-        .uploader {
-            display: ${this.mDisplay};
-            flex-direction: column;
-            margin: 16px auto;
-            max-width: 1400px;
-            height: fit-content;
+        .uploader__tab:first-of-type {
+            //border-right: 1px solid rgba(255,255,255,0.5);
         }
         .uploader__button {
             margin-top: 16px;
@@ -105,16 +149,32 @@ class UploaderView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.tab');
-        this.mProductTab = this.shadowRoot.querySelector('.tab__header.product');
-        this.mRecipeTab  = this.shadowRoot.querySelector('.tab__header.recipe');
+        this.mRootElement   = this.shadowRoot.querySelector('.uploader');
+        //this.mHeaderFrame   = this.shadowRoot.querySelector('.uploader__adminbar');
 
-        this.mProductView = this.shadowRoot.querySelector('.view__product');
-        this.mRecipeView  = this.shadowRoot.querySelector('.view__recipe');
+        this.mLogoutButton  = this.shadowRoot.querySelector('.uploader__logout');
+        this.mProductTab    = this.shadowRoot.querySelector('.uploader__tab.product');
+        this.mRecipeTab     = this.shadowRoot.querySelector('.uploader__tab.recipe');
+
+        this.mProductView   = this.shadowRoot.querySelector('.view__product');
+        this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
 
         // ----------------------------------------------------------------
         // - Define tab functionality
         // ----------------------------------------------------------------
+
+        this.mLogoutButton.addEventListener
+        (
+            "click",
+            e =>
+            {
+                FileCache.clearToken();
+                localStorage.removeItem('token');
+                deleteChildren(document.body);
+                const loginView = new LoginView();
+                document.body.appendChild(loginView);
+            }
+        );
 
         this.mProductTab.addEventListener
         (
