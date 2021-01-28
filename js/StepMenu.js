@@ -1,4 +1,4 @@
-import { WCBase, props, MEASURE_UNIT_ENUM } from './WCBase.js';
+import { WCBase, props, MEASURE_UNIT_ENUM, STEP_BY_STEP_URL } from './WCBase.js';
 import 
 { 
     newTagClass,
@@ -14,6 +14,7 @@ import
     selectClassIdOptionList,
     setImageFileInputThumbnail
 } from './util/elemfactory.js';
+import { FileCache } from './util/FileCache.js';
 
 const 
 template = document.createElement("template");
@@ -84,6 +85,12 @@ class StepMenu extends WCBase
             height: 48px;
             padding: 8px;
             border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__gridrow {
+            display: grid;
+            grid-template-columns: 48px auto 48px;
+            height: 48px;
+            padding: 8px;
         }
         .editor__label {
             font-size: ${props.text_font_size};
@@ -158,6 +165,11 @@ class StepMenu extends WCBase
         this.mNewStepButton = this.shadowRoot.querySelector('.editor__button--new.new_recipe_step');
         this.mNewStepButton.addEventListener("click", e => { this.openStepEditor()});
 
+    }
+
+    setRecipeId(id)
+    {
+        this.mRecipeId = id;
     }
 
     /**
@@ -250,19 +262,34 @@ class StepMenu extends WCBase
 
                 if 
                 ( 
+                    this.mRecipeId && this.mRecipeId > 0 &&
                     textInput.value.length &&
                     stepNumberInput.value,
                     file
                 )
                 {
+                    const dataObject =
+                    {
+                        recipeId: this.mRecipeId,
+                        stepNumber: stepNumberInput.value,
+                        text: textInput.value
+                    };
+                    const sbs = { title: 'sbs', data: JSON.stringify(dataObject) }
                     this.addStep
                     (
-                        {
-                            stepNumber: stepNumberInput.value,
-                            text: textInput.value,
-                            image: file
-                        }
-                    );
+                        sbs,
+                        file
+                    ).then(data => {
+
+                        console.log(`Response: ${data}`);
+                        this.loadSteps({recipeId: this.mRecipeId});
+                        //this.getSteps({recipeId: this.mRecipeId});
+
+                    }).catch(error => {
+
+                        console.log(`error: ${error}`);
+
+                    });
                 }
             }
         );
@@ -286,11 +313,34 @@ class StepMenu extends WCBase
      * Uploads the step and closes the editor
      * @param {stepDto} step 
      */
-    addStep(step)
+    addStep(step, image)
     {
         console.log(`Add step: ${step.stepNumber}, ${step.text}`);
-        this.setupStepList([step]);
-        deleteChildren(this.mStepEditor);
+
+        return FileCache.postDtoAndImage(STEP_BY_STEP_URL, step, image);
+    }
+
+    getSteps(params)
+    {
+        //return FileCache.getCached(STEP_BY_STEP_URL);
+        return FileCache.getCachedWithParams(STEP_BY_STEP_URL, params);
+    }
+
+    loadSteps(params)
+    {
+        this.getSteps(params)
+            .then
+            (data => 
+            {    
+                console.log(`loadSteps - data: ${data}`);
+                try 
+                {
+                    const list = JSON.parse(data);
+                    if ( list ) this.generateList(list);
+                } 
+                catch (error) {}
+            })
+            .catch(error => { console.log(`Could not read products: ${error}`); });
     }
 
     /**
@@ -298,12 +348,13 @@ class StepMenu extends WCBase
      * 
      * @param {array} list 
      */
-    setupStepList(list)
+    generateList(list)
     {
         deleteChildren(this.mStepList);
-
-        for (const step in list)
+        console.log(`generateList steps:${list}`);
+        for (const step of list)
         {
+            console.log(`generateList step: ${step}`);
             this.addStepRow(step);
         }
     }
@@ -326,31 +377,42 @@ class StepMenu extends WCBase
             }
         );
 
-        const 
-        imageElement = newTagClass("img", "editor__image");
-        imageElement.src = step.image;
+        let stepImage = null;
+
+        try { stepImage = step.image; } catch(error) {}
+
+        const imageElement = newTagClass("img", "editor__image");
+        if (stepImage) imageElement.src = `data:${stepImage.fileType};base64,${stepImage.data}`;
 
         this.mStepList.appendChild
         (
             newTagClassChildren
             (
                 "div",
-                "editor__rowset",
+                "editor__gridrow",
                 [
-                    deleteButton,
                     imageElement,
-                    newTagClassHTML("p", "editor__label", `${step.stepNumber}: ${step.text}`)
+                    newTagClassHTML("p", "editor__label", `${step.stepNumber}) ${step.text}`),
+                    deleteButton
                 ]
             )
         );
     }
 
     // ----------------------------------------------
-    // - Update method section
+    // - Lifecycle callbacks
     // ----------------------------------------------
 
+    connectedCallback()
+    {
+        console.log("StepMenu::callback connected");
+        window.dispatchEvent(new CustomEvent("stepmenuconnected"));
+    }
 
-
+    disconnectedCallback()
+    {
+        console.log("StepMenu::callback connected");
+    }  
 }
 
 window.customElements.define('step-menu', StepMenu);
