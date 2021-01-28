@@ -325,7 +325,7 @@ class FileCache
      * @param  {string}  field
      * @return {Promise} response
      */
-    static async putFieldString(route, key, value)
+    static async putFieldStringById(route, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PUT Authorization: ${bearer}`);
@@ -336,11 +336,60 @@ class FileCache
 
         const 
         formData = new FormData();
-        formData.append(key, value);
+        formData.append(fieldKey, fieldValue);
+        formData.append(idKey, idValue);
 
         const response = await fetch
         (
-            `${route}/${key}`,
+            `${route}/${fieldKey}`,
+            {
+                method: 'PUT',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return text;
+    }
+
+    /**
+     * Performs a HTTP PUT Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  path
+     * @param  {string}  field
+     * @return {Promise} response
+     */
+    static async putImageById(route, idKey, idValue, imageKey, imageFile)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+        console.log(`HTTP PUT Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+
+        const 
+        formData = new FormData();
+        formData.append(idKey, idValue);
+        formData.append(imageKey, imageFile);
+
+        const response = await fetch
+        (
+            `${route}/${imageKey}`,
             {
                 method: 'PUT',
                 credentials: 'include',
