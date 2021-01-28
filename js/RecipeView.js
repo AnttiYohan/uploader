@@ -954,7 +954,7 @@ class RecipeView extends WCBase
                 e =>
                 {
                     this.mViewNode.style.display = 'none';
-                    const editor = new RecipeEditor(recipe, this.mViewNode, this.mAvailableProducts);
+                    const editor = new RecipeEditor(recipe, this, this.mViewNode, this.mAvailableProducts);
                     this.mEditorNode.appendChild(editor);
                 }
             );
@@ -1060,11 +1060,6 @@ class RecipeView extends WCBase
     addRecipe(dto, imageFile)
     {
         return FileCache.postDtoAndImage(RECIPE_URL, dto, imageFile);
-    }
-
-    addStepByStep(dto, imageFile)
-    {
-
     }
 
     /**
