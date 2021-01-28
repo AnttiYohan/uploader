@@ -420,14 +420,14 @@ class RecipeEditor extends WCBase
         // - Recipe Title update input/button
         // -----------------------------------------------------------------------------------
 
-        this.mTitleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
+        const titleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
         const titleButton       = this.shadowRoot.querySelector('.editor__button.recipe_title');
         titleButton.addEventListener
         ('click', e => 
         {  
-            if (this.mTitleInput.value.length)
+            if (titleInput.value.length)
             {
-                this.updateTitleById(this.mTitleInput.value)
+                this.updateTitleById(titleInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updateTitle response: ${data}`);
@@ -477,10 +477,93 @@ class RecipeEditor extends WCBase
             }
         });
 
-        this.mPrepareTimeInput  = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
-        this.mAgeInput          = this.shadowRoot.querySelector('.editor__input.recipe_age');
-        this.mInstructionsInput = this.shadowRoot.querySelector('.editor__input.recipe_instructions');
+        // -----------------------------------------------------------------------------------
+        // - Recipe prepare time update input/button
+        // -----------------------------------------------------------------------------------
 
+        const prepareTitmeInput      = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
+        const prepareTimeButton      = this.shadowRoot.querySelector('.editor__button.recipe_prepare_time');
+        prepareTimeButton.addEventListener
+        ('click', e => 
+        {
+            if (prepareTitmeInput.value > 0)
+            {
+                this.updatePrepareTime(prepareTitmeInput.value)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updatePrepareTime response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updatePrepareTime fail: ${error}`);
+
+                    });
+
+            }
+        });
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe age in months update input/button
+        // -----------------------------------------------------------------------------------
+
+        const ageInput      = this.shadowRoot.querySelector('.editor__input.recipe_age');
+        const ageButton     = this.shadowRoot.querySelector('.editor__button.recipe_age');
+        ageButton.addEventListener
+        ('click', e => 
+        {
+            if (ageInput.value > 0)
+            {
+                this.updateAge(ageInput.value)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updateAge response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updateAgefail: ${error}`);
+
+                    });
+
+            }
+        });
+
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe instructions update input/button
+        // -----------------------------------------------------------------------------------
+
+        const instructionsInput      = this.shadowRoot.querySelector('.editor__input.recipe_instructions');
+        const instructionsButton     = this.shadowRoot.querySelector('.editor__button.recipe_insrtuctions');
+        instructionsInput.addEventListener
+        ('click', e => 
+        {
+            if (instructionsInput.value.length)
+            {
+                this.updateInstructions(instructionsInput.value)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updateInstrictions response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updateInstructions fail: ${error}`);
+
+                    });
+
+            }
+        });
         // ----------------------------
         // - Mealtypes checkboxes
         // ----------------------------
@@ -810,17 +893,38 @@ class RecipeEditor extends WCBase
 
     updatePrepareTime(newTime)
     {
-
+        return FileCache.patchFieldNumberById
+        (
+            RECIPE_URL,
+            'prepare-time',
+            newTime,
+            'recipeId',
+            this.mRecipeDto.id
+        );
     }
 
     updateAge(newAge)
     {
-
+        return FileCache.patchFieldNumberById
+        (
+            RECIPE_URL,
+            'age',
+            newAge,
+            'recipeId',
+            this.mRecipeDto.id
+        );
     }
 
     updateInstructions(newInstructions)
     {
-
+        return FileCache.putFieldStringById
+        (
+            RECIPE_URL, 
+            'instructions', 
+            newInstrucions, 
+            'recipeId', 
+            this.mRecipeDto.id
+        );
     }
 
     addStepByStep(stepByStepDto, file)
