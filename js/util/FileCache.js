@@ -421,6 +421,58 @@ class FileCache
     }
 
     /**
+     * Performs an HTTP PATCH Request, 
+     * ------------------------------
+     * which updates a field with type of `boolean`
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  fieldKey
+     * @param  {boolean} fieldValue
+     * @param  {string}  idKey
+     * @param  {number}  idValue
+     * @return {Promise} response
+     */
+    static async patchBooleanById(route, fieldKey, fieldValue, idKey, idValue)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+        console.log(`HTTP PATCH Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+
+        const 
+        formData = new FormData();
+        formData.append(fieldKey, fieldValue);
+        formData.append(idKey, idValue);
+
+        const response = await fetch
+        (
+            `${route}/${fieldKey}`,
+            {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return text;
+    }
+
+    /**
      * Performs a HTTP PUT Request, includes an 
      * Authorization header with bearer and token from storage
      * 
