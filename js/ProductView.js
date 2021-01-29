@@ -1,5 +1,5 @@
 import { WCBase, props, PRODUCT_URL } from './WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren } from './util/elemfactory.js';
+import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
 const 
@@ -9,15 +9,29 @@ template.innerHTML =
   <!--header>
     <h3 class='uploader__header'>Products</h3>
   </header-->
-  <button class='uploader__button--refresh'></button>
   <div class='uploader__frame'>
-    <div class='uploader__gridrow'>
-      
+
+    <!-- REFRESH ROW -->
+
+    <div class='uploader__refreshrow'>
+      <p class='uploader__paragraph'>Refresh Products</p>
+      <button class='uploader__button--refresh'></button>
     </div>
-    <label  class='uploader__label--text'>Name</label>
-    <input  class='uploader__input  product_name' type='text'>
-    <label  class='uploader__label--file'>Image</label>
-    <input  class='uploader__input  product_image' type='file'>
+
+    <!-- PRODUCT NAME ROW -->
+
+    <div class='uploader__inputrow'>
+      <label  class='uploader__label'>Name</label>
+      <input  class='uploader__input  product_name' type='text'>
+    </div>
+
+    <!-- PRODUCT IMAGE -->
+
+    <div class='uploader__inputrow--file'>
+      <img    class='uploader__image  product_image' />
+      <input  class='uploader__input  product_image' type='file'>
+    </div>
+
     <label  class='uploader__label--select'>Category</label>
     <select class='uploader__select product_category' name='product_category'>
       <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
@@ -87,7 +101,7 @@ template.innerHTML =
   </div>
 
   <!-- Existing products frame -->
-  <div class='uploader__frame product_list'>
+  <div class='uploader__frame--scroll product_list'>
   </div>
 </div>`;
 
@@ -153,16 +167,60 @@ class ProductView extends WCBase
             max-width: 600px;
             width: 300px;
         }
+        .uploader__frame--scroll {
+            display: flex;
+            flex-direction: column;
+            border-radius: 2px;
+            border: 1px solid ${props.lightgrey};
+            margin: 16px auto;
+            max-width: 600px;
+            width: ${props.frame_width};
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 75vh;
+        }
         .uploader__refreshrow {
             display: flex;
             justify-content: space-between;
             padding: ${props.uploader_row_pad};
             height: ${props.uploader_row_height};
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .uploader__gridrow {
             display: grid;
             grid-template-columns: 128px auto 64px;
             height: 48px;
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__inputrow {
+            display: flex;
+            justify-content: space-between;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__inputrow .uploader__label {
+            width: 128px;
+            height: 32px;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;          
+        }
+        .uploader__inputrow--file {
+            display: grid;
+            grid-template-columns: ${props.file_column_width} auto;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__paragraph {
+            color: #222;
+            font-weight: 200;
+            font-size: ${props.text_font_size};
+        }
+        .uploader__image {
+            width: ${props.thumbnail_side};
+            height: ${props.thumbnail_side};
         }
         .uploader__label--text,
         .uploader__label--file,
@@ -236,6 +294,11 @@ class ProductView extends WCBase
         .uploader__select {
             height: ${props.lineHeight};
             margin-bottom: 12px;
+            padding: ${props.inner_pad};
+            background-color: ${props.lightgrey};
+            border: none;
+            border-bottom: 1px solid ${props.darkgrey};
+            outline: none;
         }
         .uploader__button {
             cursor: pointer;
@@ -264,11 +327,8 @@ class ProductView extends WCBase
         }
         .uploader__button--refresh {
             cursor: pointer;
-            position: absolute;
-            left: ${props.logo_side};
-            top: 16px;
-            width: 32px;
-            height: 32px;
+            width: ${props.button_side};
+            height: ${props.button_side};
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
             color: #fff;
@@ -304,6 +364,7 @@ class ProductView extends WCBase
             display: grid;
             grid-template-columns: 64px auto 48px 48px;
             margin: auto;
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .product__img {
             width: 48px;
@@ -334,7 +395,7 @@ class ProductView extends WCBase
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
         this.mAddButton   = this.shadowRoot.querySelector('.uploader__button.add_product');
-        this.mProductList = this.shadowRoot.querySelector('.uploader__frame.product_list');
+        this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
         
         const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
         refreshButton.addEventListener
@@ -350,6 +411,9 @@ class ProductView extends WCBase
 
         this.mNameInput         = this.shadowRoot.querySelector('.uploader__input.product_name');
         this.mFileInput         = this.shadowRoot.querySelector('.uploader__input.product_image');
+        const imageElement      = this.shadowRoot.querySelector('.uploader__image.product_image');
+        setImageFileInputThumbnail(this.mFileInput, imageElement);
+
         this.mCategoryInput     = this.shadowRoot.querySelector('.uploader__select.product_category');
         
         this.mHasAllergensInput = this.shadowRoot.querySelector('.uploader__checkbox.has_allergens');
@@ -463,7 +527,7 @@ class ProductView extends WCBase
     compileDto()
     {
         const name = this.mNameInput.value;
-        const productCategory = ProductView.selectValue(this.mCategoryInput);
+        const productCategory = selectValue(this.mCategoryInput);
         const hasAllergens = this.mHasAllergensInput.checked;
         const hasEggs = this.mHasEggsInput.checked;
         const hasNuts = this.mHasNutsInput.checked;
@@ -503,11 +567,6 @@ class ProductView extends WCBase
         }
 
         return null; 
-    }
-
-    static selectValue(elem)
-    {
-        return elem.options[elem.selectedIndex].value;
     }
 
     /**
