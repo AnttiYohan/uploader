@@ -74,12 +74,12 @@ template.innerHTML =
 
     <!-- Recipe instructions updatable row set -->
 
-    <div class='editor__inputrow'>
-        <p  class='editor__paragraph'>Instructions</label>
-        <button class='editor__button recipe_instructions'></button>
-    </div>
-    <div   class='editor__rowset'>
-      <textarea class='editor__textarea recipe_instructions' name='instructions' rows="8"></textarea>
+    <div class='editor__textareaset'>
+        <div class='editor__inputrow'>
+            <label  class='editor__label'>Instructions</label>
+            <button class='editor__button recipe_instructions'></button>
+        </div>
+        <textarea class='editor__textarea recipe_instructions' name='instructions' rows="8"></textarea>
     </div>
 
     <!-- Step by step list -->
@@ -261,7 +261,7 @@ class RecipeEditor extends WCBase
             height: 48px;
             border-bottom: 1px solid ${props.lightgrey};
         }
-        .editorr__inputrow {
+        .editor__inputrow {
             display: flex;
             justify-content: space-between;
             height: ${props.uploader_row_height};
@@ -274,6 +274,12 @@ class RecipeEditor extends WCBase
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;          
+        }
+        .editor__textareaset {
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__textarea {
             margin-bottom: ${props.lineHeight};
@@ -502,14 +508,14 @@ class RecipeEditor extends WCBase
         // - Recipe Title update input/button
         // -----------------------------------------------------------------------------------
 
-        const titleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
+        this.mTitleInput        = this.shadowRoot.querySelector('.editor__input.recipe_title');
         const titleButton       = this.shadowRoot.querySelector('.editor__button.recipe_title');
         titleButton.addEventListener
         ('click', e => 
         {  
-            if (titleInput.value.length)
+            if (this.mTitleInput.value.length)
             {
-                this.updateTitleById(titleInput.value)
+                this.updateTitleById(this.mTitleInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updateTitle response: ${data}`);
@@ -563,14 +569,14 @@ class RecipeEditor extends WCBase
         // - Recipe prepare time update input/button
         // -----------------------------------------------------------------------------------
 
-        const prepareTitmeInput      = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
+        this.mPrepareTimeInput       = this.shadowRoot.querySelector('.editor__input.recipe_prepare_time');
         const prepareTimeButton      = this.shadowRoot.querySelector('.editor__button.recipe_prepare_time');
         prepareTimeButton.addEventListener
         ('click', e => 
         {
-            if (prepareTitmeInput.value > 0)
+            if (this.mPrepareTimeInput.value > 0)
             {
-                this.updatePrepareTime(prepareTitmeInput.value)
+                this.updatePrepareTime(this.mPrepareTitmeInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updatePrepareTime response: ${data}`);
@@ -592,14 +598,14 @@ class RecipeEditor extends WCBase
         // - Recipe age in months update input/button
         // -----------------------------------------------------------------------------------
 
-        const ageInput      = this.shadowRoot.querySelector('.editor__input.recipe_age');
+        this.mAgeInput      = this.shadowRoot.querySelector('.editor__input.recipe_age');
         const ageButton     = this.shadowRoot.querySelector('.editor__button.recipe_age');
         ageButton.addEventListener
         ('click', e => 
         {
-            if (ageInput.value > 0)
+            if (this.mAgeInput.value > 0)
             {
-                this.updateAge(ageInput.value)
+                this.updateAge(this.mAgeInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updateAge response: ${data}`);
@@ -622,14 +628,14 @@ class RecipeEditor extends WCBase
         // - Recipe instructions update input/button
         // -----------------------------------------------------------------------------------
 
-        const instructionsInput      = this.shadowRoot.querySelector('.editor__textarea.recipe_instructions');
+        this.mInstructionsInput      = this.shadowRoot.querySelector('.editor__textarea.recipe_instructions');
         const instructionsButton     = this.shadowRoot.querySelector('.editor__button.recipe_instructions');
         instructionsButton.addEventListener
         ('click', e => 
         {
-            if (instructionsInput.value.length)
+            if (this.mInstructionsInput.value.length)
             {
-                this.updateInstructions(instructionsInput.value)
+                this.updateInstructions(this.mInstructionsInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updateInstrictions response: ${data}`);
@@ -647,14 +653,40 @@ class RecipeEditor extends WCBase
             }
         });
 
+        // -----------------------------------------------------------------------------------
+        // - Recipe fingerfood update input/button
+        // -----------------------------------------------------------------------------------
+
+        this.mFingerfoodInput       = this.shadowRoot.querySelector('.editor__checkbox.fingerfood');
+        const instructionsButton    = this.shadowRoot.querySelector('.editor__button.recipe_fingerfood');
+        instructionsButton.addEventListener
+        ('click', e => 
+        {
+            if (this.mFingerfoodInput.checked)
+            {
+                this.updateFingerFood(this.mInstructionsInput.checked)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::updateFingerFood response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::updateFingerFood fail: ${error}`);
+
+                    });
+
+            }
+        });
 
         // ----------------------------
         // - Mealtypes checkboxes
         // ----------------------------
 
-        // - Checkboxes
-
-        this.mFingerfoodInput   = this.shadowRoot.querySelector('.editor__checkbox.fingerfood');
+        // - Checkboxe
         this.mHasToCookInput    = this.shadowRoot.querySelector('.editor__checkbox.cook');
         this.mHasEggsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_eggs');
         this.mHasNutsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_nuts');
@@ -1003,6 +1035,18 @@ class RecipeEditor extends WCBase
             RECIPE_URL, 
             'instructions', 
             newInstrucions, 
+            'recipeId', 
+            this.mRecipeDto.id
+        );
+    }
+
+    updateFingerFood(newFingerFood)
+    {
+        return FileCache.putFieldBooleanById
+        (
+            RECIPE_URL, 
+            'fingerfood', 
+            newFingerFood, 
             'recipeId', 
             this.mRecipeDto.id
         );
