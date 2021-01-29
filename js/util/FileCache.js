@@ -312,12 +312,15 @@ class FileCache
 
     // ------------------------------------------------
     // -
-    // - PUT -- Update methods
+    // - PUT/PATCH -- Update methods
     // -
     // ------------------------------------------------
 
     /**
-     * Performs a HTTP PUT Request, includes an 
+     * Performs an HTTP PATCH Request, 
+     * ------------------------------
+     * which updates a field with type of `string`
+     *                     
      * Authorization header with bearer and token from storage
      * 
      * @param  {string}  route
@@ -327,15 +330,14 @@ class FileCache
      * @param  {number}  idValue
      * @return {Promise} response
      */
-    static async putFieldStringById(route, fieldKey, fieldValue, idKey, idValue)
+    static async patchStringById(route, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
-        console.log(`HTTP PUT Authorization: ${bearer}`);
+        console.log(`HTTP PATCH 'string' Authorization: ${bearer}`);
 
         // ------------------------------------
         // - Generate multipart payload
         // ------------------------------------
-
         const 
         formData = new FormData();
         formData.append(fieldKey, fieldValue);
@@ -345,7 +347,7 @@ class FileCache
         (
             `${route}/${fieldKey}`,
             {
-                method: 'PUT',
+                method: 'PATCH',
                 credentials: 'include',
                 headers: 
                 {
@@ -367,7 +369,9 @@ class FileCache
     }
 
     /**
-     * Performs a HTTP PUT Request, includes an 
+     * Performs an HTTP PATCH Request, 
+     * ------------------------------
+     * which updates a field with type of `integer`
      * Authorization header with bearer and token from storage
      * 
      * @param  {string}  route
@@ -377,10 +381,10 @@ class FileCache
      * @param  {number}  idValue
      * @return {Promise} response
      */
-    static async putFieldNumberById(route, fieldKey, fieldValue, idKey, idValue)
+    static async patchNumberById(route, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
-        console.log(`HTTP PUT Authorization: ${bearer}`);
+        console.log(`HTTP PATCH Authorization: ${bearer}`);
 
         // ------------------------------------
         // - Generate multipart payload
@@ -395,7 +399,7 @@ class FileCache
         (
             `${route}/${fieldKey}`,
             {
-                method: 'PUT',
+                method: 'PATCH',
                 credentials: 'include',
                 headers: 
                 {
