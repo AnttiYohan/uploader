@@ -32,11 +32,25 @@ template.innerHTML =
 
   <!-- New Recipe Frame -->
   <div class='uploader__frame'>
-    <label  class='uploader__label--text'>Title</label>
-    <input  class='uploader__input  recipe_title' type='text'>
 
-    <div class='uploader__row'>
-      <label  class='uploader__label--file'>Image</label>
+    <!-- REFRESH ROW -->
+
+    <div class='uploader__refreshrow'>
+        <p class='uploader__paragraph'>Refresh Products</p>
+        <button class='uploader__button--refresh force_reload'></button>
+    </div>
+
+    <!-- PRODUCT NAME ROW -->
+
+    <div class='uploader__inputrow'>
+      <label  class='uploader__label'>Title</label>
+      <input  class='uploader__input  recipe_title' type='text'>
+    </div>
+
+    <!-- PRODUCT IMAGE -->
+
+    <div class='uploader__inputrow--file'>
+      <img    class='uploader__image  product_image' />
       <input  class='uploader__input  recipe_image' type='file'>
     </div>
 
@@ -160,9 +174,6 @@ template.innerHTML =
   <!-- Existing recipe list wrapper -->
 
   <div class='uploader__frame'>
-    <div class='uploader__row'>
-      <button class='uploader__button--refresh force_reload'>refresh</button>
-    </div>
     <div class='uploader__frame recipe_list'>
     </div>
   </div>
@@ -236,6 +247,71 @@ class RecipeView extends WCBase
             flex-direction: row;
             justify-content: space-between;
             padding: 4px;
+        }
+        .uploader__frame--scroll {
+            display: flex;
+            flex-direction: column;
+            border-radius: 2px;
+            border: 1px solid ${props.lightgrey};
+            margin: 16px auto;
+            max-width: 600px;
+            width: ${props.frame_width};
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 75vh;
+        }
+        .uploader__refreshrow {
+            display: flex;
+            justify-content: space-between;
+            padding: ${props.uploader_row_pad};
+            height: ${props.uploader_row_height};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__gridrow {
+            display: grid;
+            grid-template-columns: 128px auto 64px;
+            height: 48px;
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__inputrow {
+            display: flex;
+            justify-content: space-between;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__inputrow .uploader__label {
+            width: 128px;
+            height: 32px;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;          
+        }
+        .uploader__inputrow--file {
+            display: grid;
+            grid-template-columns: ${props.file_column_width} auto;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__paragraph {
+            color: #222;
+            font-weight: 200;
+            font-size: ${props.text_font_size};
+        }
+        .uploader__image {
+            width: ${props.thumbnail_side};
+            height: ${props.thumbnail_side};
+        }
+        .uploader__input,
+        .uploader__select {
+            height: ${props.lineHeight};
+            margin-bottom: 12px;
+            padding: ${props.inner_pad};
+            background-color: ${props.lightgrey};
+            border: none;
+            border-bottom: 1px solid ${props.darkgrey};
+            outline: none;
         }
         .uploader__list
         {
@@ -455,9 +531,6 @@ class RecipeView extends WCBase
         }
         .uploader__button--refresh {
             cursor: pointer;
-            position: absolute;
-            left: ${props.logo_side};
-            top: 16px;
             width: 32px;
             height: 32px;
             border-radius: 4px;
