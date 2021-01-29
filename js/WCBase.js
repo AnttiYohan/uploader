@@ -76,6 +76,8 @@ const props =
     checkmark_height: "16px",
     checkmark_width: "32px",
     checkmark_label_left: "40px",
+    uploader_row_height: "48px",
+    uploader_row_pad: "8px",
     ingredient_height: "24px",
     admin_bar_height: "48px",
     admin_bar_bg: "#ffeeee",
