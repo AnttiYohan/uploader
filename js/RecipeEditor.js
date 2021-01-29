@@ -26,7 +26,20 @@ template.innerHTML =
   
   <div class='recipe__frame'>
 
-    <!-- basic info -->
+    <!-- EXIT EDITOR ROW -->
+
+    <div class='editor__rowset'>
+      <label class='editor__label'>Exit editor</label>
+      <button class='editor__button--exit'></button>
+    </div>
+
+    <!-- RESET EDITOR ROW -->
+
+    <div class='editor__rowset'>
+      <label class='editor__label'>Reset values</label>
+      <button class='editor__button--reset'></button>
+    </div>
+
     <!-- Recipe title updatable row set -->
     <label  class='editor__label'>Edit Title</label>
     <div    class='editor__rowset'>
@@ -57,6 +70,16 @@ template.innerHTML =
     <div   class='editor__rowset'>
       <input class='editor__input recipe_age' type='number'>
       <button class='editor__button recipe_age'></button>
+    </div>
+
+    <!-- Recipe instructions updatable row set -->
+
+    <div class='editor__inputrow'>
+        <p  class='editor__paragraph'>Instructions</label>
+        <button class='editor__button recipe_instructions'></button>
+    </div>
+    <div   class='editor__rowset'>
+      <textarea class='editor__textarea recipe_instructions' name='instructions' rows="8"></textarea>
     </div>
 
     <!-- Step by step list -->
@@ -132,10 +155,7 @@ template.innerHTML =
         </label>
     </div>
 
-    <div class='editor__rowset'>
-      <label class='editor__label'>Exit editor</label>
-      <button class='editor__button--exit'></button>
-    </div>
+
   </div> <!-- editor__frame -->
 </div>`;
 
@@ -202,6 +222,17 @@ class RecipeEditor extends WCBase
             margin: 16px auto;
             max-width: 600px;
         }
+        .editor__label {
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            height: ${props.lineHeight};
+        }
+        .editor__paragraph {
+            color: #222;
+            font-weight: 200;
+            font-size: ${props.text_font_size};
+        }
         .editor__rowset {
             display: flex;
             flex-direction: row;
@@ -217,11 +248,41 @@ class RecipeEditor extends WCBase
             padding: 8px;
             border-bottom: 1px solid ${props.lightgrey};
         }
-        .editor__label {
+        .editor__refreshrow {
+            display: flex;
+            justify-content: space-between;
+            padding: ${props.uploader_row_pad};
+            height: ${props.uploader_row_height};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__gridrow {
+            display: grid;
+            grid-template-columns: 128px auto 64px;
+            height: 48px;
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editorr__inputrow {
+            display: flex;
+            justify-content: space-between;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__inputrow .editor__label {
+            width: 128px;
+            height: 32px;
             font-size: ${props.text_font_size};
             font-weight: 200;
+            color: #222;          
+        }
+        .editor__textarea {
+            margin-bottom: ${props.lineHeight};
+            height: 100px;
+            padding: 8px;
             color: #222;
-            height: ${props.lineHeight};
+            font-size: ${props.small_font_size};
+            font-weight: 300;
+            border: 1px solid ${props.lightgrey};
         }
         .editor__checkboxgroup {
             border: 1px solid ${props.lightgrey};
@@ -332,6 +393,16 @@ class RecipeEditor extends WCBase
             background-color: ${props.red};
             background-image: url('assets/ic_left.svg');
         }
+        .editor__button--reset {
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_undo.svg');
+        }
         .editor__response {
             margin: 16px auto;
             color: #f45;
@@ -356,7 +427,7 @@ class RecipeEditor extends WCBase
             font-weight: 200;
             color: #222;
             width: 32px;
-            height
+            height: 32px;
         }
         .step__label {
             font-size: ${props.text_font_size};
@@ -551,9 +622,9 @@ class RecipeEditor extends WCBase
         // - Recipe instructions update input/button
         // -----------------------------------------------------------------------------------
 
-        const instructionsInput      = this.shadowRoot.querySelector('.editor__input.recipe_instructions');
-        const instructionsButton     = this.shadowRoot.querySelector('.editor__button.recipe_insrtuctions');
-        instructionsInput.addEventListener
+        const instructionsInput      = this.shadowRoot.querySelector('.editor__textarea.recipe_instructions');
+        const instructionsButton     = this.shadowRoot.querySelector('.editor__button.recipe_instructions');
+        instructionsButton.addEventListener
         ('click', e => 
         {
             if (instructionsInput.value.length)
@@ -575,6 +646,8 @@ class RecipeEditor extends WCBase
 
             }
         });
+
+
         // ----------------------------
         // - Mealtypes checkboxes
         // ----------------------------
@@ -629,8 +702,6 @@ class RecipeEditor extends WCBase
 
         this.mTitleInput.value = recipeDto.title;
         this.mRecipeImage.src = `data:${recipeDto.image.fileType};base64,${recipeDto.image.data}`;
-
-
         this.mPrepareTimeInput.value = recipeDto.prepareTimeInMinutes;
         this.mAgeInput.value = recipeDto.monthsOld;
         setSelectedIndex(this.mSeasonInput, recipeDto.season);
@@ -663,7 +734,6 @@ class RecipeEditor extends WCBase
         this.mHasNutsInput    = recipeDto.hasNuts;
         this.mHasLactoseInput = recipeDto.hasLactose;
         this.mHasGlutenInput  = recipeDto.hasGluten;
-
         this.mStorageInfoInput = recipeDto.storageInfo;
         this.mTipsInput        = recipeDto.tips;
         this.mNutritionInput   = recipeDto.nutritionValue;
