@@ -11,6 +11,9 @@ template.innerHTML =
   </header-->
   <button class='uploader__button--refresh'></button>
   <div class='uploader__frame'>
+    <div class='uploader__gridrow'>
+      
+    </div>
     <label  class='uploader__label--text'>Name</label>
     <input  class='uploader__input  product_name' type='text'>
     <label  class='uploader__label--file'>Image</label>
@@ -149,6 +152,17 @@ class ProductView extends WCBase
             margin: 16px auto;
             max-width: 600px;
             width: 300px;
+        }
+        .uploader__refreshrow {
+            display: flex;
+            justify-content: space-between;
+            padding: ${props.uploader_row_pad};
+            height: ${props.uploader_row_height};
+        }
+        .uploader__gridrow {
+            display: grid;
+            grid-template-columns: 128px auto 64px;
+            height: 48px;
         }
         .uploader__label--text,
         .uploader__label--file,
