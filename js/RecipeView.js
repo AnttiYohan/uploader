@@ -50,18 +50,28 @@ template.innerHTML =
     <!-- PRODUCT IMAGE -->
 
     <div class='uploader__inputrow--file'>
-      <img    class='uploader__image  product_image' />
-      <input  class='uploader__input  recipe_image' type='file'>
+        <img src='assets/icon_cached.svg'   class='uploader__image  product_image' />
+        <div class='uploader__fileframe'>
+           <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
+           <input  id='image-upload-input'  class='uploader__file recipe_image' type='file'>
+        </div>
     </div>
 
-    <label  class='uploader__label'>Preparation time</label>
-      <input class='uploader__input recipe_preparation_time' type='number'>
+    <!-- PREPARATION TIME -->
 
-    <label  class='uploader__label'>Age in months</label>
-      <input class='uploader__input recipe_age' type='number'>
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label'>Preparation time</label>
+        <input class='uploader__input recipe_preparation_time' type='number'>
+    </div>
 
+    <!-- AGE IN MONTHS -->
 
-    <div class='uploader__row'>
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label'>Age in months</label>
+        <input class='uploader__input recipe_age' type='number'>
+    </div>
+
+    <div class='uploader__inputrow'>
         <label  class='uploader__label--select'>Add Ingredient:</label>
         <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
         </select>
@@ -98,9 +108,8 @@ template.innerHTML =
         <span class='uploader__checkmark'></span>
     </label>            
 
-
-    <div class='uploader__row'>
-        <label  class='uploader__label--select'>Season</label>
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label'>Season</label>
         <select class='uploader__select recipe_season' name='season'>
             <option value='WINTER'>winter</option>
             <option value='SPRING'>spring</option>
@@ -155,19 +164,37 @@ template.innerHTML =
         </label>
     </div>
 
-    <label  class='uploader__label--text'>Storage info</label>
-    <input  class='uploader__input  recipe_storage' type='text'>
-  
-    <label  class='uploader__label--text'>Tips</label>
-    <input  class='uploader__input  recipe_tips' type='text'>
-  
-    <label  class='uploader__label'>Nutritional value</label>
-    <input  class='uploader__input  recipe_nutritional_value' type='number'>
+    <!-- STORAGE INFO -->
 
-    <label  class='uploader__label--text'>Interesting info</label>
-    <input  class='uploader__input  recipe_interesting_info' type='text'>
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label--text'>Storage info</label>
+        <input  class='uploader__input  recipe_storage' type='text'>
+    </div>
 
-    <button class='uploader__button--save add_recipe'></button>
+    <!-- TIPS -->
+
+    <div class='uploader__inputrow'>    
+        <label  class='uploader__label--text'>Tips</label>
+        <input  class='uploader__input  recipe_tips' type='text'>
+    </div>
+
+    <!-- NUTRITIONAL VALUE -->
+
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label'>Nutritional value</label>
+        <input  class='uploader__input  recipe_nutritional_value' type='number'>
+    </div>
+
+    <!-- INTERESTING INFO -->
+
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label--text'>Interesting info</label>
+        <input  class='uploader__input  recipe_interesting_info' type='text'>
+    </div>
+
+    <div class='uploader__row--last'>
+        <button class='uploader__button--save add_recipe'></button>
+    </div>
   </div>
 
 
@@ -245,8 +272,16 @@ class RecipeView extends WCBase
         .uploader__row {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
-            padding: 4px;
+            height: ${props.uploader_row_height};
+            padding: ${props.uploader_row_pad};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__row--last {
+            display: flex;
+            flex-flow: row-reverse;
+            padding: 16px;
+            margin: 0 8px;
+            border-bottom: 2px solid ${props.lightgrey};
         }
         .uploader__frame--scroll {
             display: flex;
@@ -288,11 +323,39 @@ class RecipeView extends WCBase
             color: #222;          
         }
         .uploader__inputrow--file {
-            display: grid;
-            grid-template-columns: ${props.file_column_width} auto;
+            display: flex;
+            justify-content: space-between;
             height: ${props.uploader_row_height};
             padding: ${props.uploader_row_pad};
             border-bottom: 1px solid ${props.lightgrey};
+        }
+        .uploader__fileframe {
+            position: relative;
+        }
+        .uploader__file {
+            position: absolute;
+            appereance: none;
+            z-index: -1;
+            opacity: 0;
+        }
+        .uploader__filelabel {
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: ${props.green};
+            background-image: url( 'assets/icon_publish.svg' );
+            background-repeat: no-repeat;
+            background-position-x: right;
+            padding: 5px 0 0 0;
+            border: 2px solid rgba(0, 0, 0, 0.33);
+            width: 153px;
+            height: 32px;
+            color: #fff;
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 0 2px #000;
+            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
         }
         .uploader__paragraph {
             color: #222;
@@ -302,6 +365,8 @@ class RecipeView extends WCBase
         .uploader__image {
             width: ${props.thumbnail_side};
             height: ${props.thumbnail_side};
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
         }
         .uploader__input,
         .uploader__select {
@@ -312,6 +377,12 @@ class RecipeView extends WCBase
             border: none;
             border-bottom: 1px solid ${props.darkgrey};
             outline: none;
+        }
+        .uploader__reciperow {
+            display: grid;
+            grid-template-columns: ${props.list_image_space} auto 48px 48px;
+            height: ${props.list_row_height};
+            border-bottom: 1px solid ${props.lightgrey};
         }
         .uploader__list
         {
@@ -462,10 +533,14 @@ class RecipeView extends WCBase
             border: 1px solid ${props.lightgrey};
             margin-left: ${props.checkmark_width};
         }
-        .uploader__input,
+        .uploader__input {
+            height: ${props.lineHeight};
+            margin-bottom: 12px;           
+        }
         .uploader__select {
             height: ${props.lineHeight};
             margin-bottom: 12px;
+            width: ${props.input_width};
         }
         .uploader__textarea {
             margin-bottom: ${props.lineHeight};
@@ -489,19 +564,19 @@ class RecipeView extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-repeat: no-repeat;
-            background-origin_ center;
+            background-origin: center;
         }
         .uploader__button--save {
             cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
+            width: 64px;
+            height: 64px;
+            border-radius: 6px;
             border: 2px solid ${props.darkgrey};
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_save.svg');
             background-repeat: no-repeat;
-            background-origin_ center;
+            background-origin: center;
         }
         .uploader__button--edit {
             cursor: pointer;
@@ -514,7 +589,7 @@ class RecipeView extends WCBase
             background-color: ${props.blue};
             background-image: url('assets/icon_edit.svg');
             background-repeat: no-repeat;
-            background-origin_ center;
+            background-origin: center;
         }
         .uploader__button--delete {
             cursor: pointer;
@@ -527,7 +602,7 @@ class RecipeView extends WCBase
             background-color: ${props.red};
             background-image: url('assets/icon_cancel.svg');
             background-repeat: no-repeat;
-            background-origin_ center;
+            background-origin: center;
         }
         .uploader__button--refresh {
             cursor: pointer;
@@ -539,7 +614,7 @@ class RecipeView extends WCBase
             background-color: ${props.blue};
             background-image: url('assets/icon_refresh.svg');
             background-repeat: no-repeat;
-            background-origin_ center;
+            background-origin: center;
         }
         .mg-vt-left-16
         {
@@ -564,12 +639,12 @@ class RecipeView extends WCBase
             font-weight: 200;
             color: #222;
             margin: 16px;
-            height: 32px;
+            padding: 8px ${props.text_vt_pad};
         }
         .list__thumbnail {
-            margin: 8px;
             width: 48px;
             height: 48px;
+            align-self: center;
         }
         @media (max-width: ${props.uploader_max_width})
         {
@@ -597,7 +672,7 @@ class RecipeView extends WCBase
         // ------------------
 
         this.mTitleInput        = this.shadowRoot.querySelector('.uploader__input.recipe_title');
-        this.mFileInput         = this.shadowRoot.querySelector('.uploader__input.recipe_image');
+        this.mFileInput         = this.shadowRoot.querySelector('.uploader__file.recipe_image');
         this.mPrepTimeInput     = this.shadowRoot.querySelector('.uploader__input.recipe_preparation_time');
         this.mAgeInput          = this.shadowRoot.querySelector('.uploader__input.recipe_age');
         
@@ -1057,7 +1132,7 @@ class RecipeView extends WCBase
                 newTagClassChildren
                 (
                     "div",
-                    "uploader__row",
+                    "uploader__reciperow",
                     [
                         imgElem,
                         newTagClassHTML
@@ -1066,7 +1141,9 @@ class RecipeView extends WCBase
                             "list__paragraph",
                             `${title}, ${id}`
                         ),
-                        newTagClassChildren
+                        editButton,
+                        removeButton
+                        /*newTagClassChildren
                         (
                             "div",
                             "uploader__iconframe",
@@ -1074,7 +1151,7 @@ class RecipeView extends WCBase
                                 editButton,
                                 removeButton
                             ]
-                        )
+                        )*/
                     ]
                 )
             );
