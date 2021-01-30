@@ -40,14 +40,15 @@ template.innerHTML =
       <button class='editor__button--reset'></button>
     </div>
 
-    <!-- Recipe title updatable row set -->
+    <!-- RECIPE TITLE -->
+
     <label  class='editor__label'>Edit Title</label>
     <div    class='editor__rowset'>
       <input  class='editor__input  recipe_title' type='text'>
       <button class='editor__button recipe_title'></button>
     </div>
 
-    <!-- Recipe image updatable row set -->
+    <!-- RECIPE IMAGE -->
 
     <label  class='editor__label'>Change Image</label>
     <div    class='editor__rowset'>
@@ -56,7 +57,7 @@ template.innerHTML =
       <button class='editor__button recipe_image'></button>
     </div>
 
-    <!-- Recipe prepare time updatable row set -->
+    <!-- PREPARE TIME -->
 
     <label class='editor__label'>Change prepare time</label>
     <div   class='editor__rowset'>
@@ -64,7 +65,7 @@ template.innerHTML =
       <button class='editor__button recipe_prepare_time'></button>
     </div>
 
-    <!-- Recipe age in months updatable row set -->
+    <!-- AGE IN MONTHS -->
 
     <label class='editor__label'>Change age in months</label>
     <div   class='editor__rowset'>
@@ -72,7 +73,7 @@ template.innerHTML =
       <button class='editor__button recipe_age'></button>
     </div>
 
-    <!-- Recipe instructions updatable row set -->
+    <!-- INSTRUCTIONS -->
 
     <div class='editor__textareaset'>
         <div class='editor__inputrow'>
@@ -82,13 +83,67 @@ template.innerHTML =
         <textarea class='editor__textarea recipe_instructions' name='instructions' rows="8"></textarea>
     </div>
 
-    <!-- Step by step list -->
+    <!-- MANDATORY CHECKBOXES -->
+
+    <!-- FINGERFOOD ROW -->
+
+    <div class='uploader__inputrow'>
+        <label class='uploader__label--checkbox'>Fingerfood
+            <input class='editor__checkbox fingerfood' type='checkbox'>
+            <span class='editor__checkmark'></span>
+        </label>
+    </div>
+
+    <!-- HAS TO COOK -->
+
+    <div class='uploader__inputrow'>
+        <label class='uploader__label--checkbox'>Has To Cook
+            <input class='editor__checkbox cook' type='checkbox'>
+            <span class='editor__checkmark'></span>
+        </label>
+    </div>
+
+    <!-- ALLERGEN LIST (as one update) -->
+
+    <div class='uploader__checkboxgroup'>
+
+        <!-- HAS EGGS -->
+
+        <label class='uploader__label--checkbox'>Has Eggs
+            <input class='uploader__checkbox has_eggs' type='checkbox'>
+            <span class='uploader__checkmark'></span>
+        </label>
+
+        <!-- HAS NUTS -->
+
+        <label class='uploader__label--checkbox'>Has Nuts
+            <input class='uploader__checkbox has_nuts' type='checkbox'>
+            <span class='uploader__checkmark'></span>
+        </label>
+
+        <!-- HAS LACTOSE -->
+
+        <label class='uploader__label--checkbox'>Has Lactose
+            <input class='uploader__checkbox has_lactose' type='checkbox'>
+            <span class='uploader__checkmark'></span>
+        </label>
+
+        <!-- HAS GLUTEN -->
+        
+        <label class='uploader__label--checkbox'>Has Gluten
+            <input class='uploader__checkbox has_gluten' type='checkbox'>
+            <span class='uploader__checkmark'></span>
+        </label> 
+
+    </div>
+    <!-- STEP LIST -->
 
     <div class='editor__division'>
     </div>
     <step-menu     class='step_menu'></step-menu>
 
-    <!-- Ingredient Product list -->
+    <!-- PRODUCT LIST -->
+
     <div class='editor__division'>
     </div>
     <product-menu class='product_menu'></product-menu>
@@ -96,7 +151,7 @@ template.innerHTML =
     <div class='editor__division'>
     </div>
 
-    <!-- Season Selection -->
+    <!-- SEASON -->
 
     <div class='editor__selectrow'>
       <label  class='editor__label'>Season</label>
@@ -109,53 +164,82 @@ template.innerHTML =
       <button class='editor__button season'></button>
     </div>
       
-    <label class='editor__label'>Meal types</label>
+    <!-- MEAL TYPES -->
 
+    <label class='editor__label'>Meal types</label>
     <div class='editor__checkboxgroup mealtypes_group'>
+
+        <!-- BREAKFAST -->
 
         <label class='editor__label--checkbox'>Breakfast
           <input class='editor__checkbox breakfast' type='checkbox'>
           <span class='editor__checkmark'></span>
         </label>
+
+        <!-- LUNCH -->
+
         <label class='editor__label--checkbox'>Lunch
             <input class='editor__checkbox lunch' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- DINNER -->
+
         <label class='editor__label--checkbox'>Dinner
             <input class='editor__checkbox dinner' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- SNACK -->
+
         <label class='editor__label--checkbox'>Snack
             <input class='editor__checkbox snack' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- DESSERT -->
+
         <label class='editor__label--checkbox'>Dessert
           <input class='editor__checkbox dessert' type='checkbox'>
           <span class='editor__checkmark'></span>
         </label>
+
+        <!-- APPETIZER -->
+
         <label class='editor__label--checkbox'>Appetizer
             <input class='editor__checkbox appetizer' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- SALAD -->
+
         <label class='editor__label--checkbox'>Salad
             <input class='editor__checkbox salad' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- SOUP -->
+
         <label class='editor__label--checkbox'>Soup
             <input class='editor__checkbox soup' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- SMOOTHIE -->
+
         <label class='editor__label--checkbox'>Smoothie
             <input class='editor__checkbox smoothie' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- BEVERAGES -->
+
         <label class='editor__label--checkbox'>Beverages
             <input class='editor__checkbox beverages' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
-    </div>
 
-
+    </div> <!-- ENDOF editor checkboxgroup div -->
   </div> <!-- editor__frame -->
 </div>`;
 
@@ -657,14 +741,14 @@ class RecipeEditor extends WCBase
         // - Recipe fingerfood update input/button
         // -----------------------------------------------------------------------------------
 
-        this.mFingerfoodInput       = this.shadowRoot.querySelector('.editor__checkbox.fingerfood');
-        const instructionsButton    = this.shadowRoot.querySelector('.editor__button.recipe_fingerfood');
-        instructionsButton.addEventListener
+        this.mFingerFoodInput     = this.shadowRoot.querySelector('.editor__checkbox.fingerfood');
+        const fingerFoodButton    = this.shadowRoot.querySelector('.editor__button.recipe_fingerfood');
+        fingerFoodButton.addEventListener
         ('click', e => 
         {
-            if (this.mFingerfoodInput.checked)
-            {
-                this.updateFingerFood(this.mInstructionsInput.checked)
+            //if (this.mFingerfoodInput.checked)
+            //{
+                this.updateFingerFood(this.mFingerFoodInput.checked)
                     .then(data => {
 
                         console.log(`RecipeEditor::updateFingerFood response: ${data}`);
@@ -679,7 +763,7 @@ class RecipeEditor extends WCBase
 
                     });
 
-            }
+           // }
         });
 
         // ----------------------------
@@ -977,12 +1061,14 @@ class RecipeEditor extends WCBase
     }
 
     // ----------------------------------------------
-    // - Update method section
+    // - Update method section -
+    // --------------------------
+    // - Field 'title' update
     // ----------------------------------------------
 
     updateTitleById(newTitle)
     {
-        return FileCache.putFieldStringById
+        return FileCache.patchStringById
         (
             RECIPE_URL, 
             'title', 
@@ -1006,7 +1092,7 @@ class RecipeEditor extends WCBase
 
     updatePrepareTime(newTime)
     {
-        return FileCache.patchFieldNumberById
+        return FileCache.patchNumberById
         (
             RECIPE_URL,
             'prepare-time',
@@ -1018,7 +1104,7 @@ class RecipeEditor extends WCBase
 
     updateAge(newAge)
     {
-        return FileCache.patchFieldNumberById
+        return FileCache.patchNumberById
         (
             RECIPE_URL,
             'age',
@@ -1042,7 +1128,7 @@ class RecipeEditor extends WCBase
 
     updateFingerFood(newFingerFood)
     {
-        return FileCache.putFieldBooleanById
+        return FileCache.patchBooleanById
         (
             RECIPE_URL, 
             'fingerfood', 
@@ -1051,6 +1137,7 @@ class RecipeEditor extends WCBase
             this.mRecipeDto.id
         );
     }
+
 
     addStepByStep(stepByStepDto, file)
     {
