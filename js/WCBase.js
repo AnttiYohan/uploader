@@ -85,7 +85,14 @@ const props =
     uploader_max_width: "600px",
     button_side: "32px",
     frame_width: "300px",
-    inner_pad: "4px"
+    inner_pad: "4px",
+    file_column_width: "48px",
+    thumbnail_side: "32px",
+    list_row_height: "64px",
+    list_image_space: "64px",
+    list_button_space: "48px",
+    text_vt_pad: "16px",
+    input_width: "153px",
 };
 
 // ----------------------------------------

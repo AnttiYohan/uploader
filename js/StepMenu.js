@@ -124,9 +124,8 @@ class StepMenu extends WCBase
             height: 32px;
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
-            color: #fff;
             background-color: ${props.blue};
-            background-image: url('assets/icon_add_circle.svg');
+            background-image: url('assets/icon_publish.svg');
         }
         .editor__button--save {
             cursor: pointer;
@@ -310,40 +309,6 @@ class StepMenu extends WCBase
     }
 
     /**
-     * Uploads the step and closes the editor
-     * @param {stepDto} step 
-     */
-    addStep(step, image)
-    {
-        console.log(`Add step: ${step.stepNumber}, ${step.text}`);
-
-        return FileCache.postDtoAndImage(STEP_BY_STEP_URL, step, image);
-    }
-
-    getSteps(params)
-    {
-        //return FileCache.getCached(STEP_BY_STEP_URL);
-        return FileCache.getCachedWithParams(STEP_BY_STEP_URL, params);
-    }
-
-    loadSteps(params)
-    {
-        this.getSteps(params)
-            .then
-            (data => 
-            {    
-                console.log(`loadSteps - data: ${data}`);
-                try 
-                {
-                    const list = JSON.parse(data);
-                    if ( list ) this.generateList(list);
-                } 
-                catch (error) {}
-            })
-            .catch(error => { console.log(`Could not read products: ${error}`); });
-    }
-
-    /**
      * (Re)creates a list of step row elements
      * 
      * @param {array} list 
@@ -373,7 +338,19 @@ class StepMenu extends WCBase
             "click",
             e =>
             {
-                console.log(`Delete ${step.text}`);
+                console.log(`Delete ${step.id}`);
+                this.deleteStep(step.id)
+                    .then(data => {
+
+                        console.log(`DELETE recipe/sbs/${step.id} Response: ${data}`);
+                        this.loadSteps({recipeId: this.mRecipeId});
+
+                    })
+                    .catch(error => {
+
+                        console.log(`DELETE recipe/sbs request error: ${error}`);
+
+                    });
             }
         );
 
@@ -397,6 +374,56 @@ class StepMenu extends WCBase
                 ]
             )
         );
+    }
+
+    // -----------------------------------------------------------------------------
+    // -
+    // - Calls for cached HTTP Request methods
+    // -
+    // -----------------------------------------------------------------------------
+
+    /**
+     * Uploads the step and closes the editor
+     * @param {stepDto} step 
+     */
+    addStep(step, image)
+    {
+        console.log(`Add step: ${step.stepNumber}, ${step.text}`);
+
+        return FileCache.postDtoAndImage(STEP_BY_STEP_URL, step, image);
+    }
+
+    getSteps(params)
+    {
+        return FileCache.getCachedWithParams(STEP_BY_STEP_URL, params);
+    }
+
+    deleteStep(id)
+    {
+        return FileCache.delete(STEP_BY_STEP_URL, id);
+    }
+
+    // ---------------------------------------------------------------
+    // -
+    // - HTTP request response handlers
+    // -
+    // ----------------------------------------------------------------
+
+    loadSteps(params)
+    {
+        this.getSteps(params)
+            .then
+            (data => 
+            {    
+                console.log(`loadSteps - data: ${data}`);
+                try 
+                {
+                    const list = JSON.parse(data);
+                    if ( list ) this.generateList(list);
+                } 
+                catch (error) {}
+            })
+            .catch(error => { console.log(`Could not read products: ${error}`); });
     }
 
     // ----------------------------------------------

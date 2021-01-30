@@ -40,14 +40,14 @@ template.innerHTML =
         <button class='uploader__button--refresh force_reload'></button>
     </div>
 
-    <!-- PRODUCT NAME ROW -->
+    <!-- RECIPE TITLE ROW -->
 
     <div class='uploader__inputrow'>
       <label  class='uploader__label'>Title</label>
       <input  class='uploader__input  recipe_title' type='text'>
     </div>
 
-    <!-- PRODUCT IMAGE -->
+    <!-- RECIPE IMAGE -->
 
     <div class='uploader__inputrow--file'>
         <img src='assets/icon_cached.svg'   class='uploader__image  product_image' />
@@ -395,7 +395,7 @@ class RecipeView extends WCBase
         {
             display: flex;
             flex-direction: column;
-            padding: 4px;
+            padding: 4px 0;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
@@ -403,7 +403,6 @@ class RecipeView extends WCBase
         }
         .ingredient__row
         {
-            padding: 4px;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -411,12 +410,11 @@ class RecipeView extends WCBase
         }
         .ingredient__title
         {
-            flex-basis: 60%;
+            flex-basis: 88px;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
             height: ${props.ingredient_height};
-            margin-left: 8px;
         }
         .ingredient__amount
         {
@@ -426,7 +424,7 @@ class RecipeView extends WCBase
             border-left: 0;
             border-right: 0;
             border-bottom: 2px solid ${props.darkgrey};
-            max-width: 50px;
+            width: 32px;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
@@ -441,6 +439,7 @@ class RecipeView extends WCBase
             border-left: 0;
             border-right: 0;
             border-bottom: 2px solid ${props.darkgrey};
+            width: 96px;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
@@ -452,7 +451,7 @@ class RecipeView extends WCBase
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
             min-height: 32px;
-            padding: 8px;
+            padding: 8px 0;
         } 
         .ingredient__button--remove
         {
