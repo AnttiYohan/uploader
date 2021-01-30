@@ -28,76 +28,80 @@ template.innerHTML =
     <!-- PRODUCT IMAGE -->
 
     <div class='uploader__inputrow--file'>
-      <img    class='uploader__image  product_image' />
-      <input  class='uploader__input  product_image' type='file'>
+        <img    class='uploader__image  product_image' />
+        <div class='uploader__fileframe'>
+           <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
+           <input  id='image-upload-input'  class='uploader__file  product_image' type='file'>
+        </div>
     </div>
 
-    <label  class='uploader__label--select'>Category</label>
-    <select class='uploader__select product_category' name='product_category'>
-      <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
-      <option value='FRUITS'>Fruits</option>
-      <option value='VEGETABLES'>Vegetables</option>
-      <option value='SPICES'>Spices</option>
-      <option value='GRAINS'>Grains</option>
-      <option value='DAIRY'>Dairy</option>
-      <option value='MEAT'>Meat</option>
-      <option value='SEAFOOD'>Seafood</option>
-      <option value='DRINKS'>Drinks</option>
-      <option value='FROZEN_AND_CONVENIENCE'>Frozen and convenience</option>
-      <option value='OTHERS'>Others</option>
-      <option value='NONE'>None</option>
-    </select>
-    <!--label  class='uploader__label--select'>Measure unit</label>
-    <select class='uploader__select product_measure_unit' name='measure_unit'>
-      <option value='ML'>ml</option>
-      <option value='LITER'>liter</option>
-      <option value='GR'>gr</option>
-      <option value='PIECES'>pieces</option>
-      <option value='CUP'>cup</option>
-      <option value='CUPS'>cups</option>
-      <option value='TSP'>tsp</option>
-      <option value='TBSP'>tbsp</option>
-      <option value='CLOVE'>clove</option>
-      <option value='CAN'>can</option>
-      <option value='CANS'>cans</option>
-      <option value='SLICE'>slice</option>
-      <option value='SLICES'>slices</option>
-      <option value='A_PINCH_OF'>pinch</option>
-      <option value='NONE'>none</option>
-    </select-->
+    <!-- PRODUCT CATEGORY -->
 
-    <!-- Checkbox options -->
-
-    <label class='uploader__label--checkbox'>Allergens
-        <input class='uploader__checkbox has_allergens' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-
-    <div class='uploader__checkboxgroup allergen_group'>
-
-        <label class='uploader__label--checkbox'>Eggs
-          <input class='uploader__checkbox has_eggs' type='checkbox'>
-          <span class='uploader__checkmark'></span>
-        </label>
-
-        <label class='uploader__label--checkbox'>Nuts
-            <input class='uploader__checkbox has_nuts' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-
-        <label class='uploader__label--checkbox'>Lactose
-            <input class='uploader__checkbox has_lactose' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-
-        <label class='uploader__label--checkbox'>Gluten
-            <input class='uploader__checkbox has_gluten' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label--select'>Category</label>
+            <select class='uploader__select product_category' name='product_category'>
+            <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
+            <option value='FRUITS'>Fruits</option>
+            <option value='VEGETABLES'>Vegetables</option>
+            <option value='SPICES'>Spices</option>
+            <option value='GRAINS'>Grains</option>
+            <option value='DAIRY'>Dairy</option>
+            <option value='MEAT'>Meat</option>
+            <option value='SEAFOOD'>Seafood</option>
+            <option value='DRINKS'>Drinks</option>
+            <option value='FROZEN_AND_CONVENIENCE'>Frozen and convenience</option>
+            <option value='OTHERS'>Others</option>
+            <option value='NONE'>None</option>
+        </select>
     </div>
 
-    <button class='uploader__button add_product'>Add</button>
+    <!-- PRODUCT LIST OF ALLERGENS -->
+
+    <div class='uploader__groupframe'>
+
+        <!-- ALLERGENS -->
+        <label class='uploader__label--checkbox'>Allergens
+            <input class='uploader__checkbox has_allergens' type='checkbox'>
+            <span class='uploader__checkmark'></span>
+        </label>
+
+        <div class='uploader__checkboxgroup allergen_group'>
+
+            <!-- EGGS -->
+
+            <label class='uploader__label--checkbox'>Eggs
+                <input class='uploader__checkbox has_eggs' type='checkbox'>
+                <span class='uploader__checkmark'></span>
+            </label>
+
+            <!-- NUTS -->
+
+            <label class='uploader__label--checkbox'>Nuts
+                <input class='uploader__checkbox has_nuts' type='checkbox'>
+                <span class='uploader__checkmark'></span>
+            </label>
+
+            <!-- LACTOSE -->
+
+            <label class='uploader__label--checkbox'>Lactose
+                <input class='uploader__checkbox has_lactose' type='checkbox'>
+                <span class='uploader__checkmark'></span>
+            </label>
+
+            <!-- GLUTEN -->
+
+            <label class='uploader__label--checkbox'>Gluten
+                <input class='uploader__checkbox has_gluten' type='checkbox'>
+                <span class='uploader__checkmark'></span>
+            </label>
+
+        </div> <!-- Wrapper End for EGGS, NUTS, LACTOSE, GLUTEN -->
+    </div> <!-- Wrapper End for ALLERGENS -->
+
+    <div class='uploader__row--last'>
+        <button class='uploader__button--save add_product'>Add</button>
+    </div>
+
   </div>
 
   <!-- Existing products frame -->
@@ -179,6 +183,16 @@ class ProductView extends WCBase
             overflow-y: scroll;
             height: 75vh;
         }
+        .uploader__groupframe {
+            margin: 16px 8px;
+        }
+        .uploader__row--last {
+            display: flex;
+            flex-flow: row-reverse;
+            padding: 16px;
+            margin: 0 8px;
+            border-bottom: 2px solid ${props.lightgrey};
+        }
         .uploader__refreshrow {
             display: flex;
             justify-content: space-between;
@@ -207,10 +221,10 @@ class ProductView extends WCBase
             color: #222;          
         }
         .uploader__inputrow--file {
-            display: grid;
-            grid-template-columns: ${props.file_column_width} auto;
+            display: flex;
+            justify-content: space-between;
             height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
+            margin: 0 8px;
             border-bottom: 1px solid ${props.lightgrey};
         }
         .uploader__paragraph {
@@ -221,6 +235,9 @@ class ProductView extends WCBase
         .uploader__image {
             width: ${props.thumbnail_side};
             height: ${props.thumbnail_side};
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
+            align-self: center;
         }
         .uploader__label--text,
         .uploader__label--file,
@@ -290,15 +307,53 @@ class ProductView extends WCBase
         .uploader__label--checkbox .uploader__checkmark:after {
             background-position-x: right;
         }
-        .uploader__input,
-        .uploader__select {
+        .uploader__input {
+            width: ${props.input_width};
             height: ${props.lineHeight};
-            margin-bottom: 12px;
+            padding: ${props.inner_pad};
+            background-color: ${props.lightgrey};
+            border: none;
+            outline: none;
+            border-bottom: 1px solid ${props.darkgrey};
+            align-self: center;
+        }
+        .uploader__select {
+            width: ${props.input_width};
+            height: ${props.lineHeight};
             padding: ${props.inner_pad};
             background-color: ${props.lightgrey};
             border: none;
             border-bottom: 1px solid ${props.darkgrey};
             outline: none;
+        }
+        .uploader__fileframe {
+            position: relative;
+        }
+        .uploader__file {
+            position: absolute;
+            appereance: none;
+            z-index: -1;
+            opacity: 0;
+        }
+        .uploader__filelabel {
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: ${props.green};
+            background-image: url( 'assets/icon_publish.svg' );
+            background-repeat: no-repeat;
+            background-position-x: right;
+            transform: translateY(8px);
+            padding: 5px 0 0 0;
+            border: 2px solid rgba(0, 0, 0, 0.33);
+            width: 153px;
+            height: 32px;
+            color: #fff;
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 0 2px #000;
+            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
         }
         .uploader__button {
             cursor: pointer;
@@ -309,6 +364,18 @@ class ProductView extends WCBase
             height: ${props.lineHeight};
             color: #fff;
             background-color: ${props.red};
+            background-repeat: no-repeat;
+            background-origin: center;
+        }
+        .uploader__button--save {
+            cursor: pointer;
+            width: 64px;
+            height: 64px;
+            border-radius: 6px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.red};
+            background-image: url('assets/icon_save.svg');
             background-repeat: no-repeat;
             background-origin: center;
         }
@@ -362,22 +429,23 @@ class ProductView extends WCBase
         .product__row {
             width: ${props.frame_width};
             display: grid;
-            grid-template-columns: 64px auto 48px 48px;
-            margin: auto;
+            grid-template-columns: 64px auto 64px;
+            padding-left: 8px;
             border-bottom: 1px solid ${props.lightgrey};
+        }
+        .product__row:nth-child(2n) {
+            background-color: ${props.disabled};
         }
         .product__img {
             width: 48px;
             height: 48px;
-            margin: 8px;
+            align-self: center;
         }
         .product__label {
-            text-align: center;
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            margin: 16px;
-            height: 32px;
+            align-self: center;
         }
         @media (max-width: ${props.uploader_max_width})
         {
@@ -394,7 +462,7 @@ class ProductView extends WCBase
         // ---------------------------
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton   = this.shadowRoot.querySelector('.uploader__button.add_product');
+        this.mAddButton   = this.shadowRoot.querySelector('.uploader__button--save.add_product');
         this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
         
         const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
@@ -410,7 +478,7 @@ class ProductView extends WCBase
         // ------------------
 
         this.mNameInput         = this.shadowRoot.querySelector('.uploader__input.product_name');
-        this.mFileInput         = this.shadowRoot.querySelector('.uploader__input.product_image');
+        this.mFileInput         = this.shadowRoot.querySelector('.uploader__file.product_image');
         const imageElement      = this.shadowRoot.querySelector('.uploader__image.product_image');
         setImageFileInputThumbnail(this.mFileInput, imageElement);
 
