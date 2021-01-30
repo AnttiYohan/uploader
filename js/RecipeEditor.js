@@ -174,7 +174,10 @@ template.innerHTML =
       
     <!-- MEAL TYPES -->
 
-    <label class='editor__label'>Meal types</label>
+    <div class='editor__selectrow'>
+        <label class='editor__label'>Meal types</label>
+    </div>
+
     <div class='editor__checkboxgroup mealtypes_group'>
 
         <!-- BREAKFAST -->
@@ -246,6 +249,9 @@ template.innerHTML =
             <input class='editor__checkbox beverages' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+
+        <!-- UPDATE BUTTON -->
+        <button class='editor__button--mealtypes'></button>
 
     </div> <!-- ENDOF editor checkboxgroup div -->
   </div> <!-- editor__frame -->
@@ -381,9 +387,9 @@ class RecipeEditor extends WCBase
         }
         .editor__selectrow {
             display: grid;
-            grid-template-columns: 128px auto 64px;
+            grid-template-columns: auto 153px 48px;
             height: 48px;
-            padding: 8px;
+            padding: 8px 0;
             border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__refreshrow {
@@ -562,6 +568,7 @@ class RecipeEditor extends WCBase
             background-color: ${props.blue};
             background-image: url('assets/icon_undo.svg');
         }
+        .editor__button--mealtypes,
         .editor__button--allergens {
             cursor: pointer;
             margin: 0 8px 8px 0;
