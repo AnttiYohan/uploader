@@ -19,64 +19,68 @@ import { FileCache } from './util/FileCache.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='editor'>
-  <header>
-    <h3 class='editor__header'>Recipe editor</h3>
-  </header>
-  
-  <div class='recipe__frame'>
+`<div class='editor'>  
+  <div class='editor__frame'>
+
+    <!-- RECIPE EDITOR HEADER -->
+    <header class='header'>
+        <h3 class='header__title'>Recipe Editor</h3>
+    </header>
 
     <!-- EXIT EDITOR ROW -->
 
     <div class='editor__rowset'>
-      <label class='editor__label'>Exit editor</label>
-      <button class='editor__button--exit'></button>
+        <label class='editor__label'>Exit editor</label>
+        <button class='editor__button--exit'></button>
     </div>
 
     <!-- RESET EDITOR ROW -->
 
     <div class='editor__rowset'>
-      <label class='editor__label'>Reset values</label>
-      <button class='editor__button--reset'></button>
+        <label class='editor__label'>Reset values</label>
+        <button class='editor__button--reset'></button>
     </div>
 
     <!-- RECIPE TITLE -->
 
-    <label  class='editor__label'>Edit Title</label>
-    <div    class='editor__rowset'>
-      <input  class='editor__input  recipe_title' type='text'>
-      <button class='editor__button recipe_title'></button>
-    </div>
+    <div class='editor__gridrow'>
+        <label  class='editor__label'>Edit Title</label>
+        <input  class='editor__input  recipe_title' type='text'>
+        <button class='editor__button recipe_title'></button>
+   </div>
 
     <!-- RECIPE IMAGE -->
 
-    <label  class='editor__label'>Change Image</label>
-    <div    class='editor__rowset'>
-      <img  class='editor__image recipe_image'></img>
-      <input class='editor__input recipe_image' type='file'>
-      <button class='editor__button recipe_image'></button>
+    <div class='editor__row--file'>
+        <img src='assets/icon_cached.svg'   class='editor__image recipe_image' />
+        <div class='editor__fileframe'>
+           <label for='image-upload-input'  class='editor__filelabel'>image upload</label>
+           <input  id='image-upload-input'  class='editor__file recipe_image' type='file'>
+        </div>
+        <button class='editor__button recipe_image'></button>
     </div>
 
     <!-- PREPARE TIME -->
 
-    <label class='editor__label'>Change prepare time</label>
-    <div   class='editor__rowset'>
-      <input class='editor__input recipe_prepare_time' type='number'>
-      <button class='editor__button recipe_prepare_time'></button>
+    <div class='editor__gridrow'>
+        <label class='editor__label'>Prep Time</label>
+        <input class='editor__input recipe_prepare_time' type='number'>
+        <button class='editor__button recipe_prepare_time'></button>
     </div>
 
     <!-- AGE IN MONTHS -->
 
-    <label class='editor__label'>Change age in months</label>
-    <div   class='editor__rowset'>
-      <input class='editor__input recipe_age' type='number'>
-      <button class='editor__button recipe_age'></button>
+    
+    <div class='editor__gridrow'>
+        <label class='editor__label'>Change Age</label>
+        <input class='editor__input recipe_age' type='number'>
+        <button class='editor__button recipe_age'></button>
     </div>
 
     <!-- INSTRUCTIONS -->
 
     <div class='editor__textareaset'>
-        <div class='editor__inputrow'>
+        <div class='editor__row--instructions'>
             <label  class='editor__label'>Instructions</label>
             <button class='editor__button recipe_instructions'></button>
         </div>
@@ -87,54 +91,58 @@ template.innerHTML =
 
     <!-- FINGERFOOD ROW -->
 
-    <div class='uploader__inputrow'>
-        <label class='uploader__label--checkbox'>Fingerfood
+    <div class='editor__inputrow'>
+        <label class='editor__label--checkbox'>Fingerfood
             <input class='editor__checkbox fingerfood' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+        <button class='editor__button recipe_fingerfood m-0'></button>
     </div>
 
     <!-- HAS TO COOK -->
 
-    <div class='uploader__inputrow'>
-        <label class='uploader__label--checkbox'>Has To Cook
-            <input class='editor__checkbox cook' type='checkbox'>
+    <div class='editor__inputrow'>
+        <label class='editor__label--checkbox'>Has To Cook
+            <input class='editor__checkbox has_to_cook' type='checkbox'>
             <span class='editor__checkmark'></span>
         </label>
+        <button class='editor__button has_to_cook m-0'></button>
     </div>
 
     <!-- ALLERGEN LIST (as one update) -->
 
-    <div class='uploader__checkboxgroup'>
+    <div class='editor__checkboxgroup'>
 
         <!-- HAS EGGS -->
 
-        <label class='uploader__label--checkbox'>Has Eggs
-            <input class='uploader__checkbox has_eggs' type='checkbox'>
-            <span class='uploader__checkmark'></span>
+        <label class='editor__label--checkbox'>Has Eggs
+            <input class='editor__checkbox has_eggs' type='checkbox'>
+            <span class='editor__checkmark'></span>
         </label>
 
         <!-- HAS NUTS -->
 
-        <label class='uploader__label--checkbox'>Has Nuts
-            <input class='uploader__checkbox has_nuts' type='checkbox'>
-            <span class='uploader__checkmark'></span>
+        <label class='editor__label--checkbox'>Has Nuts
+            <input class='editor__checkbox has_nuts' type='checkbox'>
+            <span class='editor__checkmark'></span>
         </label>
 
         <!-- HAS LACTOSE -->
 
-        <label class='uploader__label--checkbox'>Has Lactose
-            <input class='uploader__checkbox has_lactose' type='checkbox'>
-            <span class='uploader__checkmark'></span>
+        <label class='editor__label--checkbox'>Has Lactose
+            <input class='editor__checkbox has_lactose' type='checkbox'>
+            <span class='editor__checkmark'></span>
         </label>
 
         <!-- HAS GLUTEN -->
         
-        <label class='uploader__label--checkbox'>Has Gluten
-            <input class='uploader__checkbox has_gluten' type='checkbox'>
-            <span class='uploader__checkmark'></span>
+        <label class='editor__label--checkbox'>Has Gluten
+            <input class='editor__checkbox has_gluten' type='checkbox'>
+            <span class='editor__checkmark'></span>
         </label> 
 
+        <!-- UPDATE BUTTON -->
+        <button class='editor__button--allergens'></button>
     </div>
     <!-- STEP LIST -->
 
@@ -287,9 +295,12 @@ class RecipeEditor extends WCBase
         }
         .editor {
             display: flex;
-            width: 80vw;
-            height: 80vh;
+            position: absolute;
+            top: 0;
+            width: 100vw;
+            /*height: 80vh;*/
             margin: auto;
+            background-color: #fff;
         }
         .editor__subheader {
             font-size: ${props.header_font_size};
@@ -305,17 +316,60 @@ class RecipeEditor extends WCBase
             flex-direction: column;
             margin: 16px auto;
             max-width: 600px;
+            width: ${props.frame_width};
+        }
+        .editor__fileframe {
+            position: relative;
+        }
+        .editor__file {
+            position: absolute;
+            appereance: none;
+            z-index: -1;
+            opacity: 0;
+        }
+        .editor__filelabel {
+            display: inline-block;
+            cursor: pointer;
+            margin: 8px 0;
+            border-radius: 4px;
+            background-color: ${props.green};
+            background-image: url( 'assets/icon_publish.svg' );
+            background-repeat: no-repeat;
+            background-position-x: right;
+            padding: 5px 0 0 0;
+            border: 2px solid rgba(0, 0, 0, 0.33);
+            width: 153px;
+            height: 32px;
+            color: #fff;
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 0 2px #000;
+            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
         }
         .editor__label {
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            height: ${props.lineHeight};
+            align-self: center;
+        }
+        .editor__label--fullwidth {
+            width: 100%;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            align-self: center;
         }
         .editor__paragraph {
             color: #222;
             font-weight: 200;
             font-size: ${props.text_font_size};
+        }
+        .editor__image {
+            width: ${props.thumbnail_side};
+            height: ${props.thumbnail_side};
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
         }
         .editor__rowset {
             display: flex;
@@ -341,15 +395,28 @@ class RecipeEditor extends WCBase
         }
         .editor__gridrow {
             display: grid;
-            grid-template-columns: 128px auto 64px;
-            height: 48px;
+            grid-template-columns: auto auto 48px;
+            /*grid-template-columns: auto ${props.input_width} 48px;*/
+            height: ${props.uploader_row_height};
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__row--instructions {
+            display: grid;
+            grid-template-columns: auto 48px;
+            height: ${props.uploader_row_height};
+            padding: 8px 0 8px 0;
+        }
+        .editor__row--file {
+            display: grid;
+            grid-template-columns: auto ${props.input_width} 48px;
+            height: ${props.uploader_row_height};
             border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__inputrow {
             display: flex;
             justify-content: space-between;
             height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
+            padding: 8px 8px 8px 0;
             border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__inputrow .editor__label {
@@ -362,7 +429,6 @@ class RecipeEditor extends WCBase
         .editor__textareaset {
             display: flex;
             flex-direction: column;
-            padding: 8px;
             border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__textarea {
@@ -434,17 +500,20 @@ class RecipeEditor extends WCBase
             background-position-x: right;
         }
         .editor__input {
-            padding: 4px;
+            width: ${props.input_width};
+            padding: ${props.inner_pad};
             color: #222;
             font-size: ${props.small_font_size};
             font-weight: 300;
             background-color: transparent;
             outline: none;
-            border-bottom: 2px solid ${props.grey};
-            height: ${props.lineHeight};
+            border: none;
+            border-bottom: 1px solid ${props.grey};
         }
         .editor__button {
             cursor: pointer;
+            margin: 0 auto;
+            align-self: center;
             width: 32px;
             height: 32px;
             border-radius: 4px;
@@ -492,6 +561,19 @@ class RecipeEditor extends WCBase
             color: #fff;
             background-color: ${props.blue};
             background-image: url('assets/icon_undo.svg');
+        }
+        .editor__button--allergens {
+            cursor: pointer;
+            margin: 0 8px 8px 0;
+            float: right;
+            transform: translateY(-106px);
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 2px solid ${props.darkgrey};
+            color: #fff;
+            background-color: ${props.blue};
+            background-image: url('assets/icon_update.svg');
         }
         .editor__response {
             margin: 16px auto;
@@ -545,6 +627,22 @@ class RecipeEditor extends WCBase
         .editor__image {
             width: 32px;
             height: 32px;
+            align-self: center;
+        }
+        .header {
+            display: flex;
+            height: 64px;
+            justify-content: center;
+            border-bottom: 1px solid ${props.lightgrey};
+            box-shadow: 0 0 14px 2px rgba(0,0,0,0.25);
+        }
+        .header__title {
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            align-self: center;
+        }
+        .m-0 {
+            margin: 0;
         }
         `);
 
@@ -622,7 +720,7 @@ class RecipeEditor extends WCBase
         // -----------------------------------------------------------------------------------
 
         //this.mImageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
-        const imageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
+        const imageInput        = this.shadowRoot.querySelector('.editor__file.recipe_image');
         const imageButton       = this.shadowRoot.querySelector('.editor__button.recipe_image');
         imageButton.addEventListener
         ('click', e => 
@@ -771,7 +869,7 @@ class RecipeEditor extends WCBase
         // ----------------------------
 
         // - Checkboxe
-        this.mHasToCookInput    = this.shadowRoot.querySelector('.editor__checkbox.cook');
+        this.mHasToCookInput    = this.shadowRoot.querySelector('.editor__checkbox.has_to_cook');
         this.mHasEggsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_eggs');
         this.mHasNutsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_nuts');
         this.mHasLactoseInput   = this.shadowRoot.querySelector('.editor__checkbox.has_lactose');
