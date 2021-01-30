@@ -132,6 +132,7 @@ class ProductMenu extends WCBase
             cursor: pointer;
             width: 32px;
             height: 32px;
+            margin-left: 8px;
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
             color: #fff;
@@ -146,7 +147,7 @@ class ProductMenu extends WCBase
         {
             display: flex;
             flex-direction: column;
-            padding: 4px;
+            padding: 4px 0;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
@@ -154,19 +155,17 @@ class ProductMenu extends WCBase
         }
         .ingredient__row
         {
-            padding: 4px;
             display: flex;
             flex-direction: row;
             height: 32px;
         }
         .ingredient__title
         {
-            flex-basis: 60%;
+            flex-basis: 88px;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
             height: ${props.ingredient_height};
-            margin-left: 8px;
         }
         .ingredient__amount
         {
@@ -176,15 +175,16 @@ class ProductMenu extends WCBase
             border-left: 0;
             border-right: 0;
             border-bottom: 2px solid ${props.darkgrey};
-            max-width: 50px;
+            width: 32px;
             color: #222;
             font-size: ${props.small_font_size};
             text-shadow: 0 2px 10px ${props.blue};
-            margin-left: 8px;
             height: ${props.ingredient_height};
         }
         .ingredient__unit
         {
+            wisth: 96px;
+            margin-right: 8px;
             background: transparent;
             outline: none;
             border-top: 0;
