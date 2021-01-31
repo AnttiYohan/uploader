@@ -99,7 +99,7 @@ template.innerHTML =
     </div> <!-- Wrapper End for ALLERGENS -->
 
     <div class='uploader__row--last'>
-        <button class='uploader__button--save add_product'>Add</button>
+        <button class='uploader__button--save add_product'></button>
     </div>
 
   </div>
@@ -114,7 +114,7 @@ template.innerHTML =
  */
 class ProductView extends WCBase
 {
-    constructor(token)
+    constructor()
     {
         super();
         
@@ -123,15 +123,11 @@ class ProductView extends WCBase
         // -----------------------------------------------
 
         this.mDisplay = 'flex';
-        this.mToken   = token;
+        this.mToken   = '';
         this.mProductObjects = [];
 
-        console.log(`ProductView::token: ${token}`);
+        console.log(`ProductView::constructor called`);
 
-        if (token && token.length)
-        {
-            FileCache.setToken(token);
-        }
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -501,18 +497,7 @@ class ProductView extends WCBase
             "login-event", 
             e =>
             {
-                console.log(`UploaderView - login-event catched`);
-
-                // ----------------------------------
-                // - Grab the token from local store
-                // ----------------------------------
-
-
-                // ----------------------------------
-                // - Turn the root element display on
-                // ----------------------------------
-
-                this.mRootElement.style.display = 'flex';
+                console.log(`ProductView - login-event catched`);
             },
             true
         );
