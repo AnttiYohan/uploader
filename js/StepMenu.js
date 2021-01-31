@@ -25,7 +25,7 @@ template.innerHTML =
     <button class='editor__button--new new_recipe_step'></button>
   </div>
 
- <!-- Build the new step here -->
+    <!-- Build the new step here -->
 
   <div class='editor__frame step_editor'>
   </div>
@@ -90,13 +90,22 @@ class StepMenu extends WCBase
             display: grid;
             grid-template-columns: 48px auto 48px;
             height: 48px;
-            padding: 8px;
+            border-bottom: 1px solid ${props.lightgrey};
+        }
+        .editor__image {
+            width: ${props.thumbnail_side};
+            height: ${props.thumbnail_side};
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
+            align-self: center;
+            justify-self: center;
         }
         .editor__label {
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            height: ${props.lineHeight};
+            align-self: center;
+            padding-left: 4px;
         }
         .editor__input {
             padding: 4px;
@@ -146,10 +155,13 @@ class StepMenu extends WCBase
             color: #fff;
             background-color: ${props.red};
             background-image: url('assets/icon_cancel.svg');
+            align-self: center;
+            justify-self: center;
         }
-        .editor__image {
-            width: 32px;
-            height: 32px;
+        .editor__subheader {
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            align-self: center;
         }
         `);
 
