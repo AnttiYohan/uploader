@@ -316,71 +316,23 @@ class FileCache
     // -
     // ------------------------------------------------
 
-    /**
-     * Performs an HTTP PATCH Request, 
-     * ------------------------------
-     * which updates a field with type of `string`
-     * params:
-     * 1) base route
-     * 2) route endpoint
-     * 3) 
-     *                     
-     * Authorization header with bearer and token from storage
-     * 
-     * @param  {string}  baseroute
-     * @param  {string}  endpoint
-     * @param  {object}  payload
-     * @return {Promise} response
-     */
-    static async patchJSON(baseroute, endpoint, payload)
-    {
-        const bearer = `Bearer ${FileCache.getToken()}`;
-        console.log(`HTTP PATCH 'string' Authorization: ${bearer}`);
 
-        // ------------------------------------
-        // - Generate multipart payload
-        // ------------------------------------
-
-        const response = await fetch
-        (
-            `${baseroute}/${endpoint}`,
-            {
-                method: 'PATCH',
-                credentials: 'include',
-                headers: 
-                {
-                    'Authorization' : bearer
-                },
-                body: payload
-            }
-        );
-
-        const text = await response.text();
-
-        // -----------------------------------
-        // - Clear route cache
-        // -----------------------------------
-
-        FileCache.clearCache(route);
-
-        return text;
-    }
 
     /**
      * Performs an HTTP PATCH Request, 
      * ------------------------------
-     * which updates a field with type of `integer`
+     * which updates a field with mixed type value
      * Authorization header with bearer and token from storage
      * 
      * @param  {string}   route
      * @param  {string}   endpoint
      * @param  {string}   fieldKey
-     * @param  {number}   fieldValue
+     * @param  {mixed}    fieldValue
      * @param  {string}   idKey
      * @param  {number}   idValue
      * @return {Promise}  response
      */
-    static async patchNumberById(route, endpoint, fieldKey, fieldValue, idKey, idValue)
+    static async patchFieldById(route, endpoint, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PATCH Authorization: ${bearer}`);
@@ -472,30 +424,34 @@ class FileCache
         return text;
     }
 
-
     /**
      * Performs an HTTP PATCH Request, 
      * ------------------------------
-     * with a payload of a serialized JSON object (mltiple key/value pairs)
+     * which updates a field with type of `string`
+     * params:
+     * 1) base route
+     * 2) route endpoint
+     * 3) payload as JS Object key/value pairs
+     *                     
      * Authorization header with bearer and token from storage
      * 
-     * @param  {string}  route
-     * @param  {string}  path
+     * @param  {string}  baseroute
+     * @param  {string}  endpoint
      * @param  {object}  payload
      * @return {Promise} response
      */
-    static async patchJSON(route, endpoint, payload)
+    static async patchJSON(baseroute, endpoint, payload)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
-        console.log(`HTTP PATCH Authorization: ${bearer}`);
+        console.log(`HTTP PATCH 'JSON' Authorization: ${bearer}`);
 
         // ------------------------------------
-        // - Generate Request
+        // - Generate multipart payload
         // ------------------------------------
 
         const response = await fetch
         (
-            `${route}/${endpoint}`,
+            `${baseroute}/${endpoint}`,
             {
                 method: 'PATCH',
                 credentials: 'include',
@@ -518,19 +474,68 @@ class FileCache
         return text;
     }
 
+
     /**
-     * Performs a HTTP PUT Request, includes an 
+     * Performs an HTTP PUT Request, 
+     * ------------------------------
+     * with a payload of a serialized JSON object (multiple key/value pairs)
      * Authorization header with bearer and token from storage
      * 
      * @param  {string}  route
      * @param  {string}  path
-     * @param  {string}  field
+     * @param  {object}  payload
      * @return {Promise} response
      */
-    static async putImageById(route, idKey, idValue, imageKey, imageFile)
+    static async putJSON(route, endpoint, payload)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PUT Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate Request
+        // ------------------------------------
+
+        const response = await fetch
+        (
+            `${route}/${endpoint}`,
+            {
+                method: 'PUT',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: JSON.stringify(payload)
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return text;
+    }
+
+    /**
+     * Performs a HTTP PATHC Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  endpoint
+     * @param  {string}  imageKey
+     * @param  {File}    imageFile
+     * @param  {string}  idKey
+     * @param  {integer} idValue 
+     * @return {Promise} response
+     */
+    static async patchImageById(route, endpoint, imageKey, imageFile, idKey, idValue)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+        console.log(`HTTP PATCH Authorization: ${bearer}`);
 
         // ------------------------------------
         // - Generate multipart payload
@@ -543,7 +548,7 @@ class FileCache
 
         const response = await fetch
         (
-            `${route}/${imageKey}`,
+            `${route}/${endpoint}`,
             {
                 method: 'PUT',
                 credentials: 'include',
