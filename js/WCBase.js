@@ -3,10 +3,9 @@
  */
 class WCBase extends HTMLElement
 {
-    constructor(title = "")
+    constructor()
     {
         super();
-        this.mTitle = title;
     }
 
     setupStyle(css)
@@ -14,35 +13,6 @@ class WCBase extends HTMLElement
         const style = document.createElement('style');
         style.textContent = css;
         this.shadowRoot.appendChild(style);
-    }
-
-    static get observedAttributes()
-    {
-        console.log("EditableField::connected callback called");
-        return ["disabled"];
-    }
-
-    get disabled()
-    {
-        return this.hasAttribute("disabled");
-    }
-
-    set disabled(value)
-    {
-        if (value)
-            this.setAttribute("disabled", "");
-        else
-            this.removeAttribute("disabled");
-    }
-
-    get title()
-    {
-        return this.mTitle;
-    }
-
-    set title(value)
-    {
-        this.mTitle = value;
     }
 
 }
