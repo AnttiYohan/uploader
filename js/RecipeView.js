@@ -214,7 +214,7 @@ template.innerHTML =
  */
 class RecipeView extends WCBase
 {
-    constructor(token = undefined)
+    constructor()
     {
         super();
         
@@ -223,13 +223,14 @@ class RecipeView extends WCBase
         // -----------------------------------------------
 
         this.mDisplay = 'flex';
-        this.mToken   = token;
+        this.mToken   = '';
         this.mRecipeObjects = [];
         this.mProductObjects = [];
         this.mProductMap = {};
 
         this.mAvailableProducts = [];
 
+        console.log(`RecipeView::constructor called`);
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -514,17 +515,17 @@ class RecipeView extends WCBase
             background-position-x: right;
         }
         /* Checkmark indicator when not checked */
-        .uploader__checkmark:after {
+        .uploader__checkmark::after {
             content: '';
             position: absolute;
             display: none;
         }
         /* Checkmark indicator display on check*/
-        .uploader__label--checkbox .uploader__checkbox:checked ~ .uploader__checkmark:after {
+        .uploader__label--checkbox .uploader__checkbox:checked ~ .uploader__checkmark::after {
             display: block;
         }
         /* Style the checkmark */
-        .uploader__label--checkbox .uploader__checkmark:after {
+        .uploader__label--checkbox .uploader__checkmark::after {
             background-position-x: right;
         }
         .uploader__checkboxgroup {
@@ -1197,7 +1198,6 @@ class RecipeView extends WCBase
     getRecipes()
     {         
         return FileCache.getCached(RECIPE_URL);
-        //return FileCache.getRequest(PRODUCT_URL);
     }
 
     /**
