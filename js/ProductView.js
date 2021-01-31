@@ -28,7 +28,7 @@ template.innerHTML =
     <!-- PRODUCT IMAGE -->
 
     <div class='uploader__inputrow--file'>
-        <img    class='uploader__image  product_image' />
+        <img    class='uploader__image  product_image' src='assets/icon_placeholder.svg' />
         <div class='uploader__fileframe'>
            <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
            <input  id='image-upload-input'  class='uploader__file  product_image' type='file'>
