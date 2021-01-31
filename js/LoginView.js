@@ -100,6 +100,7 @@ class LoginView extends WCBase
         }
         .login {
             display: flex;
+            flex-direction: column;
             width: fit-content;
             margin: 100px auto;
         }
@@ -173,13 +174,14 @@ class LoginView extends WCBase
             box-shadow: 0 1px 12px 2px rgba(0,0,0,0.25);
         }
         .notification__frame {
-            margin: 16px 8px 32px 8px;
+            max-width: 200px;
+            margin: 16px auto;
         }
         .notification__text {
             font-size: ${props.text_font_size};
             font-weight: 400;
             color: #980012;
-            text-shadow: 1px 1px 3px #000;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.25);
         }
         `);
 
@@ -272,7 +274,7 @@ class LoginView extends WCBase
         this.mEmailInput.value = '';
         this.mPasswordInput.value = '';
     }
-    
+
     /**
      * Builds and executes the perform_login HTTP Request
      * from Babyfoodworld API
