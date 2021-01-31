@@ -19,7 +19,7 @@ import { FileCache } from './util/FileCache.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='productmenu'>
+`<div class='stepmenu'>
   <div class='editor__rowset'>
     <h3  class='editor__subheader'>Steps</h3>
     <button class='editor__button--new new_recipe_step'></button>
@@ -163,6 +163,34 @@ class StepMenu extends WCBase
             font-weight: 500;
             align-self: center;
         }
+        .uploader__fileframe {
+            position: relative;
+        }
+        .uploader__file {
+            position: absolute;
+            appereance: none;
+            z-index: -1;
+            opacity: 0;
+        }
+        .uploader__filelabel {
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 4px;
+            background-color: ${props.green};
+            background-image: url( 'assets/icon_publish.svg' );
+            background-repeat: no-repeat;
+            background-position-x: right;
+            padding: 5px 0 0 0;
+            border: 2px solid rgba(0, 0, 0, 0.33);
+            width: 153px;
+            height: 32px;
+            color: #fff;
+            font-size: ${props.header_font_size};
+            font-weight: 500;
+            text-align: center;
+            text-shadow: 0 0 2px #000;
+            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
+        }
         `);
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -232,11 +260,42 @@ class StepMenu extends WCBase
         // - Image row
         // -----------------------------
 
-        const imageElement = newTagClass("img", "editor__image");
-        const imageFileInput = fileInputClass("editor__input");
+        const 
+        imageElement = newTagClass("img", "editor__image");
+        imageElement.src = 'assets/icon_placeholder.svg';
+
+        const 
+        imageFileInput = fileInputClass("uploader__file");
+        imageFileInput.setAttribute('id', 'image-upload-input');
+
+        const fileFrame = newTagClassChildren
+        (
+            'div',
+            'uploader__fileframe',
+            [
+                newTagClassAttrs
+                (
+                    'label',
+                    'uploader__filelabel',
+                    {
+                        'for': 'image-upload-input'
+                    },
+                    'image upload'
+                ),
+                imageFileInput
+            ]
+        )
 
         setImageFileInputThumbnail(imageFileInput, imageElement);
-                
+        
+        /*<div class='uploader__inputrow--file'>
+        <img src='assets/icon_placeholder.svg'  class='uploader__image recipe_image' />
+        <div class='uploader__fileframe'>
+           <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
+           <input  id='image-upload-input'  class='uploader__file recipe_image' type='file'>
+        </div>
+    </div>*/
+
         this.mStepEditor.appendChild
         (
             newTagClassChildren
@@ -245,7 +304,7 @@ class StepMenu extends WCBase
                 "editor__rowset",
                 [
                     imageElement,
-                    imageFileInput
+                    fileFrame
                 ]
             )
         );
@@ -450,7 +509,7 @@ class StepMenu extends WCBase
 
     disconnectedCallback()
     {
-        console.log("StepMenu::callback connected");
+        console.log("StepMenu -- disconnected");
     }  
 }
 

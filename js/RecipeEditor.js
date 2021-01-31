@@ -337,9 +337,10 @@ class RecipeEditor extends WCBase
             display: flex;
             position: absolute;
             top: 0;
+            left: 0;
+            right: 0;
             width: 100vw;
-            /*height: 80vh;*/
-            margin: auto;
+            margin: 0 auto;
             background-color: #fff;
         }
         .editor__subheader {
@@ -1071,14 +1072,14 @@ class RecipeEditor extends WCBase
         // - Recipe Storage info update input/button
         // -----------------------------------------------------------------------------------
 
-        const storageInfoInput  = this.shadowRoot.querySelector('.editor__input.recipe_storage');
+        this.mStorageInfoInput  = this.shadowRoot.querySelector('.editor__input.recipe_storage');
         const storageInfoButton = this.shadowRoot.querySelector('.editor__button.recipe_storage');
         storageInfoButton.addEventListener
         ('click', e => 
         {
-            if (storageInfoInput.value.length)
+            if (this.mStorageInfoInput.value.length)
             {
-                this.updateStorageInfo(storageInfoInput.value)
+                this.updateStorageInfo(this.mStorageInfoInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::storageInfo response: ${data}`);
@@ -1381,7 +1382,7 @@ class RecipeEditor extends WCBase
             'title', 
             {
                 title: newTitle,
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1406,8 +1407,8 @@ class RecipeEditor extends WCBase
             RECIPE_URL,
             'prepare-time',
             {
-                'prepareTimeInMinutes': newTime,
-                'recipeId': this.mRecipeDto.id
+                prepareTimeInMinutes: newTime,
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1419,8 +1420,8 @@ class RecipeEditor extends WCBase
             RECIPE_URL,
             'age',
             {
-                'monthsOld': newAge,
-                'recipeId': this.mRecipeDto.id
+                monthsOld: newAge,
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1433,7 +1434,7 @@ class RecipeEditor extends WCBase
             'instructions',
             {
                 instructions: newInstructions, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1446,7 +1447,7 @@ class RecipeEditor extends WCBase
             'finger-food',
             {
                 fingerFood: newFingerFood, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1459,14 +1460,14 @@ class RecipeEditor extends WCBase
             'has-to-cook',
             {
                 hasToCook, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
 
     updateAllergenSet(setObject)
     {
-        setObject.recipeId = this.mRecipeDto.id;
+        setObject.id = this.mRecipeDto.id;
 
         return FileCache.patchJSON
         (
@@ -1484,14 +1485,14 @@ class RecipeEditor extends WCBase
             'season',
             {
                 season: newSeason,
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
 
     updateMealTypeSet(setObject)
     {
-        setObject.recipeId = this.mRecipeDto.id;
+        setObject.id = this.mRecipeDto.id;
 
         return FileCache.patchJSON
         (
@@ -1509,7 +1510,7 @@ class RecipeEditor extends WCBase
             'storage-info',
             {
                 storageInfo: newStorageInfo, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1522,7 +1523,7 @@ class RecipeEditor extends WCBase
             'tips',
             {
                 tips: newTips, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1535,7 +1536,7 @@ class RecipeEditor extends WCBase
             'nutrition-value',
             {
                 nutritionValue: newNutritionValue, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }
@@ -1548,7 +1549,7 @@ class RecipeEditor extends WCBase
             'interesting-info',
             {
                 interestingInfo: newInterestingInfo, 
-                recipeId: this.mRecipeDto.id
+                id: this.mRecipeDto.id
             }
         );
     }  

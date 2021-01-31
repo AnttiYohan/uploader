@@ -424,6 +424,60 @@ class FileCache
         return text;
     }
 
+
+    /**
+     * Performs an HTTP PATCH Request, 
+     * ------------------------------
+     * with multipart formdata, compiled from an object
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  endpoint
+     * @param  {object}  parts
+     * @return {Promise} response
+     */
+    static async patchMultiPart(route, endpoint, parts)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+        console.log(`HTTP PATCH Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+
+        const formData = new FormData();
+
+        for (let key in parts)
+        {
+            formData.append(key, parts[key]);
+            //formData.append(key,  new Blob([parts[key]],{type:'text/plain'}));
+        }
+
+        const response = await fetch
+        (
+            `${route}/${endpoint}`,
+            {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return text;
+    }
+
     /**
      * Performs an HTTP PATCH Request, 
      * ------------------------------
@@ -440,7 +494,7 @@ class FileCache
      * @param  {object}  payload
      * @return {Promise} response
      */
-    static async patchJSON(baseroute, endpoint, payload)
+    static async patchJSON(route, endpoint, payload)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PATCH 'JSON' Authorization: ${bearer}`);
@@ -451,13 +505,14 @@ class FileCache
 
         const response = await fetch
         (
-            `${baseroute}/${endpoint}`,
+            `${route}/${endpoint}`,
             {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: 
                 {
-                    'Authorization' : bearer
+                    'Authorization' : bearer,
+                    'Content-Type' : 'application/json'
                 },
                 body: JSON.stringify(payload)
             }
@@ -550,7 +605,7 @@ class FileCache
         (
             `${route}/${endpoint}`,
             {
-                method: 'PUT',
+                method: 'PATCH',
                 credentials: 'include',
                 headers: 
                 {

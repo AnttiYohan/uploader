@@ -236,7 +236,7 @@ class LoginView extends WCBase
                 })
                 .catch(error => 
                 {
-                    this.displayLoginFail(error); 
+                    this.displayLoginFail('Invalid credentials.'); 
                     console.log(`Login fail: ${error}`); 
                 });
 

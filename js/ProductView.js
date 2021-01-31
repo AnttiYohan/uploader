@@ -211,10 +211,10 @@ class ProductView extends WCBase
         }
         .uploader__inputrow .uploader__label {
             width: 128px;
-            height: 32px;
             font-size: ${props.text_font_size};
             font-weight: 200;
-            color: #222;          
+            color: #222;
+            align-self: center;         
         }
         .uploader__inputrow--file {
             display: flex;
@@ -227,6 +227,7 @@ class ProductView extends WCBase
             color: #222;
             font-weight: 200;
             font-size: ${props.text_font_size};
+            align-self: center;
         }
         .uploader__image {
             width: ${props.thumbnail_side};
@@ -238,11 +239,10 @@ class ProductView extends WCBase
         .uploader__label--text,
         .uploader__label--file,
         .uploader__label--select {
-            display: block;
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            height: 24px;
+            align-self: center;
         }
         .uploader__checkboxgroup {
             border: 1px solid ${props.lightgrey};
@@ -429,13 +429,12 @@ class ProductView extends WCBase
             padding-left: 8px;
             border-bottom: 1px solid ${props.lightgrey};
         }
-        .product__row:nth-child(2n) {
-            background-color: ${props.disabled};
-        }
         .product__img {
             width: 48px;
             height: 48px;
             align-self: center;
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
         }
         .product__label {
             font-size: ${props.text_font_size};

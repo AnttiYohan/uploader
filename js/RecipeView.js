@@ -10,7 +10,7 @@ import
     numberInputClass,
     selectValue,
     selectClassIdOptionList,
-    setSelectedIndex
+    setImageFileInputThumbnail
 } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -50,7 +50,7 @@ template.innerHTML =
     <!-- RECIPE IMAGE -->
 
     <div class='uploader__inputrow--file'>
-        <img src='assets/icon_cached.svg'   class='uploader__image  product_image' />
+        <img src='assets/icon_placeholder.svg'  class='uploader__image recipe_image' />
         <div class='uploader__fileframe'>
            <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
            <input  id='image-upload-input'  class='uploader__file recipe_image' type='file'>
@@ -80,9 +80,15 @@ template.innerHTML =
     <div class='uploader__list ingredients'>
     </div>
 
-    <label for='instructions'  class='uploader__label--text'>Instructions</label>
+    <!-- RECIPE INSTRUCTIONS -->
+
+    <div class='uploader__inputrow'>
+        <label for='instructions'  class='uploader__label--text'>Instructions</label>
+    </div>
     <textarea class='uploader__textarea recipe_instructions' name='instructions' rows="8"></textarea>
     
+    <!-- FINGERFOOD -->
+
     <label class='uploader__label--checkbox'>Fingerfood
         <input class='uploader__checkbox fingerfood' type='checkbox'>
         <span class='uploader__checkmark'></span>
@@ -108,6 +114,8 @@ template.innerHTML =
         <span class='uploader__checkmark'></span>
     </label>            
 
+    <!-- RECIPE SEASON DROPDOWN -->
+
     <div class='uploader__inputrow'>
         <label  class='uploader__label'>Season</label>
         <select class='uploader__select recipe_season' name='season'>
@@ -118,7 +126,11 @@ template.innerHTML =
         </select>
     </div>
 
-    <label class='uploader__label--text'>Meal types</label>
+    <!-- RECIPE MEALTYPES MULTISELECTION -->
+
+    <div class='uploader__inputrow'>
+        <label class='uploader__label--text'>Meal types</label>
+    </div>
 
     <div class='uploader__checkboxgroup mealtypes_group'>
 
@@ -318,7 +330,6 @@ class RecipeView extends WCBase
         }
         .uploader__inputrow .uploader__label {
             width: 128px;
-            height: 32px;
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;          
@@ -362,6 +373,7 @@ class RecipeView extends WCBase
             color: #222;
             font-weight: 200;
             font-size: ${props.text_font_size};
+            align-self: center;
         }
         .uploader__image {
             width: ${props.thumbnail_side};
@@ -471,7 +483,7 @@ class RecipeView extends WCBase
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            height: 24px;
+            align-self: center;
         }
         .uploader__label--checkbox {
             cursor: pointer;
@@ -645,6 +657,8 @@ class RecipeView extends WCBase
             width: 48px;
             height: 48px;
             align-self: center;
+            border-radius: 4px;
+            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
         }
         @media (max-width: ${props.uploader_max_width})
         {
@@ -672,7 +686,19 @@ class RecipeView extends WCBase
         // ------------------
 
         this.mTitleInput        = this.shadowRoot.querySelector('.uploader__input.recipe_title');
+
+        // ------------------------------------------------------------------------------------
+        // - Here we grab references to recipe file input and to the thumbnail image element
+        // - Then we'll listen for a change event in the input, and when an image is chosen,
+        // - We'll render it in the thumbnail, thus overriding the placeholder image.
+        // - This notifies the user, that the chisen image is actually received and stored
+        // - In the system.
+        // ------------------------------------------------------------------------------------
+
         this.mFileInput         = this.shadowRoot.querySelector('.uploader__file.recipe_image');
+        const imageElement      = this.shadowRoot.querySelector('.uploader__image.recipe_image');
+        setImageFileInputThumbnail(this.mFileInput, imageElement);
+
         this.mPrepTimeInput     = this.shadowRoot.querySelector('.uploader__input.recipe_preparation_time');
         this.mAgeInput          = this.shadowRoot.querySelector('.uploader__input.recipe_age');
         
@@ -680,7 +706,9 @@ class RecipeView extends WCBase
         this.mIngredientsList   = this.shadowRoot.querySelector('.uploader__list.ingredients');
         this.mInstructionsInput = this.shadowRoot.querySelector('.uploader__textarea.recipe_instructions');
 
-        // - Checkboxes
+        // ------------------------------------------------------------------------------------
+        // - Mandatory checkbox inputs
+        // ------------------------------------------------------------------------------------
 
         this.mFingerfoodInput   = this.shadowRoot.querySelector('.uploader__checkbox.fingerfood');
         this.mCookInput         = this.shadowRoot.querySelector('.uploader__checkbox.cook');
@@ -691,7 +719,9 @@ class RecipeView extends WCBase
 
         this.mSeasonInput       = this.shadowRoot.querySelector('.uploader__select.recipe_season');
      
-        // - Mealtype checkboxes
+        // -------------------------------------------------------------------------------------
+        // - Mealtype is a multiselect -- recipe may have 1..N mealtypes
+        // -------------------------------------------------------------------------------------
 
         this.mMealtypeMap =
         {
