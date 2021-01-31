@@ -320,17 +320,19 @@ class FileCache
      * Performs an HTTP PATCH Request, 
      * ------------------------------
      * which updates a field with type of `string`
+     * params:
+     * 1) base route
+     * 2) route endpoint
+     * 3) 
      *                     
      * Authorization header with bearer and token from storage
      * 
-     * @param  {string}  route
-     * @param  {string}  fieldKey
-     * @param  {string}  fieldValue
-     * @param  {string}  idKey
-     * @param  {number}  idValue
+     * @param  {string}  baseroute
+     * @param  {string}  endpoint
+     * @param  {object}  payload
      * @return {Promise} response
      */
-    static async patchStringById(route, fieldKey, fieldValue, idKey, idValue)
+    static async patchJSON(baseroute, endpoint, payload)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PATCH 'string' Authorization: ${bearer}`);
@@ -338,14 +340,10 @@ class FileCache
         // ------------------------------------
         // - Generate multipart payload
         // ------------------------------------
-        const 
-        formData = new FormData();
-        formData.append(fieldKey, fieldValue);
-        formData.append(idKey, idValue);
 
         const response = await fetch
         (
-            `${route}/${fieldKey}`,
+            `${baseroute}/${endpoint}`,
             {
                 method: 'PATCH',
                 credentials: 'include',
@@ -353,7 +351,7 @@ class FileCache
                 {
                     'Authorization' : bearer
                 },
-                body: formData
+                body: payload
             }
         );
 
@@ -374,14 +372,15 @@ class FileCache
      * which updates a field with type of `integer`
      * Authorization header with bearer and token from storage
      * 
-     * @param  {string}  route
-     * @param  {string}  fieldKey
-     * @param  {number}  fieldValue
-     * @param  {string}  idKey
-     * @param  {number}  idValue
-     * @return {Promise} response
+     * @param  {string}   route
+     * @param  {string}   endpoint
+     * @param  {string}   fieldKey
+     * @param  {number}   fieldValue
+     * @param  {string}   idKey
+     * @param  {number}   idValue
+     * @return {Promise}  response
      */
-    static async patchNumberById(route, fieldKey, fieldValue, idKey, idValue)
+    static async patchNumberById(route, endpoint, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PATCH Authorization: ${bearer}`);
@@ -397,7 +396,7 @@ class FileCache
 
         const response = await fetch
         (
-            `${route}/${fieldKey}`,
+            `${route}/${endpoint}`,
             {
                 method: 'PATCH',
                 credentials: 'include',
@@ -427,13 +426,14 @@ class FileCache
      * Authorization header with bearer and token from storage
      * 
      * @param  {string}  route
+     * @param  {string}  endpoint
      * @param  {string}  fieldKey
      * @param  {boolean} fieldValue
      * @param  {string}  idKey
      * @param  {number}  idValue
      * @return {Promise} response
      */
-    static async patchBooleanById(route, fieldKey, fieldValue, idKey, idValue)
+    static async patchBooleanById(route, endpoint, fieldKey, fieldValue, idKey, idValue)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
         console.log(`HTTP PATCH Authorization: ${bearer}`);
@@ -449,7 +449,7 @@ class FileCache
 
         const response = await fetch
         (
-            `${route}/${fieldKey}`,
+            `${route}/${endpoint}`,
             {
                 method: 'PATCH',
                 credentials: 'include',
@@ -458,6 +458,52 @@ class FileCache
                     'Authorization' : bearer
                 },
                 body: formData
+            }
+        );
+
+        const text = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return text;
+    }
+
+
+    /**
+     * Performs an HTTP PATCH Request, 
+     * ------------------------------
+     * with a payload of a serialized JSON object (mltiple key/value pairs)
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  path
+     * @param  {object}  payload
+     * @return {Promise} response
+     */
+    static async patchJSON(route, endpoint, payload)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+        console.log(`HTTP PATCH Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate Request
+        // ------------------------------------
+
+        const response = await fetch
+        (
+            `${route}/${endpoint}`,
+            {
+                method: 'PATCH',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: JSON.stringify(payload)
             }
         );
 
