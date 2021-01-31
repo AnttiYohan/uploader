@@ -1,5 +1,4 @@
 import { WCBase, props } from './WCBase.js';
-/*import { RecipeEditor } from './RecipeEditor.js';*/
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
 import { LoginView } from './LoginView.js';
@@ -23,8 +22,6 @@ template.innerHTML =
       <div class='uploader__logout'></div>
     </div> 
   </header>
-
-  <!-- recipe-editor></recipe-editor -->
   
   <product-view class='view__product'></product-view>
   <recipe-view  class='view__recipe'></recipe-view>
@@ -36,7 +33,7 @@ template.innerHTML =
  */
 class UploaderView extends WCBase
 {
-    constructor(loginView, token)
+    constructor(token)
     {
         super();
         
@@ -46,7 +43,6 @@ class UploaderView extends WCBase
 
         console.log(`Token: ${token}`);
 
-        this.mLoginView = loginView;
         this.mToken     = token;
         this.mDisplay   = 'flex';
         this.mMode      = 'login';
@@ -74,7 +70,7 @@ class UploaderView extends WCBase
             transform: scale3D(1.1, 1.1, 1.1);
         }
         .uploader {
-            display: ${this.mDisplay};
+            display: flex;
             flex-direction: column;
             margin: 0;
             padding: 0;
@@ -171,8 +167,9 @@ class UploaderView extends WCBase
                 FileCache.clearToken();
                 localStorage.removeItem('token');
                 deleteChildren(document.body);
-                const loginView = new LoginView();
-                document.body.appendChild(loginView);
+                document.body.appendChild(new LoginView());
+                this.remove();
+                return;
             }
         );
 
@@ -220,11 +217,6 @@ class UploaderView extends WCBase
 
                 this.mToken = localStorage.getItem('token');
 
-                // ----------------------------------
-                // - Turn the root element display on
-                // ----------------------------------
-
-                this.mRootElement.style.display = 'flex';
             },
             true
         );
