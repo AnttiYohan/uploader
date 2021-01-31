@@ -10,7 +10,7 @@ template = document.createElement("template");
 template.innerHTML =
 `<div class='uploader'>
  
-   <!-- The admin bar in the heade -->
+   <!-- The admin bar in the header -->
 
   <header class='uploader__adminframe'>
     <div class='uploader__adminbar'>
@@ -19,7 +19,7 @@ template.innerHTML =
         <div class='uploader__tab product'>Product</div>
         <div class='uploader__tab recipe'>Recipe</div>
       </div>
-      <div class='uploader__logout'></div>
+      <div class='uploader__logout zoomable'></div>
     </div> 
   </header>
   
@@ -89,7 +89,7 @@ class UploaderView extends WCBase
             max-width: ${props.uploader_max_width};
         }
         .uploader__logo {
-            height: 46px;;
+            height: 46px;
             width: auto;
             margin: 1px 0;
         }
@@ -98,7 +98,7 @@ class UploaderView extends WCBase
             margin: 8px;
             width: ${props.button_side};
             height: ${props.button_side};
-            background-image: url('assets/icon_account.svg');
+            background-image: url('assets/icon_logout.svg');
         }
         .uploader__tabframe {
             display: flex;
