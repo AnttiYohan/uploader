@@ -28,9 +28,12 @@ template.innerHTML =
    </div>
 
     <!-- Edit existing products -->
-    <label  class='editor__label--select'>Edit existing products:</label>
-   <div class='editor__frame utilized_products'>
-   </div>
+
+    <div class='editor__rowset'>
+        <label  class='editor__label'>Edit existing products:</label>
+    </div>
+    <div class='editor__frame utilized_products'>
+    </div>
 
 </div>`;
 
@@ -86,7 +89,7 @@ class ProductMenu extends WCBase
             font-size: ${props.text_font_size};
             font-weight: 200;
             color: #222;
-            height: ${props.lineHeight};
+            align-self: center;
         }
         .editor__input {
             padding: 4px;
@@ -484,7 +487,7 @@ class ProductMenu extends WCBase
 
     disconnectedCallback()
     {
-        console.log("ProductMenu::callback connected");
+        console.log("ProductMenu -- disconnected");
     }  
 
 }
