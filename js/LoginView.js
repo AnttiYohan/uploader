@@ -7,7 +7,13 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<div class='login'>
-    <div class='login__rowset root_frame'>
+
+    <!-- LOGIN FORM -->
+
+    <div class='login__rowset login_form'>
+
+        <!-- INPUT FIELDS -->
+
         <div class='login__frame'>
             <div class='login__row'>
                 <input class='login__input email' type='text' name='email' required/>
@@ -18,10 +24,21 @@ template.innerHTML =
                 <label class='login__label' for="password">password</label>
             </div>
         </div>
+
+        <!-- SUBMIT BUTTON -->
+
         <div class='login__frame'>
           <button class='login__button'></button>
         </div>
+
     </div>
+
+    <!-- USER NOTIFICATION AREA -->
+
+    <div class='notification__frame'>
+        <p class='notification__text'></p>
+    </div>
+
 </div>`;
 
 /**
@@ -155,6 +172,15 @@ class LoginView extends WCBase
             background-image: url('assets/icon_account.svg');
             box-shadow: 0 1px 12px 2px rgba(0,0,0,0.25);
         }
+        .notification__frame {
+            margin: 16px 8px 32px 8px;
+        }
+        .notification__text {
+            font-size: ${props.text_font_size};
+            font-weight: 400;
+            color: #980012;
+            text-shadow: 1px 1px 3px #000;
+        }
         `);
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -163,8 +189,8 @@ class LoginView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.login');
-
+        this.mRootElement       = this.shadowRoot.querySelector('.login');
+        this.mNotificationText  = this.shadowRoot.querySelector('.notification__text');
         // ----------------------------------------------------------------
         // - Define event listeners to listen for TableView's custom events
         // ----------------------------------------------------------------
@@ -173,32 +199,44 @@ class LoginView extends WCBase
         // - Setup login functionality
         // ---------------------------
 
-        const emailInput    = this.shadowRoot.querySelector('.login__input.email');
-        const passwordInput = this.shadowRoot.querySelector('.login__input.password');
+        this.mEmailInput    = this.shadowRoot.querySelector('.login__input.email');
+        this.mPasswordInput = this.shadowRoot.querySelector('.login__input.password');
         const button        = this.shadowRoot.querySelector('.login__button');
+
+        // -----------------------------------------------------------------
+        // - Add a focus listener fot email in order to empty the possible
+        // - Error message when new login attempt begins
+        // -----------------------------------------------------------------
+
+        this.mEmailInput.addEventListener
+        ('focus', e => 
+        {
+            this.mNotificationText.textContent = '';
+        });
 
         button.addEventListener
         ('click', e => {
 
-            const email     = emailInput.value;
-            const password  = passwordInput.value;
+            const email     = this.mEmailInput.value;
+            const password  = this.mPasswordInput.value;
 
-            LoginView
-                .performLogin(email, password)
-                .then(response => {
-
+            LoginView.performLogin(email, password)
+                .then(response => 
+                {
                     console.log(`Login response: ${response}`);
-
                     const json = JSON.parse(response);
 
                     if (json) for (let key in json)
                     {
                         console.log(`key: ${key}, value: ${json[key]}`);
                         this.handleResponse(json);
-                    }
-                   
+                    }      
                 })
-                 .catch(error => { console.log(`Login fail: ${error}`); } );
+                .catch(error => 
+                {
+                    this.displayLoginFail(error); 
+                    console.log(`Login fail: ${error}`); 
+                });
 
         });
 
@@ -223,25 +261,18 @@ class LoginView extends WCBase
             deleteChildren(document.body);
             document.body.appendChild(new UploaderView(token));
             this.remove();
-            return;
-            
-            /* OLD SYSTEM
-            // ------------------------------------
-            // - Notify the uploaderview to refresh
-            // ------------------------------------
-
-            window.dispatchEvent( new CustomEvent("login-event") );
-
-            // ------------------------------------
-            // - Turn login off
-            // ------------------------------------
-            
-            deleteChildren(this.shadowRoot);
-
-            this.shadowRoot.appendChild(this.mUploaderView);*/
-            
+            return;           
         }
+        else throw 'Login failed due to a bad server response';
     }
+
+    displayLoginFail(error)
+    {
+        this.mNotificationText.textContent = `${error}. Please try again.`;
+        this.mEmailInput.value = '';
+        this.mPasswordInput.value = '';
+    }
+    
     /**
      * Builds and executes the perform_login HTTP Request
      * from Babyfoodworld API
