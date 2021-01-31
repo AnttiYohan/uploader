@@ -12,7 +12,8 @@ import
     numberInputClass,
     fileInputClass,
     setImageFileInputThumbnail,
-    setImageThumbnail
+    setImageThumbnail,
+    selectValue
 } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -47,7 +48,7 @@ template.innerHTML =
         <label  class='editor__label'>Edit Title</label>
         <input  class='editor__input  recipe_title' type='text'>
         <button class='editor__button recipe_title'></button>
-   </div>
+    </div>
 
     <!-- RECIPE IMAGE -->
 
@@ -70,7 +71,6 @@ template.innerHTML =
 
     <!-- AGE IN MONTHS -->
 
-    
     <div class='editor__gridrow'>
         <label class='editor__label'>Change Age</label>
         <input class='editor__input recipe_age' type='number'>
@@ -169,7 +169,7 @@ template.innerHTML =
         <option value='SUMMER'>summer</option>
         <option value='AUTUMN'>autumn</option>
       </select>
-      <button class='editor__button season'></button>
+      <button class='editor__button recipe_season'></button>
     </div>
       
     <!-- MEAL TYPES -->
@@ -254,7 +254,41 @@ template.innerHTML =
         <button class='editor__button--mealtypes'></button>
 
     </div> <!-- ENDOF editor checkboxgroup div -->
+
+    <!-- STORAGE INFO -->
+
+    <div class='editor__gridrow'>
+        <label  class='editor__label'>Storage</label>
+        <input  class='editor__input  recipe_storage' type='text'>
+        <button class='editor__button recipe_storage'></button>
+    </div>
+
+    <!-- TIPS -->
+
+    <div class='editor__gridrow'>
+        <label  class='editor__label'>Tips</label>
+        <input  class='editor__input  recipe_tips' type='text'>
+        <button class='editor__button recipe_tips'></button>
+    </div>
+
+    <!-- NUTRITION VALUE -->
+
+    <div class='editor__gridrow'>
+        <label  class='editor__label'>Nutrition</label>
+        <input  class='editor__input  recipe_nutritional_value' type='text'>
+        <button class='editor__button recipe_nutritional_value'></button>
+    </div>
+
+    <!-- INTERESTING INFO -->
+
+    <div class='editor__gridrow'>
+        <label  class='editor__label'>Interesting</label>
+        <input  class='editor__input  recipe_interesting_info' type='text'>
+        <button class='editor__button recipe_interesting_info'></button>
+    </div>
+
   </div> <!-- editor__frame -->
+
 </div>`;
 
 /**
@@ -382,7 +416,7 @@ class RecipeEditor extends WCBase
             flex-direction: row;
             justify-content: space-between;
             height: 48px;
-            padding: 8px;
+            padding: 8px 8px 8px 0;
             border-bottom: 1px solid ${props.lightgrey};
         }
         .editor__selectrow {
@@ -402,7 +436,6 @@ class RecipeEditor extends WCBase
         .editor__gridrow {
             display: grid;
             grid-template-columns: auto auto 48px;
-            /*grid-template-columns: auto ${props.input_width} 48px;*/
             height: ${props.uploader_row_height};
             border-bottom: 1px solid ${props.lightgrey};
         }
@@ -457,6 +490,7 @@ class RecipeEditor extends WCBase
             padding-left: ${props.checkmark_label_left};
             margin-bottom: 12px;
             font-size: ${props.text_font_size};
+            font-weight: 200;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -492,17 +526,17 @@ class RecipeEditor extends WCBase
             background-position-x: right;
         }
         /* Checkmark indicator when not checked */
-        .editor__checkmark:after {
+        .editor__checkmark::after {
             content: '';
             position: absolute;
             display: none;
         }
         /* Checkmark indicator display on check*/
-        .editor__label--checkbox .editor__checkbox:checked ~ .editor__checkmark:after {
+        .editor__label--checkbox .editor__checkbox:checked ~ .editor__checkmark::after {
             display: block;
         }
         /* Style the checkmark */
-        .editor__label--checkbox .editor__checkmark:after {
+        .editor__label--checkbox .editor__checkmark::after {
             background-position-x: right;
         }
         .editor__input {
@@ -579,7 +613,7 @@ class RecipeEditor extends WCBase
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
             color: #fff;
-            background-color: ${props.blue};
+            background-color: ${props.green};
             background-image: url('assets/icon_update.svg');
         }
         .editor__response {
@@ -693,6 +727,11 @@ class RecipeEditor extends WCBase
             delete this;
         });
 
+        this.mResetButton.addEventListener
+        ("click", e => 
+        {
+            this.initEditor();
+        });
         // -----------------------------------------------------------------------------------
         // - Recipe Title update input/button
         // -----------------------------------------------------------------------------------
@@ -726,8 +765,11 @@ class RecipeEditor extends WCBase
         // - Recipe Image update input/button
         // -----------------------------------------------------------------------------------
 
-        //this.mImageInput        = this.shadowRoot.querySelector('.editor__input.recipe_image');
+        const imageElement      = this.shadowRoot.querySelector('.editor__image.recipe_image');
         const imageInput        = this.shadowRoot.querySelector('.editor__file.recipe_image');
+
+        setImageFileInputThumbnail(imageInput, imageElement);
+
         const imageButton       = this.shadowRoot.querySelector('.editor__button.recipe_image');
         imageButton.addEventListener
         ('click', e => 
@@ -765,7 +807,7 @@ class RecipeEditor extends WCBase
         {
             if (this.mPrepareTimeInput.value > 0)
             {
-                this.updatePrepareTime(this.mPrepareTitmeInput.value)
+                this.updatePrepareTime(this.mPrepareTimeInput.value)
                     .then(data => {
 
                         console.log(`RecipeEditor::updatePrepareTime response: ${data}`);
@@ -851,40 +893,121 @@ class RecipeEditor extends WCBase
         fingerFoodButton.addEventListener
         ('click', e => 
         {
-            //if (this.mFingerfoodInput.checked)
-            //{
-                this.updateFingerFood(this.mFingerFoodInput.checked)
-                    .then(data => {
+            this.updateFingerFood(this.mFingerFoodInput.checked)
+                .then(data => {
 
-                        console.log(`RecipeEditor::updateFingerFood response: ${data}`);
-                        this.mParentView.style.display = 'flex';
-                        this.mParentContext.loadRecipes();
-                        this.remove();
+                    console.log(`RecipeEditor::updateFingerFood response: ${data}`);
+                    this.mParentView.style.display = 'flex';
+                    this.mParentContext.loadRecipes();
+                    this.remove();
 
-                    })
-                    .catch(error => {
+                })
+                .catch(error => {
 
-                        console.log(`RecipeEditor::updateFingerFood fail: ${error}`);
+                    console.log(`RecipeEditor::updateFingerFood fail: ${error}`);
 
-                    });
-
-           // }
+                });
         });
 
-        // ----------------------------
-        // - Mealtypes checkboxes
-        // ----------------------------
+        // -----------------------------------------------------------------------------------
+        // - Recipe Has To Cook update input/button
+        // -----------------------------------------------------------------------------------
 
-        // - Checkboxe
         this.mHasToCookInput    = this.shadowRoot.querySelector('.editor__checkbox.has_to_cook');
+        const hasToCookButton   = this.shadowRoot.querySelector('.editor__button.has_to_cook');
+        hasToCookButton.addEventListener
+        ('click', e => 
+        {
+            this.updateHasToCook(this.mHasToCookInput.checked)
+                .then(data => {
+
+                    console.log(`RecipeEditor::updateHasToCook response: ${data}`);
+                    this.mParentView.style.display = 'flex';
+                    this.mParentContext.loadRecipes();
+                    this.remove();
+
+                })
+                .catch(error => {
+
+                    console.log(`RecipeEditor::updateHasToCook -- fail: ${error}`);
+
+                });
+        });
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe Allergens compilation:
+        // - Has Eggs, Has Nuts, Has Lactose, Has Gluten
+        // -----------------------------------------------------------------------------------
+
         this.mHasEggsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_eggs');
         this.mHasNutsInput      = this.shadowRoot.querySelector('.editor__checkbox.has_nuts');
         this.mHasLactoseInput   = this.shadowRoot.querySelector('.editor__checkbox.has_lactose');
         this.mHasGlutenInput    = this.shadowRoot.querySelector('.editor__checkbox.has_gluten');
 
+        const 
+        allergensButton   = this.shadowRoot.querySelector('.editor__button--allergens');
+        allergensButton.addEventListener
+        ("click", e =>
+        {
+            // -----------------------------------------------------------
+            // - Collect the four input values and compile an object of it
+            // -----------------------------------------------------------
+
+            const allergenMap =
+            {
+                'hasEggs':      this.mHasEggsInput.checked,
+                'hasNuts':      this.mHasNutsInput.checked,
+                'hasLactose':   this.mHasLactoseInput.checked,
+                'hasGluten':    this.mHasGlutenInput.checked
+            };
+
+            this.updateAllergenSet(allergenMap)
+                .then(response => {
+
+                    console.log(`RecipeEditor::updateAllergenSet response: ${response}`);
+                    this.mParentView.style.display = 'flex';
+                    this.mParentContext.loadRecipes();
+                    this.remove();
+
+                })
+                .catch(error => {
+
+                    console.log(`RecipeEditor::updateAllergenSet -- fail: ${error}`);
+
+                });
+        });
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe SEASON input update
+        // - 
+        // -----------------------------------------------------------------------------------
+
         this.mSeasonInput       = this.shadowRoot.querySelector('.editor__select.recipe_season');
-     
-        // - Mealtype checkboxes
+        const 
+        seasonButton   = this.shadowRoot.querySelector('.editor__button.recipe_season');
+        seasonButton.addEventListener
+        ("click", e =>
+        {
+            this.updateSeason(selectValue(this.mSeasonInput))
+                .then(response => {
+
+                    console.log(`RecipeEditor::updateSeason response: ${response}`);
+                    this.mParentView.style.display = 'flex';
+                    this.mParentContext.loadRecipes();
+                    this.remove();
+
+                })
+                .catch(error => {
+
+                    console.log(`RecipeEditor::updateSeason -- fail: ${error}`);
+
+                });
+        });
+
+       // -----------------------------------------------------------------------------------
+        // - Recipe MEALTYPES Compilation
+        // - 
+        // -----------------------------------------------------------------------------------
 
         this.mMealtypeMap =
         {
@@ -900,13 +1023,84 @@ class RecipeEditor extends WCBase
             "BEVERAGES": this.shadowRoot.querySelector('.editor__checkbox.beverages')
         };
 
-        this.mStorageInfoInput  = this.shadowRoot.querySelector('.editor__input.recipe_storage');
+        const 
+        mealtypeButton   = this.shadowRoot.querySelector('.editor__button--mealtypes');
+        mealtypeButton.addEventListener
+        ("click", e =>
+        {
+            // -----------------------------------------------------------
+            // - Compile an array of mealtype states
+            // -----------------------------------------------------------
+
+            const mealTypeStates = [];
+
+            for (let key in this.mMealtypeMap)
+            {
+                const state = this.mMealtypeMap[key].checked;
+
+                if (state) 
+                {
+                    console.log(`Mealtype - name: ${key}`);
+                    mealTypeStates.push({ name: key });
+                }
+            }
+
+            if (mealTypeStates.length < 1)
+            {
+                console.log(`No mealtypes found, at least one must be added!`);
+                return;
+            }
+
+            this.updateMealTypeSet(mealTypeStates)
+                .then(response => {
+
+                    console.log(`RecipeEditor::updateMealTypeSet response: ${response}`);
+                    this.mParentView.style.display = 'flex';
+                    this.mParentContext.loadRecipes();
+                    this.remove();
+
+                })
+                .catch(error => {
+
+                    console.log(`RecipeEditor::updateMealTypeSet-- fail: ${error}`);
+
+                });
+        });
+
+        // -----------------------------------------------------------------------------------
+        // - Recipe Storage info update input/button
+        // -----------------------------------------------------------------------------------
+
+        const storageInfoInput  = this.shadowRoot.querySelector('.editor__input.recipe_storage');
+        const storageInfoButton = this.shadowRoot.querySelector('.editor__button.recipe_storage');
+        storageInfoButton.addEventListener
+        ('click', e => 
+        {
+            if (storageInfoInput.value.length)
+            {
+                this.updateStorageInfo(storageInfoInput.value)
+                    .then(data => {
+
+                        console.log(`RecipeEditor::storageInfo response: ${data}`);
+                        this.mParentView.style.display = 'flex';
+                        this.mParentContext.loadRecipes();
+                        this.remove();
+
+                    })
+                    .catch(error => {
+
+                        console.log(`RecipeEditor::storageInfo fail: ${error}`);
+
+                    });
+
+            }
+        });
+
+
         this.mTipsInput         = this.shadowRoot.querySelector('.editor__input.recipe_tips');
         this.mNutritionInput    = this.shadowRoot.querySelector('.editor__input.recipe_nutritional_value');
         this.mInterestingInfo   = this.shadowRoot.querySelector('.editor__input.recipe_interesting_info');
 
-        //this.initTest(recipeDto);
-        //this.initEditor(recipeDto);
     }
 
     initTest(dto)
@@ -917,14 +1111,15 @@ class RecipeEditor extends WCBase
         }
     }
 
-    initEditor(recipeDto)
+    initEditor()
     {
-        this.mRecipeDto = recipeDto;
+        const recipeDto = this.mRecipeDto;
 
         this.mTitleInput.value = recipeDto.title;
         this.mRecipeImage.src = `data:${recipeDto.image.fileType};base64,${recipeDto.image.data}`;
         this.mPrepareTimeInput.value = recipeDto.prepareTimeInMinutes;
         this.mAgeInput.value = recipeDto.monthsOld;
+        this.mInstructionsInput.value = recipeDto.instructions; 
         setSelectedIndex(this.mSeasonInput, recipeDto.season);
         
         // ----------------------
@@ -949,26 +1144,33 @@ class RecipeEditor extends WCBase
         // - Parse mandatory checkboxes
         // -----------------------------
 
-        this.mFingerfoodInput = recipeDto.fingerFood;
-        this.mHasToCookInput  = recipeDto.hasToCook;
-        this.mHasEggsInput    = recipeDto.hasEggs;
-        this.mHasNutsInput    = recipeDto.hasNuts;
-        this.mHasLactoseInput = recipeDto.hasLactose;
-        this.mHasGlutenInput  = recipeDto.hasGluten;
-        this.mStorageInfoInput = recipeDto.storageInfo;
-        this.mTipsInput        = recipeDto.tips;
-        this.mNutritionInput   = recipeDto.nutritionValue;
-        this.mInterestingInfo  = recipeDto.interestingInfo;
+        this.mFingerFoodInput.checked = recipeDto.fingerFood;
+        this.mHasToCookInput.checked  = recipeDto.hasToCook;
+        this.mHasEggsInput.checked    = recipeDto.hasEggs;
+        this.mHasNutsInput.checked    = recipeDto.hasNuts;
+        this.mHasLactoseInput.checked = recipeDto.hasLactose;
+        this.mHasGlutenInput.checked  = recipeDto.hasGluten;
 
-        //this.initProducts(recipeDto.products);
+        // ----------------------------
+        // - Optional properties
+        // ----------------------------
+
+        this.mStorageInfoInput.value  = recipeDto.storageInfo;
+        this.mTipsInput.value         = recipeDto.tips;
+        this.mNutritionInput.value    = recipeDto.nutritionValue;
+        this.mInterestingInfo.value   = recipeDto.interestingInfo;
         
-        console.log(`ProductMenu: ${this.mProductMenu}`);
 
-        this.mProductMenu.setupProductList(recipeDto.products);
-        this.mProductMenu.setupAvailableProducts(this.mAvailableProducts);
 
     }
 
+    initProductMenu()
+    {
+        console.log(`RecipeEditor::initProductMenu: ${this.mProductMenu}`);
+
+        this.mProductMenu.setupProductList(this.mRecipeDto.products);
+        this.mProductMenu.setupAvailableProducts(this.mAvailableProducts);
+    }
     /**
      * -------------------------
      * Opens the New Step Editor
@@ -1173,106 +1375,203 @@ class RecipeEditor extends WCBase
 
     updateTitleById(newTitle)
     {
-        return FileCache.patchStringById
+        return FileCache.patchJSON
         (
             RECIPE_URL, 
             'title', 
-            newTitle, 
-            'recipeId', 
-            this.mRecipeDto.id
+            {
+                title: newTitle,
+                recipeId: this.mRecipeDto.id
+            }
         );
     }
 
     updateImage(file)
     {
-        return FileCache.putImageById
+        return FileCache.patchImageById
         (
             RECIPE_URL,
-            'recipeId',
-            this.mRecipeDto.id,
             'image',
-            file
+            'image',
+            file,
+            'recipeId',
+            this.mRecipeDto.id
         );
     }
 
     updatePrepareTime(newTime)
     {
-        return FileCache.patchNumberById
+        return FileCache.patchJSON
         (
             RECIPE_URL,
             'prepare-time',
-            newTime,
-            'recipeId',
-            this.mRecipeDto.id
+            {
+                'prepareTimeInMinutes': newTime,
+                'recipeId': this.mRecipeDto.id
+            }
         );
     }
 
     updateAge(newAge)
     {
-        return FileCache.patchNumberById
+        return FileCache.patchJSON
         (
             RECIPE_URL,
             'age',
-            newAge,
-            'recipeId',
-            this.mRecipeDto.id
+            {
+                'monthsOld': newAge,
+                'recipeId': this.mRecipeDto.id
+            }
         );
     }
 
     updateInstructions(newInstructions)
     {
-        return FileCache.putFieldStringById
+        return FileCache.patchJSON
         (
             RECIPE_URL, 
-            'instructions', 
-            newInstrucions, 
-            'recipeId', 
-            this.mRecipeDto.id
+            'instructions',
+            {
+                instructions: newInstructions, 
+                recipeId: this.mRecipeDto.id
+            }
         );
     }
 
     updateFingerFood(newFingerFood)
     {
-        return FileCache.patchBooleanById
+        return FileCache.patchJSON
         (
             RECIPE_URL, 
-            'fingerfood', 
-            newFingerFood, 
-            'recipeId', 
-            this.mRecipeDto.id
+            'finger-food',
+            {
+                fingerFood: newFingerFood, 
+                recipeId: this.mRecipeDto.id
+            }
         );
     }
 
-
-    addStepByStep(stepByStepDto, file)
+    updateHasToCook(hasToCook)
     {
-
+        return FileCache.patchJSON
+        (
+            RECIPE_URL, 
+            'has-to-cook',
+            {
+                hasToCook, 
+                recipeId: this.mRecipeDto.id
+            }
+        );
     }
 
-    addProduct(productDto)
+    updateAllergenSet(setObject)
     {
+        setObject.recipeId = this.mRecipeDto.id;
 
+        return FileCache.patchJSON
+        (
+            RECIPE_URL,
+            'allergens',
+            setObject
+        );
     }
 
+    updateSeason(newSeason)
+    {
+        return FileCache.patchJSON
+        (
+            RECIPE_URL,
+            'season',
+            {
+                season: newSeason,
+                recipeId: this.mRecipeDto.id
+            }
+        );
+    }
+
+    updateMealTypeSet(setObject)
+    {
+        setObject.recipeId = this.mRecipeDto.id;
+
+        return FileCache.patchJSON
+        (
+            RECIPE_URL,
+            'mealtypes',
+            setObject
+        );
+    }
+
+    updateStorageInfo(newStorageInfo)
+    {
+        return FileCache.patchJSON
+        (
+            RECIPE_URL, 
+            'storage-info',
+            {
+                storageInfo: newStorageInfo, 
+                recipeId: this.mRecipeDto.id
+            }
+        );
+    }
+
+    updateTips(newTips)
+    {
+        return FileCache.patchJSON
+        (
+            RECIPE_URL, 
+            'tips',
+            {
+                tips: newTips, 
+                recipeId: this.mRecipeDto.id
+            }
+        );
+    }
+
+    updateNutritionValue(newNutritionValue)
+    {
+        return FileCache.patchJSON
+        (
+            RECIPE_URL, 
+            'nutrition-value',
+            {
+                nutritionValue: newNutritionValue, 
+                recipeId: this.mRecipeDto.id
+            }
+        );
+    }
+
+    updateInterestingInfo(newInterestingInfo)
+    {
+        return FileCache.patchJSON
+        (
+            RECIPE_URL, 
+            'interesting-info',
+            {
+                interestingInfo: newInterestingInfo, 
+                recipeId: this.mRecipeDto.id
+            }
+        );
+    }  
     // ----------------------------------------------------------------
-    // - Lifacycle callbacks and child component event callbackcs
+    // - Lifecycle callbacks and child component event callbackcs
     // ----------------------------------------------------------------
 
     connectedCallback()
     {
-        console.log("RecipeEditor::callback connected");
+        console.log("RecipeEditor connected");
 
     }
 
     disconnectedCallback()
     {
-        console.log("RecipeView::callback connected");
+        console.log("RecipeEditor -- disconnected");
     }  
 
     handleProductMenuEvent(event)
     {
         console.log(`onproductmenu event catched, handing by initiating the editor`);
-        this.initEditor(this.mRecipeDto);
+        this.initEditor();
+        this.initProductMenu();
     }
 
     handleStepMenuEvent(event)
