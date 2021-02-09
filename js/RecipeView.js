@@ -1,6 +1,7 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
+import { BinaryButtonRow } from './BinaryButtonRow.js';
 import 
 { 
     newTagClass, 
@@ -88,32 +89,13 @@ template.innerHTML =
     </div>
     <textarea class='uploader__textarea recipe_instructions' name='instructions' rows="8"></textarea>
     
-    <!-- FINGERFOOD -->
-
-    <label class='uploader__label--checkbox'>Fingerfood
-        <input class='uploader__checkbox fingerfood' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-    <label class='uploader__label--checkbox'>Cook
-        <input class='uploader__checkbox cook' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-    <label class='uploader__label--checkbox'>Has Eggs
-        <input class='uploader__checkbox has_eggs' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-    <label class='uploader__label--checkbox'>Has Nuts
-        <input class='uploader__checkbox has_nuts' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-    <label class='uploader__label--checkbox'>Has Lactose
-        <input class='uploader__checkbox has_lactose' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>
-    <label class='uploader__label--checkbox'>Has Gluten
-        <input class='uploader__checkbox has_gluten' type='checkbox'>
-        <span class='uploader__checkmark'></span>
-    </label>            
+    <binary-button-row class='fingerfood'>Fingerfood</binary-button-row>
+    <binary-button-row class='has_to_cook'>Has To Cook</binary-button-row>
+    <binary-button-row class='allergens'>Allergens</binary-button-row>
+    <binary-button-row class='has_eggs'>Has Eggs</binary-button-row>
+    <binary-button-row class='has_nuts'>Has Nuts</binary-button-row>
+    <binary-button-row class='has_lactose'>Has Lactose</binary-button-row>
+    <binary-button-row class='has_gluten'>Has Gluten</binary-button-row>       
 
     <!-- RECIPE SEASON DROPDOWN -->
 
