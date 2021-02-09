@@ -13,7 +13,10 @@ class BinaryButtonRow extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
+        if (this.hasAttribute('on')) state = true;
+
         this.mState = state;
+
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -39,7 +42,7 @@ class BinaryButtonRow extends WCBase
         }
         .row {
             display: grid;
-            grid-template-columns; auto 70px 70px;
+            grid-template-columns: 70px 70px auto;
             width: ${props.frame_width};
             height: ${props.uploader_row_height};
             padding: ${props.uploader_row_pad};
@@ -54,15 +57,19 @@ class BinaryButtonRow extends WCBase
             color: inherit;
         }
         .row__button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 64px;
             height: 32px;
-            border: 1.5px solid ${props.darkgrey};
+            border: 2px solid ${props.darkgrey};
+            border-radius: 4px;
             font: inherit;
             color: inherit;
             background-color: ${props.lightgrey};
             transition: background-color .15s, color .15s;
         }
-        .row__button .active {
+        .row__button.active {
             background-color: ${props.red};
             color: #fff;
             font-weight: 400;
@@ -76,9 +83,19 @@ class BinaryButtonRow extends WCBase
         </div>`);
 
         // ---------------------------
-        // - Save element references
+        // - Listen to buttons
         // ---------------------------
 
+        const buttons = this.shadowRoot.querySelectorAll('.row__button');
+        for (const button of buttons)
+        {
+            button.addEventListener
+            ('click', e => 
+            {
+                for (const b of buttons) b.classList.toggle('active');
+                this.mState = ! this.mState;
+            });
+        }
     }
 
     get state() 
