@@ -1,5 +1,6 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
+import { StepEditor } from './StepEditor.js';
 import 
 { 
     newTagClass, 
@@ -175,6 +176,9 @@ template.innerHTML =
             <span class='uploader__checkmark'></span>
         </label>
     </div>
+
+    <!-- STEP EDITOR -->
+    <step-editor></step-editor>
 
     <!-- STORAGE INFO -->
 
@@ -680,6 +684,17 @@ class RecipeView extends WCBase
         this.mAddButton     = this.shadowRoot.querySelector('.uploader__button--save.add_recipe');
         this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
         this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
+        this.mStepEditor    = this.shadowRoot.querySelector('step-editor');
+
+        // ---------------------------
+        // - Listen to the step editor
+        // - Connected callback
+        // ---------------------------
+
+        this.addEventListener("stepeditorconnected", e => 
+        {
+            console.log(`step editor connected callback catched`);
+        }, true);
 
         // ------------------
         // - Input references
@@ -796,6 +811,7 @@ class RecipeView extends WCBase
         // ---------------------------------------------
 
         this.loadRecipes();
+
 
         // ---------------------------------------------
         // - Listens to an event from the product view
@@ -1261,6 +1277,21 @@ class RecipeView extends WCBase
                 console.log(`Remove recipe exception catched: ${error}`);
             });
     }
+
+    // ----------------------------------------------
+    // - Lifecycle callbacks
+    // ----------------------------------------------
+
+    connectedCallback()
+    {
+        console.log("RecipeView::callback connected");
+        
+    }
+
+    disconnectedCallback()
+    {
+        console.log("RecipeView -- disconnected");
+    }  
 }
 
 window.customElements.define('recipe-view', RecipeView);

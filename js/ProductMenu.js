@@ -495,3 +495,4 @@ class ProductMenu extends WCBase
 window.customElements.define('product-menu', ProductMenu);
 
 export { ProductMenu };
+

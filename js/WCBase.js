@@ -15,6 +15,13 @@ class WCBase extends HTMLElement
         this.shadowRoot.appendChild(style);
     }
 
+    setupTemplate(content)
+    {
+        const template = document.createElement("template");
+        template.innerHTML = content;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+
 }
 
 const props = 
@@ -124,6 +131,7 @@ const PRODUCT_CATEGORY_ENUM =
 // ---------------------------------------
 
 const API_URL = 'http://localhost:8080';
+//const API_URL = 'https://babyfoodworld.app';
 const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
 const RECIPE_URL = `${API_URL}/recipe`;

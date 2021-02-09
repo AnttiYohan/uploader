@@ -504,7 +504,7 @@ class StepMenu extends WCBase
     connectedCallback()
     {
         console.log("StepMenu::callback connected");
-        window.dispatchEvent(new CustomEvent("stepmenuconnected"));
+        window.dispatchEvent(new CustomEvent("stepmenuconnected", { bubbles: true }));
     }
 
     disconnectedCallback()
