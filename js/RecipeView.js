@@ -1,7 +1,11 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
+import { TextInputRow } from './TextInputRow.js';
+import { ImageInputRow } from './ImageInputRow.js';
+import { NumberInputRow } from './NumberInputRow.js'
 import { BinaryButtonRow } from './BinaryButtonRow.js';
+import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import 
 { 
     newTagClass, 
@@ -44,12 +48,11 @@ template.innerHTML =
 
     <!-- RECIPE TITLE ROW -->
 
-    <div class='uploader__inputrow'>
-      <label  class='uploader__label'>Title</label>
-      <input  class='uploader__input  recipe_title' type='text'>
-    </div>
+    <text-input-row class='title_input' required>Title</text-input-row
 
-    <!-- RECIPE IMAGE -->
+    <!-- RECIPE IMAGE INPUT ROW -->
+
+    <image-input-row class='image_input'></image-input-row>
 
     <div class='uploader__inputrow--file'>
         <img src='assets/icon_placeholder.svg'  class='uploader__image recipe_image' />
@@ -61,17 +64,12 @@ template.innerHTML =
 
     <!-- PREPARATION TIME -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label'>Preparation time</label>
-        <input class='uploader__input recipe_preparation_time' type='number'>
-    </div>
+    <number-input-row class='input_prep_time' required>Preparation time</number-input-row>
 
     <!-- AGE IN MONTHS -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label'>Age in months</label>
-        <input class='uploader__input recipe_age' type='number'>
-    </div>
+    <number-input-row class='input_age' required>Age in months</number-input-row>
+
 
     <div class='uploader__inputrow'>
         <label  class='uploader__label--select'>Add Ingredient:</label>
@@ -111,53 +109,8 @@ template.innerHTML =
 
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
-    <div class='uploader__inputrow'>
-        <label class='uploader__label--text'>Meal types</label>
-    </div>
+    <binary-switch-group>Meal Types</binary-switch-group>
 
-    <div class='uploader__checkboxgroup mealtypes_group'>
-
-        <label class='uploader__label--checkbox'>Breakfast
-          <input class='uploader__checkbox breakfast' type='checkbox'>
-          <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Lunch
-            <input class='uploader__checkbox lunch' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Dinner
-            <input class='uploader__checkbox dinner' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Snack
-            <input class='uploader__checkbox snack' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Dessert
-          <input class='uploader__checkbox dessert' type='checkbox'>
-          <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Appetizer
-            <input class='uploader__checkbox appetizer' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Salad
-            <input class='uploader__checkbox salad' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Soup
-            <input class='uploader__checkbox soup' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Smoothie
-            <input class='uploader__checkbox smoothie' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-        <label class='uploader__label--checkbox'>Beverages
-            <input class='uploader__checkbox beverages' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
-    </div>
 
     <!-- STEP EDITOR -->
     <step-editor></step-editor>

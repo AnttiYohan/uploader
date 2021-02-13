@@ -482,7 +482,8 @@ class ProductMenu extends WCBase
     {
         console.log("ProductMenu::callback connected");
         //this.dispatchEvent(new CustomEvent("productmenuconnected"));
-        window.dispatchEvent(new CustomEvent("productmenuconnected"));
+        this.shadowRoot.dispatchEvent(new CustomEvent("productmenuconnected", { bubbles: true, composed: true }));
+       // window.dispatchEvent(new CustomEvent("productmenuconnected"));
     }
 
     disconnectedCallback()
