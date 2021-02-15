@@ -69,8 +69,8 @@ class AutoCompleteRow extends WCBase
             display: none;
             flex-direction: column;
             position: relative;
-            left: 129px;
-            top: -16px;
+            left: -155px;
+            top: 32px;
             background-color: #fff;
             border-radius: 2px;
             border: 1px solid rgba(0,0,0,0.5);
@@ -88,10 +88,7 @@ class AutoCompleteRow extends WCBase
         (`<div class='row'>
             <div class='row__label'><slot></div>
             <input type='text' class='row__input'>
-         </div>
-         <div class='row'>
             <ul class='row__suggestions'>
-            </ul>
          </div>
         `);
 
@@ -140,6 +137,8 @@ class AutoCompleteRow extends WCBase
 
     loadWords(list)
     {
+        this.mWordList = [];
+
         for (const item of list)
         {
             this.addWord(item);
