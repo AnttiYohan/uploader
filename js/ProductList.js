@@ -73,7 +73,10 @@ class ProductList extends WCBase
 
         this.mInput.loadWords
         ([
-            'beef',
+            'apple',
+            'pear',
+            'ground beef 7%',
+            'ground beef 10%',
             'potato',
             'coconut',
             'banana',
@@ -83,19 +86,32 @@ class ProductList extends WCBase
 
         this.shadowRoot.addEventListener('word-chosen', e => 
         {
-            console.log(`word-chosen event catched, detail: ${e.detail}`);
-            if (e.detail.length)
+            const word = e.detail;
+            console.log(`word-chosen event catched, detail: ${word}`);
+            
+            if ( ! this.productExists(word)) 
             {
-                this.addToList(e.detail);
+                this.addToList(word);
             }
+            
         });
     }
 
+    /**
+     * Returns the autocomplete input's text value
+     * 
+     * @return {string}
+     */
     get value() 
     {
         return this.mInput.value;
     }
 
+    /**
+     * Returns the products in the visible list
+     * 
+     * @return {string[]}
+     */
     get chosenProducts()
     {
         const list = [];
@@ -103,10 +119,10 @@ class ProductList extends WCBase
         for (const item of this.mList.children)
         {
             const label = item.querySelector('.ingredient__label');
+
             if (label)
             {
                 const text = label.textContent;
-
                 if (text && text.length) list.push(text);
             }
         }
@@ -114,6 +130,40 @@ class ProductList extends WCBase
         return list;
     }
 
+    /**
+     * Returns the truth value if the input exists in the
+     * product list
+     * 
+     * @param  {string}  word
+     * @return {boolean}
+     */
+    productExists(word)
+    {
+        let result = false;
+
+        for (const item of this.mList.children)
+        {
+            const label = item.querySelector('.ingredient__label');
+
+            if (label)
+            {
+                const text = label.textContent;
+                if (text && text === word)
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Adds a unique word to the list
+     * 
+     * @param {string} word 
+     */
     addToList(word)
     {
         const label = newTagClassHTML
