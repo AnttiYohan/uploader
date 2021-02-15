@@ -68,9 +68,8 @@ class AutoCompleteRow extends WCBase
             z-index: 10;
             display: none;
             flex-direction: column;
-            position: relative;
-            left: -155px;
-            top: 32px;
+            position: absolute;
+            transform: translate(129px, 32px);
             background-color: #fff;
             border-radius: 2px;
             border: 1px solid rgba(0,0,0,0.5);
