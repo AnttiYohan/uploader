@@ -54,31 +54,13 @@ template.innerHTML =
 
     <image-input-row class='image_input'></image-input-row>
 
-    <div class='uploader__inputrow--file'>
-        <img src='assets/icon_placeholder.svg'  class='uploader__image recipe_image' />
-        <div class='uploader__fileframe'>
-           <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
-           <input  id='image-upload-input'  class='uploader__file recipe_image' type='file'>
-        </div>
-    </div>
-
     <!-- PREPARATION TIME -->
 
-    <number-input-row class='input_prep_time' required>Preparation time</number-input-row>
+    <number-input-row class='prep_time_input' required>Preparation time</number-input-row>
 
     <!-- AGE IN MONTHS -->
 
-    <number-input-row class='input_age' required>Age in months</number-input-row>
-
-
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label--select'>Add Ingredient:</label>
-        <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
-        </select>
-    </div>
-
-    <div class='uploader__list ingredients'>
-    </div>
+    <number-input-row class='age_input' required>Age in months</number-input-row>
 
     <!-- RECIPE INSTRUCTIONS -->
 
@@ -86,14 +68,6 @@ template.innerHTML =
         <label for='instructions'  class='uploader__label--text'>Instructions</label>
     </div>
     <textarea class='uploader__textarea recipe_instructions' name='instructions' rows="8"></textarea>
-    
-    <binary-button-row class='fingerfood'>Fingerfood</binary-button-row>
-    <binary-button-row class='has_to_cook'>Has To Cook</binary-button-row>
-    <binary-button-row class='allergens'>Allergens</binary-button-row>
-    <binary-button-row class='has_eggs'>Has Eggs</binary-button-row>
-    <binary-button-row class='has_nuts'>Has Nuts</binary-button-row>
-    <binary-button-row class='has_lactose'>Has Lactose</binary-button-row>
-    <binary-button-row class='has_gluten'>Has Gluten</binary-button-row>       
 
     <!-- RECIPE SEASON DROPDOWN -->
 
@@ -107,41 +81,50 @@ template.innerHTML =
         </select>
     </div>
 
+    <binary-button-row class='fingerfood'>Fingerfood</binary-button-row>
+    <binary-button-row class='has_to_cook'>Has To Cook</binary-button-row>
+    <binary-button-row class='allergens'>Allergens</binary-button-row>
+    <binary-button-row class='has_eggs'>Has Eggs</binary-button-row>
+    <binary-button-row class='has_nuts'>Has Nuts</binary-button-row>
+    <binary-button-row class='has_lactose'>Has Lactose</binary-button-row>
+    <binary-button-row class='has_gluten'>Has Gluten</binary-button-row>       
+
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
-    <binary-switch-group>Meal Types</binary-switch-group>
-
+    <binary-switch-group class='meal_types_input'>Meal Types</binary-switch-group>
 
     <!-- STEP EDITOR -->
-    <step-editor></step-editor>
+    
+    <step-editor class='step_editor'></step-editor>
+
+    <!-- INGREDIENT INPUT -->
+
+    <div class='uploader__inputrow'>
+        <label  class='uploader__label--select'>Add Ingredient:</label>
+        <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
+        </select>
+    </div>
+
+    <div class='uploader__list ingredients'>
+    </div>
+
+    <!-- NON MANDATORY INPUT SET -->
 
     <!-- STORAGE INFO -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label--text'>Storage info</label>
-        <input  class='uploader__input  recipe_storage' type='text'>
-    </div>
+    <text-input-row class='storage_input'>Storage Info</text-input-row>
 
     <!-- TIPS -->
 
-    <div class='uploader__inputrow'>    
-        <label  class='uploader__label--text'>Tips</label>
-        <input  class='uploader__input  recipe_tips' type='text'>
-    </div>
+    <text-input-row class='tips_input'>Tips</text-input-row>
 
     <!-- NUTRITIONAL VALUE -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label'>Nutritional value</label>
-        <input  class='uploader__input  recipe_nutritional_value' type='number'>
-    </div>
+    <number-input-row class='nutritonal_value_input'>Nutrition kcal</number-input-row>
 
     <!-- INTERESTING INFO -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label--text'>Interesting info</label>
-        <input  class='uploader__input  recipe_interesting_info' type='text'>
-    </div>
+    <text-input-row class='info_input'>Interesting Info</text-input-row>
 
     <div class='uploader__row--last'>
         <button class='uploader__button--save add_recipe'></button>
