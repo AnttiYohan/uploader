@@ -1,6 +1,9 @@
 import { WCBase, props, PRODUCT_URL } from './WCBase.js';
 import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
+import { TextInputRow } from './TextInputRow.js';
+import { ImageInputRow } from './ImageInputRow.js';
+import { ProductList } from './ProductList.js';
 
 const 
 template = document.createElement("template");
@@ -20,20 +23,11 @@ template.innerHTML =
 
     <!-- PRODUCT NAME ROW -->
 
-    <div class='uploader__inputrow'>
-      <label  class='uploader__label'>Name</label>
-      <input  class='uploader__input  product_name' type='text'>
-    </div>
+    <text-input-row class='name_input' required>Name</text-input-row>
 
     <!-- PRODUCT IMAGE -->
 
-    <div class='uploader__inputrow--file'>
-        <img    class='uploader__image  product_image' src='assets/icon_placeholder.svg' />
-        <div class='uploader__fileframe'>
-           <label for='image-upload-input'  class='uploader__filelabel'>image upload</label>
-           <input  id='image-upload-input'  class='uploader__file  product_image' type='file'>
-        </div>
-    </div>
+    <image-input-row class='image_input'></image-input-row>
 
     <!-- PRODUCT CATEGORY -->
 
@@ -97,6 +91,8 @@ template.innerHTML =
 
         </div> <!-- Wrapper End for EGGS, NUTS, LACTOSE, GLUTEN -->
     </div> <!-- Wrapper End for ALLERGENS -->
+
+    <product-list class='ingredient_list'></product-list>
 
     <div class='uploader__row--last'>
         <button class='uploader__button--save add_product'></button>
@@ -472,10 +468,8 @@ class ProductView extends WCBase
         // - Input references
         // ------------------
 
-        this.mNameInput         = this.shadowRoot.querySelector('.uploader__input.product_name');
-        this.mFileInput         = this.shadowRoot.querySelector('.uploader__file.product_image');
-        const imageElement      = this.shadowRoot.querySelector('.uploader__image.product_image');
-        setImageFileInputThumbnail(this.mFileInput, imageElement);
+        this.mNameInput         = this.shadowRoot.querySelector('.name_input');
+        this.mFileInput         = this.shadowRoot.querySelector('.image_input');
 
         this.mCategoryInput     = this.shadowRoot.querySelector('.uploader__select.product_category');
         
@@ -485,8 +479,16 @@ class ProductView extends WCBase
         this.mHasLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
         this.mHasGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
         
-        console.log(`Product list element: ${this.mProductList}`);
+        this.mIngredientList   = this.shadowRoot.querySelector('.ingredient_list');
 
+        const allergenGroup = this.shadowRoot.querySelector('.allergen_group');
+
+        this.mHasAllergensInput.addEventListener('change', e =>
+        {
+            console.log(`Allergen changed event: ${e.target.checked}`);
+            if (! e.target.checked) allergenGroup.style.opacity = 0.25;
+            else allergenGroup.style.opacity = 1.0;
+        });
         // ----------------------------------------------------------------
         // - Define event listeners to listen for LoginView's custom events
         // ----------------------------------------------------------------
@@ -501,6 +503,9 @@ class ProductView extends WCBase
             true
         );
 
+        // this.shadowRoot.addEventListener('autocompleterow-connected', e => { console.log(`Autocompleterow-connected`) }, true);
+
+       
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
@@ -515,6 +520,9 @@ class ProductView extends WCBase
                 // - If dto and image file present, send
                 // - To the server
                 // --------------------------------------
+
+                console.log(`Product list: ${this.mIngredientList.chosenProducts}`);
+                return;
 
                 const dto = this.compileDto();
                 const imageFile = this.getFileInput();
