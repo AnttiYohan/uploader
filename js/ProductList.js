@@ -34,7 +34,7 @@ class ProductList extends WCBase
         .list__ingredient{
             display: flex;
             flex-direction: row;
-            justify-items: space-evenly;
+            justify-content: space-;
             align-items: flex-end;
             vertical-aling: middle;
             height: ${props.uploader_row_height};
@@ -46,13 +46,13 @@ class ProductList extends WCBase
         }
         .ingredient__label {
             position: absolute;
-            transform: translate(-16px, -8px);
-            bcakground: rgba(255,255,255,0.9);
+            transform: translate(0, -16px);
+            bcakground: rgba(255,255,255,0.95);
             border-radius: 2px;
             border-bottom: 1px solid rgba(0,0,0,0.5);
-            font-size: ${props.small_font_size};
+            font-size: ${props.text_font_size};
             font-weight: inherit;
-            color: ${props.grey};
+            color: #222;
             align-self: center;
         }
         .ingredient__amount {
