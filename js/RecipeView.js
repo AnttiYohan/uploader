@@ -1,6 +1,7 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
+import { ProductList } from './ProductList.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { NumberInputRow } from './NumberInputRow.js'
@@ -71,14 +72,14 @@ template.innerHTML =
 
     <!-- RECIPE SEASON DROPDOWN -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label'>Season</label>
-        <select class='uploader__select recipe_season' name='season'>
-            <option value='WINTER'>winter</option>
-            <option value='SPRING'>spring</option>
-            <option value='SUMMER'>summer</option>
-            <option value='AUTUMN'>autumn</option>
-        </select>
+
+    <label  class='uploader__label'>Season</label>
+    <div class='flex__row'>
+        <binary-switch class='winter_season'>Winter</binary-switch>
+        <binary-switch class='spring_season'>Spring</binary-switch>
+        <binary-switch class='summer_season'>Summer</binary-switch>
+        <binary-switch class='autumn_season'>Autumn</binary-switch>
+        <binary-switch class='all_season'>All</binary-switch>
     </div>
 
     <binary-button-row class='fingerfood'>Fingerfood</binary-button-row>
@@ -99,14 +100,7 @@ template.innerHTML =
 
     <!-- INGREDIENT INPUT -->
 
-    <div class='uploader__inputrow'>
-        <label  class='uploader__label--select'>Add Ingredient:</label>
-        <select class='uploader__select recipe_ingredients' name='recipe_ingredients'>
-        </select>
-    </div>
-
-    <div class='uploader__list ingredients'>
-    </div>
+    <product-list class='ingredient_list'></product-list>
 
     <!-- NON MANDATORY INPUT SET -->
 
@@ -203,6 +197,11 @@ class RecipeView extends WCBase
             margin: 16px auto;
             max-width: 600px;
             /*height: 100vh;*/
+        }
+        .flex__row {
+            display: flex;
+            flex-wrap: wrap:
+            
         }
         .uploader__row {
             display: flex;
@@ -603,6 +602,7 @@ class RecipeView extends WCBase
         this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
         this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
         this.mStepEditor    = this.shadowRoot.querySelector('step-editor');
+        this.mIngredientList = this.shadowRoot.querySelector('.ingredient_list');
 
         // ---------------------------
         // - Listen to the step editor
@@ -618,7 +618,7 @@ class RecipeView extends WCBase
         // - Input references
         // ------------------
 
-        this.mTitleInput        = this.shadowRoot.querySelector('.uploader__input.recipe_title');
+        this.mTitleInput        = this.shadowRoot.querySelector('.title_input');
 
         // ------------------------------------------------------------------------------------
         // - Here we grab references to recipe file input and to the thumbnail image element
@@ -628,15 +628,11 @@ class RecipeView extends WCBase
         // - In the system.
         // ------------------------------------------------------------------------------------
 
-        this.mFileInput         = this.shadowRoot.querySelector('.uploader__file.recipe_image');
-        const imageElement      = this.shadowRoot.querySelector('.uploader__image.recipe_image');
-        setImageFileInputThumbnail(this.mFileInput, imageElement);
+        this.mFileInput         = this.shadowRoot.querySelector('.image_input');
 
         this.mPrepTimeInput     = this.shadowRoot.querySelector('.uploader__input.recipe_preparation_time');
         this.mAgeInput          = this.shadowRoot.querySelector('.uploader__input.recipe_age');
         
-        this.mIngredientsInput  = this.shadowRoot.querySelector('.uploader__select.recipe_ingredients');
-        this.mIngredientsList   = this.shadowRoot.querySelector('.uploader__list.ingredients');
         this.mInstructionsInput = this.shadowRoot.querySelector('.uploader__textarea.recipe_instructions');
 
         // ------------------------------------------------------------------------------------
@@ -669,6 +665,16 @@ class RecipeView extends WCBase
             "SMOOTHIE":  this.shadowRoot.querySelector('.uploader__checkbox.smoothie'),
             "BEVERAGES": this.shadowRoot.querySelector('.uploader__checkbox.beverages')
         };
+
+        // -----------------------------------------------
+        // - Reference to the ProductList custom element
+        // -----------------------------------------------
+
+        this.mIngredientInput   = this.shadowRoot.querySelector('.ingredient_input');
+
+        // -----------------------------------------------
+        // - Non mandatory input set
+        // -----------------------------------------------
 
         this.mStorageInfoInput  = this.shadowRoot.querySelector('.uploader__input.recipe_storage');
         this.mTipsInput         = this.shadowRoot.querySelector('.uploader__input.recipe_tips');
@@ -737,20 +743,15 @@ class RecipeView extends WCBase
         // - Products
         // ----------------------------------------------
 
-        window.addEventListener
-        (
-            "product-list", 
-            e => 
-            {
-                const list = e.detail;
+        window.addEventListener("product-list", e => 
+        {
+            const list = e.detail;
 
-                if (list && Array.isArray(list))
-                {
-                    this.setProductObjects(list);
-                }
-            },
-            true
-        );
+            if (list && Array.isArray(list))
+            {
+                this.mIngredientInput.loadWords(list);
+            }
+        }, true);
     }
 
     /**
