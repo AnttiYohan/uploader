@@ -3,7 +3,6 @@ import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, sele
 import { FileCache } from './util/FileCache.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
-import { ProductList } from './ProductList.js';
 
 const 
 template = document.createElement("template");
@@ -91,8 +90,6 @@ template.innerHTML =
 
         </div> <!-- Wrapper End for EGGS, NUTS, LACTOSE, GLUTEN -->
     </div> <!-- Wrapper End for ALLERGENS -->
-
-    <product-list class='ingredient_list'></product-list>
 
     <div class='uploader__row--last'>
         <button class='uploader__button--save add_product'></button>
@@ -479,9 +476,12 @@ class ProductView extends WCBase
         this.mHasLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
         this.mHasGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
         
-        this.mIngredientList   = this.shadowRoot.querySelector('.ingredient_list');
+        // -----------------------------------------------------------------------------
+        // - Allergen group enabling/disabling setting
+        // -----------------------------------------------------------------------------
 
         const allergenGroup = this.shadowRoot.querySelector('.allergen_group');
+        allergenGroup.style.opacity = 0.25;
 
         this.mHasAllergensInput.addEventListener('change', e =>
         {
@@ -489,6 +489,7 @@ class ProductView extends WCBase
             if (! e.target.checked) allergenGroup.style.opacity = 0.25;
             else allergenGroup.style.opacity = 1.0;
         });
+
         // ----------------------------------------------------------------
         // - Define event listeners to listen for LoginView's custom events
         // ----------------------------------------------------------------
@@ -503,9 +504,6 @@ class ProductView extends WCBase
             true
         );
 
-        // this.shadowRoot.addEventListener('autocompleterow-connected', e => { console.log(`Autocompleterow-connected`) }, true);
-
-       
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
@@ -520,9 +518,6 @@ class ProductView extends WCBase
                 // - If dto and image file present, send
                 // - To the server
                 // --------------------------------------
-
-                console.log(`Product list: ${this.mIngredientList.chosenProducts}`);
-                return;
 
                 const dto = this.compileDto();
                 const imageFile = this.getFileInput();

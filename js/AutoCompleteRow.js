@@ -37,12 +37,12 @@ class AutoCompleteRow extends WCBase
             padding: ${props.uploader_row_pad};
             border-bottom: 1px solid ${props.lightgrey};
         }
-        .row__label {
+        .row__label--aboslute {
             width: ${props.row_label_width}; 
-            font-size: ${props.text_font_size};
+            font-size: ${props.small_font_size};
             font-weight: 200;
             color: #222;
-            align-self: center;
+            
         }
         .row__input {
             height: ${props.row_input_height};
@@ -134,6 +134,11 @@ class AutoCompleteRow extends WCBase
         this.mWordList.push(word);
     }
 
+    /**
+     * Fill the internal wordlist
+     * 
+     * @param {string[]} list 
+     */
     loadWords(list)
     {
         this.mWordList = [];
@@ -144,6 +149,11 @@ class AutoCompleteRow extends WCBase
         }
     }
 
+    /**
+     * Display mathched words beneath the ingrendient input
+     * 
+     * @param {string} value 
+     */
     displayValue(value)
     {
         const matches = [];
@@ -172,6 +182,11 @@ class AutoCompleteRow extends WCBase
             {
                 const 
                 li = newTagClassHTML('li', 'suggestion__word', word);
+                /*li.appendChild
+                (
+
+                )*/
+
                 li.addEventListener('click', e =>
                 {
                     console.log(`List item ${word} clicked`);
