@@ -1,6 +1,6 @@
-import { WCBase, props } from './WCBase.js';
+import { WCBase, props, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { AutoCompleteRow } from './AutoCompleteRow.js'
-import { newTagClass, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
+import { newTagClass, newTagClassChildren, newTagClassHTML, numberInputClassValue, selectClassIdOptionList } from './util/elemfactory.js';
 /**
  * 
  */
@@ -31,9 +31,12 @@ class ProductList extends WCBase
             display: flex;
             flex-direction: column;
         }
-        .list__ingredient {
+        .list__ingredient{
             display: flex;
-            justify-content: space-between;
+            flex-direction: row;
+            justify-items: space-evenly;
+            align-items: flex-end;
+            vertical-aling: middle;
             height: ${props.uploader_row_height};
             padding: ${props.uploader_row_pad};
             border-bottom: 1px solid ${props.lightgrey};
@@ -42,15 +45,60 @@ class ProductList extends WCBase
             color: #222;
         }
         .ingredient__label {
-            font-size: inherit;
+            position: absolute;
+            transform: translate(-16px, -8px);
+            bcakground: rgba(255,255,255,0.9);
+            border-radius: 2px;
+            border-bottom: 1px solid rgba(0,0,0,0.5);
+            font-size: ${props.small_font_size};
             font-weight: inherit;
-            color: inherit;
+            color: ${props.grey};
             align-self: center;
         }
+        .ingredient__amount {
+            width: 64px;
+            margin-right: 8px;
+            font-size: ${props.text_font_size};
+            font-weight: inherit;
+            color: inherit
+            align-self: center;            
+        }
+        .ingredient__amount,
+        .ingredient__unit {
+            font-size: ${props.text_font_size};
+            font-weight: inherit;
+            color: inherit
+            align-self: center;
+            vertical-align: center;
+            height: ${props.row_input_height};
+            border: 1px solid #e2e0e0;
+        }
+        .ingredient__amount:active,
+        .imgrendient__unit:active {
+            border-color: #656565;
+        }
+        .ingredient__amount:invalid,
+        .imgrendient__unit:invalid {
+            
+            color: #ed1f1f;
+            background-color: rgba(#ec4c4c, 0.22);
+            border-color: rgba(#dc4949, 0.45);
+        }
+        .ingredient__amount: {
+            width: 64px;
+            margin-right: 8px;
+        }
+        .ingredient__unit: {
+            width: auto;
+            margin-right: 8px;
+        }
+
+
         .ingredient__button {
             width: 32px;
             height: 32px;
             align-self: center;
+            justify-self: center:
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
             background-color: ${props.red};
@@ -97,6 +145,11 @@ class ProductList extends WCBase
         });
     }
 
+
+    loadWords(list)
+    {
+        //this.mInput.loadWords(list);
+    }
     /**
      * Returns the autocomplete input's text value
      * 
@@ -173,6 +226,19 @@ class ProductList extends WCBase
             word
         );
 
+        const amount = numberInputClassValue
+        (
+            'ingredient__amount',
+            1
+        );
+
+        const unit = selectClassIdOptionList
+        (
+            'ingredient__unit',
+            'unit_selector',
+            MEASURE_UNIT_ENUM
+        );
+
         const button = newTagClass
         (
             'button',
@@ -185,6 +251,8 @@ class ProductList extends WCBase
             'list__ingredient',
             [
                 label,
+                amount,
+                unit,
                 button
             ]
         );
