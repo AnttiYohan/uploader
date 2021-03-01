@@ -53,14 +53,15 @@ class TextInputRow extends WCBase
             color: #222;
             box-shadow: 0 1px 6px 1px rgba(0,0,0,0.1);
         }
-        .row__input:invalid {
-            border: 2px solid ${props.red};
-            background-image: url('assets/ic_right');
-            background-repeat: no-repeat;
-        }
         .row__input:focus {
             outline: none;
-            border: 1px solid ${props.grey};
+            border: 2px solid ${props.darkgrey};
+        }
+        .row__input:invalid {
+            border: 2px solid ${props.red};
+            background-image: url('assets/icon_exclamation_red.svg');
+            background-repeat: no-repeat;
+            background-position-x: right;
         }
         `);
 
