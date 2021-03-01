@@ -14,6 +14,7 @@ template.innerHTML =
 `<div class='step-editor'>
   <div class='editor__rowset'>
     <h3  class='editor__subheader'>Steps</h3>
+    <button class='editor__button--new add_step'></button>
   </div>
 
   <!-- STEP EDITOR -->
@@ -34,15 +35,15 @@ template.innerHTML =
         <input class='uploader__file step_file' type='file' id='image-upload-input'>
       </div>
     </div>
-    <div class='editor__rowset'>
+    <!-- div class='editor__rowset'>
       <label  class='editor__label'>Add step</label>
       <button class='editor__button--new add_step'></button>
-    </div>
+    </div -->
   </div>
 
   <!-- Display the exsisting steps here -->
 
-  <div class='editor__frame step_list'>
+  <div class='editor__frame step_list hz-divider'>
   </div>
 
 </div>`;
@@ -71,6 +72,12 @@ class StepEditor extends WCBase
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+        :host {
+            border: 1px solid ${props.grey};
+            border-radius: 8px;
+            padding: 8px;
+            margin: 16px 0;
         }
         .clickable {
             cursor: pointer;
@@ -141,7 +148,7 @@ class StepEditor extends WCBase
             border-radius: 4px;
             border: 2px solid ${props.darkgrey};
             background-color: ${props.blue};
-            background-image: url('assets/icon_publish.svg');
+            background-image: url('assets/icon_add_circle.svg');
         }
         .editor__button--save {
             cursor: pointer;
@@ -197,6 +204,9 @@ class StepEditor extends WCBase
             text-align: center;
             text-shadow: 0 0 2px #000;
             box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
+        }
+        .hz-divider {
+            border-top: 1px solid ${props.darkgrey};
         }
         `);
 
