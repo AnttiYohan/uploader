@@ -71,7 +71,8 @@ const props =
     text_vt_pad: "16px",
     input_width: "153px",
     row_label_width: "128px",
-    row_input_height: "32px"
+    row_input_height: "32px",
+    frame_width_value: 300
 };
 
 // ----------------------------------------
