@@ -22,6 +22,11 @@ class NumberInputRow extends WCBase
         // - from template 
         // -----------------------------------------------
 
+        const invalid_state = `.row__input:invalid {
+            border: 2px solid ${props.red};
+            background-image: url('assets/icon_circle_up.svg');
+        }`;
+
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`* {
@@ -53,21 +58,22 @@ class NumberInputRow extends WCBase
             color: #222;
             box-shadow: 0 1px 3px 0 rgba(0,0,0,0.5);
         }
-        ${required ? ".row__input:invalid {\
-            border: 2px solid ${props.red};\
-            background-image: url(\'assets\/ic_right.svg\');\
-            background-repeat: no-repeat;\
-        }" : ""}
         .row__input:focus {
             outline: none;
-            border: 1px solid ${props.grey};
+            border: 2px solid ${props.darkgrey};
+        }
+        .row__input:invalid {
+            border: 2px solid ${props.red};
+            background-image: url('assets/icon_exclamation_red.svg');
+            background-repeat: no-repeat;
+            background-position-x: right;
         }
         `);
 
         this.setupTemplate
         (`<div class='row'>
             <div class='row__label'><slot></div>
-            <input type='number' class='row__input' min='1'>
+            <input type='number' class='row__input' min='1' ${required ? "value='0'" : ""}>
         </div>`);
 
         // ---------------------------
