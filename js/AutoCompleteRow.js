@@ -16,6 +16,9 @@ class AutoCompleteRow extends WCBase
         // -----------------------------------------------
 
         this.mWordList = [];
+        this.mMatchList = [];
+        this.mMatches = 0;
+        this.mSelectedIndex = 0;
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -76,10 +79,17 @@ class AutoCompleteRow extends WCBase
             width: 200px;
             height: 96px;
         }
+        .suggestion__frame {
+
+        }
         .suggestion__word {
             font-size: ${props.text_font_size};
             font-weight: 200;
-            font-color: #222;
+            color: #222;
+        }
+        .suggestion__word.selected {
+            background-color: ${props.darkgrey};
+            color: #fff;
         }
         `);
 
@@ -91,6 +101,9 @@ class AutoCompleteRow extends WCBase
          </div>
         `);
 
+        
+        this.mHeight = 94;
+
         // ---------------------------
         // - Grab the input
         // ---------------------------
@@ -100,6 +113,7 @@ class AutoCompleteRow extends WCBase
         // ------------------------------
         // - Listen to the input events
         // ------------------------------
+
 
         this.mInput.addEventListener('blur', e => 
         {
@@ -121,7 +135,54 @@ class AutoCompleteRow extends WCBase
             this.displayValue(value);
         });
 
-    
+        this.shadowRoot.addEventListener('keydown', e => 
+        {
+            const key = e.keyCode;
+            console.log(`AutoCompleteRow keypress: ${key}`);
+            if (this.mSuggestionUl.style.display === 'flex' && this.mWordList.length)
+            {
+                if (key === this.KEYDOWN)
+                {
+                    //if (this.mSelectedIndex < this.mWordList.length)
+                    if (this.mSelectedIndex < this.mMatches)
+                    {
+                        this.mSelectedIndex++;
+                    }
+                    else
+                    {
+                        this.mSelectedIndex = 1;
+                    }
+                    console.log(`Set selected word: ${this.mSelectedIndex}`);
+                    this.setSelectedWord(this.mSelectedIndex);
+                }                
+                else if (key === this.KEYUP)
+                {
+                    if (this.mSelectedIndex > 1)
+                    {
+                        this.mSelectedIndex--;
+                    }
+                    else
+                    {
+                        this.mSelectedIndex = this.mMatches; //this.mWordList.length;
+                    }
+                    console.log(`KEYUP: ${this.mSelectedIndex}`);
+                    this.setSelectedWord(this.mSelectedIndex);                    
+                }
+                else if (key === this.ENTER)
+                {
+                    console.log(`Key enter`);
+                    if (this.mSelectedIndex && this.mMatches)
+                    {
+                        const word = this.mMatchList[this.mSelectedIndex - 1];
+                        console.log(`List item ${word} ENTERED`);
+                        this.mInput.value = '';
+                        this.sendWordChosenEvent(word);
+                        this.hideSuggestions();   
+                    }
+                }
+            }
+            //    this.mInput.value += e.keyCode;
+        });    
     }
 
     get value() 
@@ -176,16 +237,23 @@ class AutoCompleteRow extends WCBase
 
         if (matches.length)
         {
+            this.mMatches = matches.length;
             this.mSuggestionUl.style.display = 'flex';
             deleteChildren(this.mSuggestionUl);
+            let index = 0;
+
+            this.mMatchList = matches;
+
             for (const word of matches)
             {
-                const 
-                li = newTagClassHTML('li', 'suggestion__word', word);
-                /*li.appendChild
-                (
+                index++;
+                const selected = index === this.mSelectedIndex ? ' selected' : '';
 
-                )*/
+                const li = newTagClassHTML('li', `suggestion__word${selected}`, word);
+                    /*li.appendChild
+                    (
+
+                    )*/
 
                 li.addEventListener('click', e =>
                 {
@@ -196,7 +264,12 @@ class AutoCompleteRow extends WCBase
                 });
 
                 this.mSuggestionUl.appendChild(li);
+                
             }
+
+            const height = this.mSuggestionUl.clientHeight;
+            this.mHeight = height;
+            console.log(`UL height: ${height}`);
         }
         else
         {
@@ -213,6 +286,37 @@ class AutoCompleteRow extends WCBase
     sendWordChosenEvent(word)
     {
         this.shadowRoot.dispatchEvent(new CustomEvent('word-chosen', { detail: word , bubbles: true, composed: true }));
+    }
+
+    setSelectedWord(vtPosition)
+    {
+        let index = 0;
+        console.log(`Set selected word() loop amt: ${this.mSuggestionUl.children.length}`);
+        for (const li of this.mSuggestionUl.children)
+        {
+            index++;
+            if (index === this.mSelectedIndex)
+            {
+                console.log(`Add class to ${index}`);
+                li.classList.add('selected');
+
+                const clientHeight = li.clientHeight;
+                const scrollHeight = li.scrollHeight;
+                const lowerBound = clientHeight * index;
+                //if (lowerBound > this.mHeight) li.scrollIntoView();
+                li.scrollIntoView();
+                console.log(`Client height: ${clientHeight}, scrollHeight: ${scrollHeight}`);
+                console.log(`Lower bound in list: ${clientHeight*index}`);
+            }
+            else
+            {
+                if (li.classList.contains('selected'))
+                {
+                    li.classList.remove('selected');
+                }
+            }
+            
+        }
     }
     // ----------------------------------------------
     // - Lifecycle callbacks
