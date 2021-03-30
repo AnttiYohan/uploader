@@ -6,6 +6,9 @@ class WCBase extends HTMLElement
     constructor()
     {
         super();
+        this.ENTER = 13;
+        this.KEYUP = 38;
+        this.KEYDOWN = 40;
     }
 
     setupStyle(css)

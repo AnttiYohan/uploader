@@ -1202,6 +1202,14 @@ class RecipeView extends WCBase
     // ----------------------------------------------
 
     connectedCallback()
+
+
+
+
+
+
+
+    
     {
         console.log("RecipeView::callback connected");
         
