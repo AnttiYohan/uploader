@@ -45,7 +45,7 @@ class TextInputArea extends WCBase
             align-self: center;
         }
         .row__input {
-            height: ${props.row_input_height};
+            width: 100%;
             border: 1px solid ${props.grey};
             padding: 4px;
             border-radius: 2px;
@@ -67,9 +67,10 @@ class TextInputArea extends WCBase
 
         this.setupTemplate
         (`<div class='row'>
-            <div class='row__label'><slot></div>
-            <textarea rows='8' class='row__input' ${required ? 'required' : ''}>
-        </div>`);
+            <label for='<slot>'  class='row__label'><slot></label>
+          </div>
+          <textarea rows='8' name='<slot>' class='row__input' ${required ? 'required' : ''}>
+          </textarea>`);
 
         // ---------------------------
         // - Grab the input
