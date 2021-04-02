@@ -7,7 +7,8 @@ import { ImageInputRow } from './ImageInputRow.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='uploader'>
+`<link rel='stylesheet' href='assets/css/components.css'>
+ <div class='uploader'>
   <!--header>
     <h3 class='uploader__header'>Products</h3>
   </header-->
@@ -145,9 +146,11 @@ class ProductView extends WCBase
         }
         .uploader {
             display: ${this.mDisplay};
-            margin: 16px auto;
+            margin: 0 auto;
             max-width: 1400px;
             height: fit-content;
+            background-image: url('assets/background-mesh.png');
+            background-repeat: repeat;
         }
         .uploader__header {
             font-size: ${props.header_font_size};
