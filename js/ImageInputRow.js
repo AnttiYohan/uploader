@@ -21,13 +21,8 @@ class ImageInputRow extends WCBase
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
-        this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /*this.setupStyle
+        (`
         .row {
             display: flex;
             justify-content: space-between;
@@ -68,8 +63,64 @@ class ImageInputRow extends WCBase
             appeareance: none;
             z-index: -1;
             opacity: 0;
-        }`);
+        }`);*/
 
+        this.setupTemplate
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+            <div class='image'>
+              <p class='image__title'>Product Image</p>
+              <img class='image__thumbnail' src='assets/icon_placeholder.svg' />
+              <div class='image__area'>
+                <label for='image-upload-input'  class='image__label'>.</label>
+                <input  id='image-upload-input'  class='image__file' type='file'>
+              </div>
+            </div>
+        `);
+
+        this.setupStyle
+        (`
+            .image {
+                height: 96px;
+                display: flex;
+                justify-content: space-between;
+            }
+            .image__title {
+                padding-left: 4px;
+                color: #222;
+                font-size: 14px;
+                font-weight: 200;
+            }
+            .image__thumbnail {
+                width: 48px;
+                height: 48px;
+                position: absolute;
+                transform: translate3d(48px, 28px, 0);
+            }
+            .image__area {
+                border: 1px solid ${props.color.grey};
+                margin-right: 9px;
+                width: ${props.input_width};
+                height: 96px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .image__label {
+                cursor: pointer;
+                width: 32px;
+                height: 32px;
+                background-image: url('assets/icon_image_input.svg');
+                background-repeat: no-repeat;
+            }
+            .image__file {
+                position: absolute;
+                appereance: none;
+                opacity: 0;
+                z-index: -10;
+            }
+        `);
+
+        /*
         this.setupTemplate
         (`<div class='row'>
             <img src='assets/icon_placeholder.svg'  class='row__image' />
@@ -78,13 +129,13 @@ class ImageInputRow extends WCBase
                 <input  id='image-upload-input'  class='row__file' type='file'>
             </div>
         </div>`);
-
+        */
         // ---------------------------
         // - Grab the input
         // ---------------------------
 
-        const image = this.shadowRoot.querySelector('.row__image')
-        this.mInput = this.shadowRoot.querySelector('.row__file');
+        const image = this.shadowRoot.querySelector('.image__thumbnail')
+        this.mInput = this.shadowRoot.querySelector('.image__file');
 
         setImageFileInputThumbnail(this.mInput, image);
     }
