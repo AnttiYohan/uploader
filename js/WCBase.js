@@ -75,7 +75,14 @@ const props =
     input_width: "153px",
     row_label_width: "128px",
     row_input_height: "32px",
-    frame_width_value: 300
+    frame_width_value: 300,
+    color: 
+    {
+        grey:   '#656565',
+        light:  '#E2E0E0',
+        red:    '#F00D0D',
+        white:  '#FFFFFF'
+    }
 };
 
 // ----------------------------------------
