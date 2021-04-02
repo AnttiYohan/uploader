@@ -3,6 +3,7 @@ import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
 import { ProductList } from './ProductList.js';
 import { TextInputRow } from './TextInputRow.js';
+import { TextInputArea } from './TextInputArea.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { NumberInputRow } from './NumberInputRow.js'
 import { BinaryButtonRow } from './BinaryButtonRow.js';
@@ -65,10 +66,11 @@ template.innerHTML =
 
     <!-- RECIPE INSTRUCTIONS -->
 
-    <div class='uploader__inputrow'>
-        <label for='instructions'  class='uploader__label--text'>Instructions</label>
-    </div>
-    <textarea class='uploader__textarea recipe_instructions' name='instructions' rows="8"></textarea>
+    <text-input-area class='instructions_input' required>Instructions</text-input-area>
+    
+    <!-- STORAGE INFO -->
+    
+    <text-input-area class='storage_input' required>Storage</text-input-area>
 
     <!-- RECIPE SEASON DROPDOWN -->
 
@@ -103,10 +105,6 @@ template.innerHTML =
     <product-list class='ingredient_list'></product-list>
 
     <!-- NON MANDATORY INPUT SET -->
-
-    <!-- STORAGE INFO -->
-
-    <text-input-row class='storage_input'>Storage Info</text-input-row>
 
     <!-- TIPS -->
 
@@ -183,9 +181,11 @@ class RecipeView extends WCBase
         }
         .uploader {
             display: ${this.mDisplay};
-            margin: 16px auto;
+            margin: 0 auto;
             max-width: 1400px;
             height: fit-content;
+            background-image: url('assets/background-mesh.png');
+            background-repeat: repeat;
         }
         .uploader__header {
             font-size: ${props.header_font_size};
@@ -194,14 +194,12 @@ class RecipeView extends WCBase
         .uploader__frame {
             display: flex;
             flex-direction: column;
-            margin: 16px auto;
+            margin: 0 auto;
             max-width: 600px;
-            /*height: 100vh;*/
         }
         .flex__row {
             display: flex;
             flex-wrap: wrap:
-            
         }
         .uploader__row {
             display: flex;
@@ -396,7 +394,13 @@ class RecipeView extends WCBase
             background-image: url('assets/icon_cancel');
             background-repeat: no-repeat;
         }
-        .uploader__label,
+        .uploader__label {
+            height: ${props.row_input_height};
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
+            padding: 4px 8px;
+        },
         .uploader__label--text,
         .uploader__label--file,
         .uploader__label--select {
