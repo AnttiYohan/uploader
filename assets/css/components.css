@@ -1,0 +1,28 @@
+@font-face {
+    font-family: 'Baskerville Normal';
+    font-style: normal;
+    font-weight: normal;
+    src: local('Baskerville Normal'), url('baskvl.woff') format('woff');
+}
+
+:root {
+    --gray:   #656565;
+    --light:  #E2E0E0;
+    --red:    #F00D0D;
+    --white:  #FFFFFF;
+
+    --line-height: 48px;
+    --vt-pad: 8px;
+    --input-height: 32px;
+    --left-pad: 4px;
+    --frame-width: 300px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Baskerville Normal';
+}
+
+
