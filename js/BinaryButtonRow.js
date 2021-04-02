@@ -25,12 +25,7 @@ class BinaryButtonRow extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        (`
         .clickable {
             cursor: pointer;
         }
@@ -53,7 +48,10 @@ class BinaryButtonRow extends WCBase
             align-items: center;
         }
         .row__label {
-            font: inherit;
+            padding-left: 8px;
+            font-size: ${props.text_font_size};
+            font-weight: 200;
+            color: #222;
             color: inherit;
         }
         .row__button {
@@ -64,7 +62,6 @@ class BinaryButtonRow extends WCBase
             height: 32px;
             border: 2px solid ${props.darkgrey};
             border-radius: 4px;
-            font: inherit;
             color: inherit;
             background-color: ${props.lightgrey};
             transition: background-color .15s, color .15s;
@@ -76,10 +73,11 @@ class BinaryButtonRow extends WCBase
         }`);
 
         this.setupTemplate
-        (`<div class='row'>
+        (`<link rel='stylesheet' href='assets/css/components.css'> 
+          <div class='row__label'><slot></div>
+          <div class='row'>
             <div class='row__button ${state ? "active" : ""}'>Yes</div>
             <div class='row__button ${state ? "" : "active"}'>No</div>
-            <div class='row__label'><slot></div>
         </div>`);
 
         // ---------------------------
