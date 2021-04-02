@@ -92,6 +92,10 @@ class BinaryButtonRow extends WCBase
             {
                 for (const b of buttons) b.classList.toggle('active');
                 this.mState = ! this.mState;
+                this.shadowRoot.dispatchEvent
+                (
+                    new CustomEvent('state', { bubbles: true, composed: true, detail: this.mState})
+                );
             });
         }
     }
