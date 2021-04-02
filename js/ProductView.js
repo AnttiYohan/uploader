@@ -31,7 +31,7 @@ template.innerHTML =
 
     <!-- PRODUCT CATEGORY -->
 
-    <div class='uploader__inputrow'>
+    <!--div class='uploader__inputrow'>
         <label  class='uploader__label--select'>Category</label>
             <select class='uploader__select product_category' name='product_category'>
             <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
@@ -47,50 +47,24 @@ template.innerHTML =
             <option value='OTHERS'>Others</option>
             <option value='NONE'>None</option>
         </select>
-    </div>
+    </div -->
 
     <!-- PRODUCT LIST OF ALLERGENS -->
 
-    <div class='uploader__groupframe'>
+    <binary-button-row class='input_allergens'>Allergens</binary-button-row>
 
-        <!-- ALLERGENS -->
-        <label class='uploader__label--checkbox'>Allergens
-            <input class='uploader__checkbox has_allergens' type='checkbox'>
-            <span class='uploader__checkmark'></span>
-        </label>
+    <div class='allergens'>
+        <div class='two_column'>
+           <binary-button-row class='gluten_input'>Gluten</binary-button-row>
+           <binary-button-row class='lactose_input'>Lactose</binary-button-row>
+        </div>
+        <div class='two_column'>
+          <binary-button-row class='nuts_input'>Nuts</binary-button-row>
+          <binary-button-row class='eggs_input'>Eggs</binary-button-row>
+        </div>
+    </div>
 
-        <div class='uploader__checkboxgroup allergen_group'>
-
-            <!-- EGGS -->
-
-            <label class='uploader__label--checkbox'>Eggs
-                <input class='uploader__checkbox has_eggs' type='checkbox'>
-                <span class='uploader__checkmark'></span>
-            </label>
-
-            <!-- NUTS -->
-
-            <label class='uploader__label--checkbox'>Nuts
-                <input class='uploader__checkbox has_nuts' type='checkbox'>
-                <span class='uploader__checkmark'></span>
-            </label>
-
-            <!-- LACTOSE -->
-
-            <label class='uploader__label--checkbox'>Lactose
-                <input class='uploader__checkbox has_lactose' type='checkbox'>
-                <span class='uploader__checkmark'></span>
-            </label>
-
-            <!-- GLUTEN -->
-
-            <label class='uploader__label--checkbox'>Gluten
-                <input class='uploader__checkbox has_gluten' type='checkbox'>
-                <span class='uploader__checkmark'></span>
-            </label>
-
-        </div> <!-- Wrapper End for EGGS, NUTS, LACTOSE, GLUTEN -->
-    </div> <!-- Wrapper End for ALLERGENS -->
+    <!--div class='uploader__groupframe'-->
 
     <div class='uploader__row--last'>
         <button class='uploader__button--save add_product'></button>
@@ -438,6 +412,11 @@ class ProductView extends WCBase
             color: #222;
             align-self: center;
         }
+        .two_column {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 50% 50%;
+        }
         @media (max-width: ${props.uploader_max_width})
         {
             .uploader  {
@@ -473,25 +452,28 @@ class ProductView extends WCBase
 
         this.mCategoryInput     = this.shadowRoot.querySelector('.uploader__select.product_category');
         
-        this.mHasAllergensInput = this.shadowRoot.querySelector('.uploader__checkbox.has_allergens');
-        this.mHasEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
-        this.mHasNutsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_nuts');
-        this.mHasLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
-        this.mHasGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
+        this.mAllergensInput = this.shadowRoot.querySelector('.input_allergens');
+        this.mEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
+        this.mNutsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_nuts');
+        this.mLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
+        this.mGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
         
         // -----------------------------------------------------------------------------
         // - Allergen group enabling/disabling setting
         // -----------------------------------------------------------------------------
 
-        const allergenGroup = this.shadowRoot.querySelector('.allergen_group');
+        const allergenGroup = this.shadowRoot.querySelector('.allergens');
         allergenGroup.style.opacity = 0.25;
 
-        this.mHasAllergensInput.addEventListener('change', e =>
+        this.mAllergensInput.addEventListener('state', e =>
         {
-            console.log(`Allergen changed event: ${e.target.checked}`);
-            if (! e.target.checked) allergenGroup.style.opacity = 0.25;
+            console.log(`Allergen state event: ${e.detail}`);
+            if (! e.detail) 
+            {   
+                allergenGroup.style.opacity = 0.25;
+            }
             else allergenGroup.style.opacity = 1.0;
-        });
+        }, true);
 
         // ----------------------------------------------------------------
         // - Define event listeners to listen for LoginView's custom events
