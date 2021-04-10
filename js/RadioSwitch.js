@@ -62,28 +62,70 @@ class RadioSwitch extends WCBase
         // - Listen to buttons
         // ---------------------------
 
-        const button = this.shadowRoot.querySelector('.button');
-        button.addEventListener
+        this.mButton = this.shadowRoot.querySelector('.button');
+        this.mButton.addEventListener
         ('click', e => 
         {
-            button.classList.toggle('active');
-            this.mState = ! this.mState;
+            // -------------------------------------
+            // - Take action ONLY when radio switch
+            // - Is not set
+            // -------------------------------------
+
+            if ( ! this.mState)
+            {
+                // button.classList.toggle('active');
+                //this.mState = ! this.mState;
+                // -------------------------------------
+                // - Set the switch
+                // -------------------------------------
+
+                this.mState = true;
+                this.mButton.classList.add('active');
+                
+                // -------------------------------------
+                // - Notify the parent of a state change
+                // -------------------------------------
+
+                this.shadowRoot.dispatchEvent
+                (
+                    new CustomEvent('state-change', 
+                    {
+                        bubbles: true,
+                        composed: true,
+                        detail: 
+                        {
+                            "title": this.mTitle,
+                            "state": this.mState
+                        }
+                    })
+                );
+            }
         });
     
     }
 
+    /**
+     * Sets the button state high
+     */
     turnOn()
     {
         this.mState = true;
-        button.classList.add('active');
+        this.mButton.classList.add('active');
     }
 
+    /**
+     * Sets the button state low
+     */
     turnOff()
     {
         this.mState = false;
-        button.classList.remove('active');
+        this.mButton.classList.remove('active');
     }
 
+    /**
+     * Sets the button state
+     * @param {boolean} value
+     */
     set state(value)
     {
         this.mState = value;
@@ -98,9 +140,22 @@ class RadioSwitch extends WCBase
         }
     }
 
+    /**
+     * Returns the button state
+     * @return this.mState
+     */
     get state() 
     {
         return this.mState;
+    }
+
+    /**
+     * Returns the button title
+     * @return this.mTitle
+     */
+    get title()
+    {
+        return this.mTitle;
     }
 
     // ----------------------------------------------
