@@ -3,6 +3,7 @@ import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, sele
 import { FileCache } from './util/FileCache.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
+import { RadioSwitchGroup } from './RadioSwitchGroup.js';
 
 const 
 template = document.createElement("template");
@@ -64,7 +65,22 @@ template.innerHTML =
         </div>
     </div>
 
-    <!--div class='uploader__groupframe'-->
+    <!-- PRODUCT CATEGORY LIST -->
+
+    <radio-switch-group group='[
+        "Bread&Pastry", 
+        "Fruits",
+        "Vegetables",
+        "Spices",
+        "Grains",
+        "Dairy",
+        "Meat",
+        "Seafood",
+        "Drinks",
+        "Frozen&Convenience",
+        "Others",
+        "None"
+    ]'>Category</radio-switch-group>
 
     <div class='uploader__row--last'>
         <button class='uploader__button--save add_product'></button>
