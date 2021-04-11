@@ -54,7 +54,7 @@ template.innerHTML =
 
     <!-- RECIPE IMAGE INPUT ROW -->
 
-    <image-input-row class='image_input'></image-input-row>
+    <image-input-row class='image_input'>Cover Image</image-input-row>
 
     <!-- PREPARATION TIME -->
 
