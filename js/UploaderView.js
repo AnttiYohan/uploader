@@ -8,19 +8,21 @@ import { deleteChildren } from './util/elemfactory.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='uploader'>
+`<link rel='stylesheet' href='assets/css/components.css'>
+ <div class='uploader'>
  
    <!-- The admin bar in the header -->
 
   <header class='uploader__adminframe'>
     <div class='uploader__adminbar'>
+      <div class='uploader__logo'></div>
       <div class='uploader__tabframe'>
-        <img class='uploader__logo' src='assets/logo-small.png' />
         <div class='uploader__tab product'>Product</div>
         <div class='uploader__tab recipe'>Recipe</div>
+        <div class='uploader__tab admin'>Admin</div>
       </div>
-      <div class='uploader__logout zoomable'></div>
-    </div> 
+      <div class='uploader__logout zoomable'></div> 
+    </div>
   </header>
   
   <product-view class='view__product'></product-view>
@@ -78,27 +80,32 @@ class UploaderView extends WCBase
         }
         .uploader__adminframe {
             width: 100vw;
-            background-color: ${props.admin_bar_bg};
-            height: ${props.admin_bar_height};
+            /*background-color: ${props.admin_bar_bg};*/
+           /* height: ${props.admin_bar_height};*/
             border-bottom: 1px solid rgba(0,0,0,0.33);
         }
-        .uploader__adminbar {
-            display: flex;
-            justify-content: space-around;
-            margin: 0 auto;
-            max-width: ${props.uploader_max_width};
-        }
         .uploader__logo {
-            height: 46px;
-            width: auto;
-            margin: 1px 0;
+            background-image: url( 'assets/logo-small.png' );
+            background-repeat: no-repeat;
+            background-position-x: left;
+            background-size: contain;
+            width: 96px;
+        }
+        .uploader__adminbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto;
+            /*max-width: ${props.uploader_max_width};*/
         }
         .uploader__logout {
             cursor: pointer;
             margin: 8px;
-            width: ${props.button_side};
+            width: 96px;
             height: ${props.button_side};
             background-image: url('assets/icon_logout.svg');
+            background-repeat: no-repeat;
+            background-position-x: right;
         }
         .uploader__tabframe {
             display: flex;
@@ -112,15 +119,15 @@ class UploaderView extends WCBase
             width: 100px;
             font-weight: 400;
             color: ${props.disabled};
-            background: ${props.grey};
+            /*background: ${props.grey};*/
             margin-bottom: 1px;
-            border-left: 1px solid ${props.darkgrey};
+            /*border-left: 1px solid ${props.darkgrey};*/
         }
         .uploader__tab.active {
             padding: 8px;
             font-weight: 400;
-            color: #fff;
-            background: ${props.red};
+            color: ${props.red};
+            text-shadow: 0 3px 5px rgba(0,0,0,0.33);
         }
         .uploader__tab:first-of-type {
             //border-right: 1px solid rgba(255,255,255,0.5);
@@ -136,6 +143,12 @@ class UploaderView extends WCBase
             margin: 16px auto;
             color: #f45;
             font-weight: 200;
+        }
+        @media (max-width: 500px)
+        {
+            .uploader__tabframe  {
+                flex-direction: column;
+            }
         }
         `);
 
