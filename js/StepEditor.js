@@ -15,8 +15,7 @@ import { NumberInputRow } from './NumberInputRow.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<link rel='stylesheet' href='assets/css/components.css'>     
- <div class='step-editor'>
+`<div class='step-editor'>
    <div class='editor__rowset'>
      <h3  class='editor__subheader'>Steps</h3>
      <button class='editor__button--new add_step'></button>
@@ -53,7 +52,7 @@ template.innerHTML =
         <input class='uploader__file step_file' type='file' id='image-upload-input'>
       </div>
     </div-->
-    
+
     <!-- div class='editor__rowset'>
       <label  class='editor__label'>Add step</label>
       <button class='editor__button--new add_step'></button>
@@ -88,10 +87,12 @@ class StepEditor extends WCBase
         this.setupStyle
         (`
         :host {
-            border: 1px solid ${props.grey};
-            border-radius: 8px;
+            margin-top: 16px !important;
+            border: 4px solid rgba(0,0,0,0.25);
             padding: 8px;
-            margin: 16px 0;
+        }
+        * {
+            font-family: 'Baskerville Normal';
         }
         .clickable {
             cursor: pointer;
