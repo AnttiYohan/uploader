@@ -26,7 +26,7 @@ class BinarySwitch extends WCBase
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`* {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Baskerville Normal';
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -44,6 +44,7 @@ class BinarySwitch extends WCBase
             border-radius: 4px;
             font: inherit;
             color: inherit;
+            font-size: 14px;
             background-color: ${props.lightgrey};
             transition: background-color .15s, color .15s;
         }
