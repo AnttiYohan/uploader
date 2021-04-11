@@ -25,8 +25,8 @@ import { FileCache } from './util/FileCache.js';
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div>
-
+`<link rel='stylesheet' href='assets/css/components.css'>
+ <div>
   <!-- The editor is connected here when utilized -->
 
   <div class='uploader__frame editor_node'>
