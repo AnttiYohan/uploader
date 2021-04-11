@@ -59,7 +59,7 @@ class NumberInputRow extends WCBase
         }
         .row__input:invalid {
             border: 2px solid ${props.red};
-            background-image: url('assets/icon_exclamation_red.svg');
+            background-image: url('assets/icon_asterisk.svg');
             background-repeat: no-repeat;
             background-position-x: right;
         }
