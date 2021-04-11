@@ -7,34 +7,53 @@ import
     setImageFileInputThumbnail,
     setImageThumbnail
 } from './util/elemfactory.js';
+import { TextInputRow } from './TextInputRow.js';
+import { ImageInputRow } from './ImageInputRow.js';
+import { NumberInputRow } from './NumberInputRow.js';
+ 
 
 const 
 template = document.createElement("template");
 template.innerHTML =
-`<div class='step-editor'>
-  <div class='editor__rowset'>
-    <h3  class='editor__subheader'>Steps</h3>
-    <button class='editor__button--new add_step'></button>
+`<link rel='stylesheet' href='assets/css/components.css'>     
+ <div class='step-editor'>
+   <div class='editor__rowset'>
+     <h3  class='editor__subheader'>Steps</h3>
+     <button class='editor__button--new add_step'></button>
   </div>
 
   <!-- STEP EDITOR -->
 
   <div class='editor__frame step_editor'>
-    <div class='editor__rowset'>
+    <!--div class='editor__rowset'>
       <label class='editor__label'>Text</label>
       <input class='editor__input step_text' type='text'>
     </div>
     <div class='editor__rowset'>
       <label class='editor__label'>Number</label>
       <input class='editor__input step_number' type='number' min='1' default='1'>
-    </div>
-    <div class='editor__rowset'>
+    </div-->
+
+    <!-- DESCRIBING TEXT INPUT -->
+
+    <text-input-row class='step_text'>Text</text-input-row>
+
+    <!-- STEP NUMBER INPUT -->
+
+    <number-input-row class='step_number'>Number</number-input-row>
+
+    <!-- IMAGE INPUT -->
+
+    <image-input-row class='step_image'>Image</image-input-row>
+
+    <!--div class='editor__rowset'>
       <img   class='editor__image step_image' src='assets/icon_placeholder.svg'>
       <div   class='uploader__fileframe'>
         <label class='uploader__filelabel' for='image-upload-input'>image upload</label>
         <input class='uploader__file step_file' type='file' id='image-upload-input'>
       </div>
-    </div>
+    </div-->
+    
     <!-- div class='editor__rowset'>
       <label  class='editor__label'>Add step</label>
       <button class='editor__button--new add_step'></button>
@@ -67,12 +86,7 @@ class StepEditor extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        (`
         :host {
             border: 1px solid ${props.grey};
             border-radius: 8px;
@@ -216,10 +230,11 @@ class StepEditor extends WCBase
         // - Save element references
         // ---------------------------
 
-        const stepTextInput   = this.shadowRoot.querySelector('.editor__input.step_text');
-        const stepNumberInput = this.shadowRoot.querySelector('.editor__input.step_number');
-        const stepFileInput   = this.shadowRoot.querySelector('.uploader__file.step_file');
-        const stepImage       = this.shadowRoot.querySelector('.editor__image.step_image');
+        const stepTextInput   = this.shadowRoot.querySelector('.step_text');
+        const stepNumberInput = this.shadowRoot.querySelector('.step_number');
+        const stepImageInput  = this.shadowRoot.querySelector('.step_image');
+        //const stepFileInput   = this.shadowRoot.querySelector('.uploader__file.step_file');
+        //const stepImage       = this.shadowRoot.querySelector('.editor__image.step_image');
 
         setImageFileInputThumbnail( stepFileInput, stepImage );
 
