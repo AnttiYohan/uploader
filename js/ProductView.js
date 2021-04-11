@@ -82,9 +82,12 @@ template.innerHTML =
         "None"
     ]'>Category</radio-switch-group>
 
+
     <div class='uploader__row--last'>
-        <button class='uploader__button--save add_product'></button>
+        <!--button class='uploader__button--save add_product'></button-->
     </div>
+
+    <button class='button--save'>Save</button>
 
   </div>
 
