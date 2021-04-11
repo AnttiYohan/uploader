@@ -21,19 +21,21 @@ class ProductList extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
+        (`
+        :host {
+            margin-top: 16px !important;
+            margin-bottom: 16px !important;
+            border: 4px solid rgba(0,0,0,0.25);
+            padding: 8px;
+        }
+        * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        :host {
-            border: 1px solid ${props.grey};
-            border-radius: 8px;
-            padding: 8px;
-            margin: 16px 0;
+            font-family: 'Baskerville Normal';
         }
         .list {
+            padding: 0;
+            list-style-type: none;
             display: flex;
             flex-direction: column;
         }
@@ -42,7 +44,6 @@ class ProductList extends WCBase
             flex-direction: row;
             justify-content: flex-start;
             align-items: flex-end;
-            height: ${props.uploader_row_height};
             padding: ${props.uploader_row_pad};
             border-bottom: 1px solid ${props.lightgrey};
             font-size: ${props.text_font_size};
@@ -55,34 +56,38 @@ class ProductList extends WCBase
             padding-bottom: 16px;
         }
         .ingredient__label {
-            width: ${props.row_label_width};
-            background: rgba(255,255,255,0.95);
-            border-radius: 2px;
-            border-bottom: 1px solid rgba(0,0,0,0.5);
+            width: 90px;
+            height: 100%;
+            margin-left: 4px;
+            padding: 4px;
+            border-bottom: 2px solid rgba(0,0,0,0.25);
             font-size: ${props.text_font_size};
             font-weight: inherit;
             color: #222;
-            align-self: center;
         }
         .ingredient__amount {
-            max-width: 48px;
+            max-width: 32px;
+            margin-left: 4px;
             padding-left: 8px;
+            background: rgba(255,255,255,0.5);
             font-size: ${props.text_font_size};
             font-weight: inherit;
-            color: inherit
-            align-self: center;
-            vertical-align: center;
+            color: inherit;
             height: ${props.row_input_height};
-            border: 1px solid #e2e0e0;
+            border: none;
+            border-bottom: 2px solid rgba(0,0,0,0.25);
         }
         .ingredient__unit {
+            width: fit-content;
+            margin-left: 4px;
+            margin-right: 4px;
+            background: rgba(255,255,255,0.5);
             font-size: ${props.text_font_size};
             font-weight: inherit;
-            color: inherit
-            align-self: center;
-            vertical-align: center;
+            color: inherit;
             height: ${props.row_input_height};
-            border: 1px solid #e2e0e0;
+            border: none;
+            border: 2px solid rgba(0,0,0,0.25);
         }
         .ingredient__amount:active,
         .imgrendient__unit:active {
@@ -96,6 +101,7 @@ class ProductList extends WCBase
             border-color: rgba(#dc4949, 0.45);
         }
         .ingredient__button {
+            cursor: pointer;
             width: 32px;
             height: 32px;
             align-self: center;
@@ -110,8 +116,8 @@ class ProductList extends WCBase
 
         this.setupTemplate
         (`<auto-complete-row class='ingredient_input'>Ingredient</auto-complete-row>
-        <ul class='list'>
-        </ul>`);
+          <ul class='list'>
+          </ul>`);
 
 
         // ---------------------------
