@@ -55,7 +55,7 @@ class AutoCompleteRow extends WCBase
             border-radius: 2px;
             font-weight: 200;
             color: #222;
-            box-shadow: 0 1px 13px 2px rgba(0,0,0,0.25);
+            box-shadow: 0 1px 6px 1px rgba(0,0,0,0.1);
         }
         .row__input:invalid {
             border: 2px solid ${props.red};

@@ -51,7 +51,7 @@ class NumberInputRow extends WCBase
             border-radius: 2px;
             font-weight: 200;
             color: #222;
-            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.5);
+            box-shadow: 0 1px 6px 1px rgba(0,0,0,0.1);
         }
         .row__input:focus {
             outline: none;
