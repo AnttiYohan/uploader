@@ -18,7 +18,7 @@ class BinarySwitchGroup extends WCBase
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`* {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Baskerville Normal';
             margin: 0;
             padding: 0;
             box-sizing: border-box;
