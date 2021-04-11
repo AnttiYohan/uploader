@@ -27,11 +27,11 @@ class AutoCompleteRow extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
+        (`
+        * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            font-family: 'Baskerville Normal';
         }
         .row {
             display: flex;
@@ -67,6 +67,8 @@ class AutoCompleteRow extends WCBase
             border: 1px solid ${props.grey};
         }
         .row__suggestions {
+            padding: 0;
+            list-style-type: none;
             overflow-y: scroll;
             z-index: 10;
             display: none;
@@ -98,8 +100,7 @@ class AutoCompleteRow extends WCBase
             <div class='row__label'><slot></div>
             <input type='text' class='row__input'>
             <ul class='row__suggestions'>
-         </div>
-        `);
+          </div>`);
 
         
         this.mHeight = 94;
