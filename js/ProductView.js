@@ -28,7 +28,7 @@ template.innerHTML =
 
     <!-- PRODUCT IMAGE -->
 
-    <image-input-row class='image_input'></image-input-row>
+    <image-input-row class='image_input'>Product Image</image-input-row>
 
     <!-- PRODUCT CATEGORY -->
 
