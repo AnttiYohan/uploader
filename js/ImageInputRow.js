@@ -80,12 +80,13 @@ class ImageInputRow extends WCBase
         this.setupStyle
         (`
             .image {
-                height: 96px;
                 display: flex;
                 justify-content: space-between;
+                display: flex;
+                padding: ${props.uploader_row_pad};
+                border-bottom: 1px solid ${props.lightgrey};
             }
             .image__title {
-                padding-left: 4px;
                 color: #222;
                 font-size: 14px;
                 font-weight: 200;
