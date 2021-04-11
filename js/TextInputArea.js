@@ -66,7 +66,8 @@ class TextInputArea extends WCBase
         `);
 
         this.setupTemplate
-        (`<div class='row'>
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+          <div class='row'>
             <label for='<slot>'  class='row__label'><slot></label>
           </div>
           <textarea rows='8' name='<slot>' class='row__input' ${required ? 'required' : ''}>

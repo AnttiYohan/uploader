@@ -71,10 +71,11 @@ class NumberInputRow extends WCBase
         `);
 
         this.setupTemplate
-        (`<div class='row'>
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+          <div class='row'>
             <div class='row__label'><slot></div>
             <input type='number' class='row__input' min='1' ${required ? "value='0'" : ""}>
-        </div>`);
+          </div>`);
 
         // ---------------------------
         // - Grab the input
