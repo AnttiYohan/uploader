@@ -29,12 +29,7 @@ class NumberInputRow extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        (`
         .row {
             display: flex;
             justify-content: space-between;
