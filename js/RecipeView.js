@@ -118,9 +118,17 @@ template.innerHTML =
 
     <text-input-row class='info_input'>Interesting Info</text-input-row>
 
+    <!-- SAVE BUTTON -->
+
     <div class='uploader__row--last'>
-        <button class='uploader__button--save add_recipe'></button>
     </div>
+
+    <button class='button--save add_recipe'>Save</button>
+    
+    <!--div class='uploader__row--last'>
+        <button class='uploader__button--save add_recipe'></button>
+    </div-->
+
   </div>
 
 
