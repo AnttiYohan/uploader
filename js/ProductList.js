@@ -66,7 +66,7 @@ class ProductList extends WCBase
             color: #222;
         }
         .ingredient__amount {
-            max-width: 32px;
+            max-width: 48px;
             margin-left: 4px;
             padding-left: 8px;
             background: rgba(255,255,255,0.5);
@@ -78,7 +78,7 @@ class ProductList extends WCBase
             border-bottom: 2px solid rgba(0,0,0,0.25);
         }
         .ingredient__unit {
-            width: fit-content;
+            width: 80px;
             margin-left: 4px;
             margin-right: 4px;
             background: rgba(255,255,255,0.5);
