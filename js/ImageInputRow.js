@@ -99,7 +99,6 @@ class ImageInputRow extends WCBase
             }
             .image__area {
                 border: 1px solid ${props.color.grey};
-                margin-right: 9px;
                 width: ${props.input_width};
                 height: 96px;
                 display: flex;
