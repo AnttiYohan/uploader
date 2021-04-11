@@ -68,7 +68,7 @@ class ImageInputRow extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='image'>
-              <p class='image__title'>Product Image</p>
+              <p class='image__title'><slot></p>
               <img class='image__thumbnail' src='assets/icon_placeholder.svg' />
               <div class='image__area'>
                 <label for='image-upload-input'  class='image__label'>.</label>
