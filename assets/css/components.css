@@ -12,6 +12,7 @@
     --white:  #FFFFFF;
 
     --line-height: 48px;
+    --image-area-side: 96px;
     --vt-pad: 8px;
     --input-height: 32px;
     --left-pad: 4px;
@@ -25,4 +26,22 @@
     font-family: 'Baskerville Normal';
 }
 
+.button--save {
+    cursor: pointer;
+    color: #fff;
+    background-color: #008800;
+    height: 32px; /*var(--line-height);*/
+    border-radius: 16px;
+    border: 1px solid transparent;
+    text-align: center;
+}
+
+.button--save:hover {
+    background-color: #00c800;
+}
+
+.button--save:active {
+    outline: none;
+    border-color: rgba(0,0,0, 0.5);
+}
 
