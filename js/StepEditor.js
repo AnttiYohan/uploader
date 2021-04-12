@@ -245,7 +245,7 @@ class StepEditor extends WCBase
 
         // setImageFileInputThumbnail( stepFileInput, stepImage );
 
-        this.mStepList      = this.shadowRoot.querySelector('.list');
+        this.mStepList      = this.shadowRoot.querySelector('.editor__frame.step_list');
         this.mAddStepButton = this.shadowRoot.querySelector('.editor__button--new.add_step');
         this.mAddStepButton.addEventListener('click', e => 
         {
