@@ -1,6 +1,6 @@
 import { WCBase, props, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { AutoCompleteRow } from './AutoCompleteRow.js'
-import { newTagClass, newTagClassChildren, newTagClassHTML, numberInputClassValue, selectClassIdOptionList } from './util/elemfactory.js';
+import { newTagClass, newTagClassChildren, newTagClassHTML, numberInputClassValue, selectClassIdOptionList, selectValue } from './util/elemfactory.js';
 /**
  * 
  */
@@ -130,8 +130,9 @@ class ProductList extends WCBase
 
         this.mInput = this.shadowRoot.querySelector('.ingredient_input');
         this.mList  = this.shadowRoot.querySelector('.list');
+        this.mBufferMap = {};
 
-        this.mInput.loadWords
+        /*this.mInput.loadWords
         ([
             'apple',
             'pear',
@@ -142,7 +143,7 @@ class ProductList extends WCBase
             'banana',
             'sugar',
             'salt'
-        ]);
+        ]);*/
 
         this.shadowRoot.addEventListener('word-chosen', e => 
         {
@@ -157,10 +158,38 @@ class ProductList extends WCBase
         });
     }
 
-
+    /**
+     * Load products into the list-
+     * Buffer holds all products with the specific values
+     * Also
+     * @param {Array} list 
+     */
     loadWords(list)
     {
-        //this.mInput.loadWords(list);
+        // --------------------------
+        // - Populate the BufferMap
+        // - With the products,
+        // - Use the name as key
+        // --------------------------
+
+        for (const product of list)
+        {
+            const name = product.name;
+
+            this.mBufferMap[name] =
+            {
+                id:   product.id,
+                name: product.name,
+                hasAllergens: product.hasAllergens,
+                hasEggs: product.hasEggs,
+                hasNuts: product.hasNuts,
+                hasLactose: product.hasLactose,
+                hasGluten: product.hasGluten,
+                productCategory: product.productCategory
+            }
+        }
+
+        this.mInput.loadWords(list);
     }
     /**
      * Returns the autocomplete input's text value
@@ -183,12 +212,26 @@ class ProductList extends WCBase
 
         for (const item of this.mList.children)
         {
+            // ---------------------------------
+            // - Grab the name, amount and unit
+            // ---------------------------------
+
             const label = item.querySelector('.ingredient__label');
+            
+            const numberInput = item.querySelector('.ingredient__amount');
+            const amount = numberInput.value;
+
+            const unitSelect = item.querySelector('.ingredient__unit');
+            const measureUnit = selectValue(unitSelect);
+            const userId = 1;
 
             if (label)
             {
                 const text = label.textContent;
-                if (text && text.length) list.push(text);
+                if (text in this.mBufferMap)
+                {
+                    list.push({ ...this.mBufferMap[text], amount, measureUnit, userId });
+                }
             }
         }
 
