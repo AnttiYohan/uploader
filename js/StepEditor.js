@@ -347,14 +347,20 @@ class StepEditor extends WCBase
     {
         const list = [];
 
+        console.log(`Parsing the step list`);
+
         for (const key in this.mBuffer)
         {
-            const row    = this.mBuffer[key];
-            const text   = row.text;
-            const number = row.number;
-            const file   = row.file;
+            console.log(`Step key ${key}`)
 
-            list.push({ text, number, file });
+            const row        = this.mBuffer[key];
+            const text       = row.text;
+            const stepNumber = row.number;
+            const image      = row.file;
+
+            console.log(`Text: ${text}, number: ${stepNumber}`);
+
+            list.push({ text, stepNumber, image });
         }
 
         return list;
