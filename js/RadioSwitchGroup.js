@@ -1,7 +1,9 @@
 import { WCBase, props } from './WCBase.js';
-import { RadioSwitch } from './RadioSwitch.js'
+import { RadioSwitch } from './RadioSwitch.js';
+
 /**
- * 
+ * Container class for RadioSwitch elements
+ * ======================================== 
  */
 class RadioSwitchGroup extends WCBase
 {
@@ -13,25 +15,17 @@ class RadioSwitchGroup extends WCBase
         // - Read the group attribute
         // -----------------------------------------------
 
-        this.mSwitchMap = {};
         this.mSwitchArray = [];
         this.mGroupList = [];
 
         if (this.hasAttribute('group'))
         {
-            const group = this.getAttribute('group');
-            console.log(`RadioSwitchGroup: attribute group found: ${group}`);
-
-            const parsed = JSON.parse(group);
+            const group  = this.getAttribute('group');
+            const parsed = group ? JSON.parse(group) : undefined;
 
             if (Array.isArray(parsed))
             {
-                console.log(`Parsed Group array length: ${parsed.length}`);
                 this.mGroupList = parsed;
-            }
-            else
-            {
-                console.log(`Group could not be parsed as an array`)
             }
         }
         else
@@ -85,8 +79,7 @@ class RadioSwitchGroup extends WCBase
         </div>`);
 
         this.mContainerElement = this.shadowRoot.querySelector('.container');
-        //this.mContainerElement.addEventListener('click', e => { console.log(this.stateList); });
-
+     
         // ------------------------------------------------------
         // - Add the group list items as radio buttons
         // ------------------------------------------------------
@@ -115,6 +108,12 @@ class RadioSwitchGroup extends WCBase
         }
     }
 
+    /**
+     * Returns the titles of every active 
+     * RadioSwitch elements
+     * 
+     * @return {Array}
+     */
     get stateList()
     {
         const list = [];
