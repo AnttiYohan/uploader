@@ -193,7 +193,17 @@ class AutoCompleteRow extends WCBase
 
     addWord(word)
     {
-        this.mWordList.push(word);
+        let exctracted = '';
+        if (typeof(word) === 'string')
+        {
+            exctracted = word;
+        }
+        else
+        {
+            exctracted = word.name;
+        }
+
+        this.mWordList.push(exctracted);
     }
 
     /**
