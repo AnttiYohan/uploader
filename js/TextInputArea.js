@@ -59,7 +59,7 @@ class TextInputArea extends WCBase
         }
         .row__input:invalid {
             border: 2px solid ${props.red};
-            background-image: url('assets/icon_exclamation_red.svg');
+            background-image: url('assets/icon_asterisk.svg');
             background-repeat: no-repeat;
             background-position-x: right;
         }
@@ -92,7 +92,7 @@ class TextInputArea extends WCBase
     connectedCallback()
     {
         console.log("<text-input-row> connected");
-        
+        this.mInput.value = '';
     }
 
     disconnectedCallback()
