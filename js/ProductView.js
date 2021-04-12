@@ -52,7 +52,7 @@ template.innerHTML =
 
     <!-- PRODUCT LIST OF ALLERGENS -->
 
-    <binary-button-row class='input_allergens'>Allergens</binary-button-row>
+    <binary-button-row class='allergens_input'>Allergens</binary-button-row>
 
     <div class='allergens'>
         <div class='two_column'>
@@ -67,7 +67,7 @@ template.innerHTML =
 
     <!-- PRODUCT CATEGORY LIST -->
 
-    <radio-switch-group group='[
+    <radio-switch-group class='category_input' group='[
         "Bread&Pastry", 
         "Fruits",
         "Vegetables",
@@ -83,11 +83,12 @@ template.innerHTML =
     ]'>Category</radio-switch-group>
 
 
+    <!-- SAVE BUTTON -->
+
     <div class='uploader__row--last'>
-        <!--button class='uploader__button--save add_product'></button-->
     </div>
 
-    <button class='button--save'>Save</button>
+    <button class='button--save save_product'>Save</button>
 
   </div>
 
@@ -451,7 +452,7 @@ class ProductView extends WCBase
         // ---------------------------
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton   = this.shadowRoot.querySelector('.uploader__button--save.add_product');
+        this.mAddButton   = this.shadowRoot.querySelector('.save_product');
         this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
         
         const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
@@ -467,16 +468,14 @@ class ProductView extends WCBase
         // ------------------
 
         this.mNameInput         = this.shadowRoot.querySelector('.name_input');
-        this.mFileInput         = this.shadowRoot.querySelector('.image_input');
-
-        this.mCategoryInput     = this.shadowRoot.querySelector('.uploader__select.product_category');
-        
-        this.mAllergensInput = this.shadowRoot.querySelector('.input_allergens');
-        this.mEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
-        this.mNutsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_nuts');
-        this.mLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
-        this.mGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
-        
+        this.mFileInput         = this.shadowRoot.querySelector('.image_input');  
+        this.mAllergensInput    = this.shadowRoot.querySelector('.allergens_input');
+        this.mEggsInput         = this.shadowRoot.querySelector('.eggs_input');
+        this.mNutsInput         = this.shadowRoot.querySelector('.nuts_input');
+        this.mLactoseInput      = this.shadowRoot.querySelector('.lactose_input');
+        this.mGlutenInput       = this.shadowRoot.querySelector('.gluten_input');
+        this.mCategoryInput     = this.shadowRoot.querySelector('.category_input');
+      
         // -----------------------------------------------------------------------------
         // - Allergen group enabling/disabling setting
         // -----------------------------------------------------------------------------
@@ -494,62 +493,45 @@ class ProductView extends WCBase
             else allergenGroup.style.opacity = 1.0;
         }, true);
 
-        // ----------------------------------------------------------------
-        // - Define event listeners to listen for LoginView's custom events
-        // ----------------------------------------------------------------
-
-        window.addEventListener
-        (
-            "login-event", 
-            e =>
-            {
-                console.log(`ProductView - login-event catched`);
-            },
-            true
-        );
-
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
 
-        this.mAddButton.addEventListener
-        (
-            "click",
-            e =>
+        this.mAddButton.addEventListener('click', e =>
+        {
+            // --------------------------------------
+            // - Obtain input values and validate
+            // - If dto and image file present, send
+            // - To the server
+            // --------------------------------------
+
+            const dto = this.compileDto();
+            const imageFile = this.getFileInput();
+
+            console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
+            console.log(`Imagefile: ${imageFile}`);
+
+            if ( dto && imageFile )
             {
-                // --------------------------------------
-                // - Obtain input values and validate
-                // - If dto and image file present, send
-                // - To the server
-                // --------------------------------------
+                this.addProduct(dto, imageFile)
+                    .then(response => 
+                    {
+                        console.log(`addProduct response ok: ${response}`);
 
-                const dto = this.compileDto();
-                const imageFile = this.getFileInput();
+                        // --------------------------
+                        // - Cache cleared, 
+                        // - Read all from server
+                        // --------------------------
 
-                console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
-                console.log(`Imagefile: ${imageFile}`);
-
-                if ( dto && imageFile )
-                {
-                    this.addProduct(dto, imageFile)
-                        .then(response => 
-                        {
-                            console.log(`addProduct response ok: ${response}`);
-
-                            // --------------------------
-                            // - Cache cleared, 
-                            // - Read all from server
-                            // --------------------------
-
-                            this.loadProducts();
-                        })
-                        .catch(error => { console.log(`addProduct response fail: ${error}`); });
-                }
-                else
-                {
-                    console.log(`Add proper data and image file`);
-                }
+                        this.loadProducts();
+                    })
+                    .catch(error => { console.log(`addProduct response fail: ${error}`); });
             }
+            else
+            {
+                console.log(`Add proper data and image file`);
+            }
+        }
         );
 
         this.mToken = localStorage.getItem('token');
@@ -586,27 +568,54 @@ class ProductView extends WCBase
     compileDto()
     {
         const name = this.mNameInput.value;
-        const productCategory = selectValue(this.mCategoryInput);
+
+        // ----------------------------------------------------
+        // - Read has allergens input, if it is not set, leave
+        // - all the allergen groups as false
+        // ----------------------------------------------------
+
         const hasAllergens = this.mHasAllergensInput.checked;
-        const hasEggs = this.mHasEggsInput.checked;
-        const hasNuts = this.mHasNutsInput.checked;
-        const hasLactose = this.mHasLactoseInput.checked;
-        const hasGluten = this.mHasGlutenInput.checked;
+        let hasEggs     = false;
+        let hasNuts     = false;
+        let hasLactose  = false;
+        let hasGluten   = false;
+
+        if (hasAllergens)
+        {
+            hasEggs     = this.mHasEggsInput.checked;
+            hasNuts     = this.mHasNutsInput.checked;
+            hasLactose  = this.mHasLactoseInput.checked;
+            hasGluten   = this.mHasGlutenInput.checked;
+        }
+
+        // -----------------------------------------------
+        // - Read the active product category
+        // -----------------------------------------------
+
+        const productCategory = this.mCategoryInput.active;
+       
+        // -----------------------------------------------
+        // - Ensure that the name and category are defined
+        // -----------------------------------------------
 
         if ( name.length === 0 || productCategory.length === 0 )
         {
             return null;
         }
 
+        // ----------------------------------------------------
+        // - Construct and return the product DTO
+        // ----------------------------------------------------
+
         const dataObject =
         {
             name,
-            productCategory,
             hasAllergens,
             hasEggs,
             hasNuts,
             hasLactose,
-            hasGluten
+            hasGluten,
+            productCategory
         };
 
         return { title: 'product', data: JSON.stringify(dataObject) };
@@ -640,7 +649,7 @@ class ProductView extends WCBase
 
         if ( Array.isArray(list) )
         {
-            window.dispatchEvent(new CustomEvent("product-list", {detail: list}));
+            window.dispatchEvent(new CustomEvent('product-list', {detail: list}));
             for (const item of list)
             {
                 const id = item.id;
@@ -713,10 +722,6 @@ class ProductView extends WCBase
         return FileCache.postDtoAndImage(PRODUCT_URL, dto, imageFile);
     }
 
-    updateProductImage(id, imageFile)
-    {
-
-    }
 
     /**
      * Executes HTTP DELETE by product route / id
