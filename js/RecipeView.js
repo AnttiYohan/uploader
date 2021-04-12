@@ -120,7 +120,7 @@ template.innerHTML =
 
     <!-- NUTRITIONAL VALUE -->
 
-    <number-input-row class='nutriton_input'>Nutrition kcal</number-input-row>
+    <number-input-row class='nutrition_input'>Nutrition kcal</number-input-row>
 
     <!-- INTERESTING INFO -->
 
@@ -643,30 +643,18 @@ class RecipeView extends WCBase
         this.mSeasonInput       = this.shadowRoot.querySelector('.season_input');
         this.mFingerfoodInput   = this.shadowRoot.querySelector('.fingerfood_input');
         this.mCookInput         = this.shadowRoot.querySelector('.has_to_cook_input');
+        this.mAllergensInput    = this.shadowRoot.querySelector('.allergens_input');
         this.mEggsInput         = this.shadowRoot.querySelector('.eggs_input');
         this.mNutsInput         = this.shadowRoot.querySelector('.nuts_input');
         this.mLactoseInput      = this.shadowRoot.querySelector('.lactose_input');
         this.mGlutenInput       = this.shadowRoot.querySelector('.gluten_input');
-        this.mMealTypeInput     = this.shadowRoot.querySelector('.meal_type_input');
+        this.mMealTypeInput     = this.shadowRoot.querySelector('.meal_types_input');
 
         // -------------------------------------------------------------------------------------
         // - Mealtype is a multiselect -- recipe may have 1..N mealtypes
         // -------------------------------------------------------------------------------------
 
-        this.mMealtypeMap =
-        {
-            "BREAKFAST": this.shadowRoot.querySelector('.uploader__checkbox.breakfast'),
-            "LUNCH":     this.shadowRoot.querySelector('.uploader__checkbox.lunch'),
-            "DINNER":    this.shadowRoot.querySelector('.uploader__checkbox.dinner'),
-            "SNACK":     this.shadowRoot.querySelector('.uploader__checkbox.snack'),
-            "DESSERT":   this.shadowRoot.querySelector('.uploader__checkbox.dessert'),
-            "APPETIZER": this.shadowRoot.querySelector('.uploader__checkbox.appetizer'),
-            "SALAD":     this.shadowRoot.querySelector('.uploader__checkbox.salad'),
-            "SOUP":      this.shadowRoot.querySelector('.uploader__checkbox.soup'),
-            "SMOOTHIE":  this.shadowRoot.querySelector('.uploader__checkbox.smoothie'),
-            "BEVERAGES": this.shadowRoot.querySelector('.uploader__checkbox.beverages')
-        };
-
+     
         // -----------------------------------------------
         // - Non mandatory input set
         // -----------------------------------------------
@@ -692,7 +680,7 @@ class RecipeView extends WCBase
                 // --------------------------------------
 
                 const dto       = this.compileDto();
-                const imageFile = this.getFileInput();
+                const imageFile = this.mFileInput.value;
 
                 console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
                 console.log(`Imagefile: ${imageFile}`);
@@ -892,7 +880,7 @@ class RecipeView extends WCBase
     compileDto()
     {
         const title     = this.mTitleInput.value;
-        const imageFile = this.mFileInput.value;
+        //const imageFile = this.mFileInput.value;
         const prepareTimeInMinutes = this.mPrepTimeInput.value;
         const monthsOld     = this.mAgeInput.value;
         const instructions  = this.mInstructionsInput.value;
@@ -900,64 +888,25 @@ class RecipeView extends WCBase
         const season        = this.mSeasonInput.active;
 
         const hasStepByStep = false;
-        const fingerFood    = this.mFingerfoodInput.checked;
-        const hasToCook     = this.mCookInput.checked;
-        const hasAllergens  = false;
-        const hasEggs       = this.mHasEggsInput.checked;
-        const hasNuts       = this.mHasNutsInput.checked;
-        const hasLactose    = this.mHasLactoseInput.checked;
-        const hasGluten     = this.mHasGlutenInput.checked;
+        const fingerFood    = this.mFingerfoodInput.state;
+        const hasToCook     = this.mCookInput.state;
+        const hasAllergens  = this.mAllergensInput.state;
+        const hasEggs       = this.mEggsInput.state;
+        const hasNuts       = this.mNutsInput.state;
+        const hasLactose    = this.mLactoseInput.state;
+        const hasGluten     = this.mGlutenInput.state;
 
-        // --------------------------------------
-        // - Ingredients (Products)
-        // --------------------------------------
-
-        const products = this.mIngredientList.chosenProducts();
-        const steps    = this.mStepEditor.getStepList();
-        /**
-        for (const elem of this.mIngredientsList.children)
-        {
-            const systemProductId = elem.getAttribute('data-id');
-            const name = elem.querySelector('.ingredient__title').textContent;
-            const amount = elem.querySelector('.ingredient__amount').value;
-            const measureUnit = selectValue(elem.querySelector('.ingredient__unit'));
-            const productCategory = elem.querySelector('.ingredient__category').textContent;;
-            const recipeId = 0;
-            const userId = 1; 
-            if ( systemProductId ) products.push
-            (
-                {
-                    name,
-                    amount,
-                    measureUnit,
-                    productCategory,
-                    userId,
-                    systemProductId
-                }
-            );
-        }
-
-        */
-
-        // - Mealtypes
-        const mealTypes = [];
-
-        for (const item of MEALTYPES_ENUM)
-        {
-            if (this.mMealtypeMap[item].checked)
-            {
-                console.log(`Mealtype ${item} checked`);
-                mealTypes.push({name:item});
-            }
-        }
+        const mealTypes   = this.mMealTypeInput.stateList;
+        const products    = this.mIngredientList.chosenProducts();
+        const stepBySteps = this.mStepEditor.getStepList();
 
         // ---------------------------------------------
         // - Optional fields
         // ----------------------------------------------
 
         const interestingInfo = this.mInfoInput.value;
-        const tips = this.mTipsInput.value;
-        const nutritionValue = this.mNutritionInput.value;
+        const tips            = this.mTipsInput.value;
+        const nutritionValue  = this.mNutritionInput.value;
 
         if 
         ( 
@@ -968,8 +917,7 @@ class RecipeView extends WCBase
             storageInfo.length === 0 ||
             season.length === 0 ||
             products.length === 0 ||
-            mealTypes.length === 0 ||
-            ! imageFile
+            mealTypes.length === 0
         )
         {
             return null;
@@ -991,9 +939,9 @@ class RecipeView extends WCBase
             hasNuts,
             hasLactose,
             hasGluten,
-            steps,
-            products,
             mealTypes,
+            stepBySteps,
+            products,
             tips,
             nutritionValue,
             interestingInfo
