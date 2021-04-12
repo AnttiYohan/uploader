@@ -85,7 +85,7 @@ class RadioSwitchGroup extends WCBase
         </div>`);
 
         this.mContainerElement = this.shadowRoot.querySelector('.container');
-        this.mContainerElement.addEventListener('click', e => { console.log(this.stateList); });
+        //this.mContainerElement.addEventListener('click', e => { console.log(this.stateList); });
 
         // ------------------------------------------------------
         // - Add the group list items as radio buttons
@@ -106,23 +106,12 @@ class RadioSwitchGroup extends WCBase
                 );
             }
 
-            // -----------------------
-            // - Create the switch map
-            // -----------------------
-
-            for (const elem of this.mContainerElement.children)
-            {
-                this.mSwitchMap[elem.title] = elem;
-            }
-            console.log(`SwitchMap created: ${this.mSwitchMap}`);
-
             // -------------------------
             // - Create the switch array
             // -------------------------
 
             this.mSwitchArray = Array.from(this.mContainerElement.children);
 
-            console.log(`SwitchArray created: ${this.mSwitchArray}`);
         }
     }
 
@@ -138,11 +127,16 @@ class RadioSwitchGroup extends WCBase
         return list;
     }
 
+    /**
+     * Returns the active RadioSwitch title
+     * ====================================
+     * @return {string}
+     */
     get active()
     {
         for (const elem of this.mSwitchArray)
         {
-            if (elem.state) return elem.title;
+            if (elem.state) return elem.value;
         }
 
         return '';
