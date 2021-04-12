@@ -5,7 +5,7 @@ import { WCBase, props } from './WCBase.js';
  */
 class RadioSwitch extends WCBase
 {
-    constructor(title, state = false)
+    constructor(blob, state = false)
     {
         super();
         
@@ -13,7 +13,8 @@ class RadioSwitch extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        this.mTitle = title;
+        this.mTitle = blob.title;
+        this.mValue = blob.value;
 
         if (this.hasAttribute('on')) state = true;
 
@@ -56,7 +57,7 @@ class RadioSwitch extends WCBase
         }`);
 
         this.setupTemplate
-        (`<div class='button ${state ? "active" : ""}'>${title}</div>`);
+        (`<div class='button ${state ? "active" : ""}'>${this.mTitle}</div>`);
 
         // ---------------------------
         // - Listen to buttons
@@ -126,11 +127,11 @@ class RadioSwitch extends WCBase
      * Sets the button state
      * @param {boolean} value
      */
-    set state(value)
+    set state(val)
     {
-        this.mState = value;
+        this.mState = val;
 
-        if (value)
+        if (val)
         {
             button.classList.add('active');
         }
@@ -151,11 +152,22 @@ class RadioSwitch extends WCBase
 
     /**
      * Returns the button title
-     * @return this.mTitle
+     * ========================
+     * @return {string}
      */
     get title()
     {
         return this.mTitle;
+    }
+
+    /**
+     * Returns the inner value
+     * =======================
+     * @return {string}
+     */
+    get value()
+    {
+        return this.mValue;
     }
 
     // ----------------------------------------------
