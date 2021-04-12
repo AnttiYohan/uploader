@@ -74,23 +74,31 @@ template.innerHTML =
 
     <!-- RECIPE SEASON DROPDOWN -->
 
+    <radio-switch-group class='season_input' group='[
+        { "title": "Winter", "value": "WINTER" }, 
+        { "title": "Spring", "value": "SPRING" },
+        { "title": "Summer", "value": "SUMMER" },
+        { "title": "Autumn", "value": "AUTUMN" },
+        { "title": "All", "value": "ALL" }
+    ]'>Season</radio-switch-group>
 
-    <label  class='uploader__label'>Season</label>
+
+    <!-- label  class='uploader__label'>Season</label>
     <div class='flex__row'>
         <binary-switch class='winter_season'>Winter</binary-switch>
         <binary-switch class='spring_season'>Spring</binary-switch>
         <binary-switch class='summer_season'>Summer</binary-switch>
         <binary-switch class='autumn_season'>Autumn</binary-switch>
         <binary-switch class='all_season'>All</binary-switch>
-    </div>
+    </div -->
 
-    <binary-button-row class='fingerfood'>Fingerfood</binary-button-row>
-    <binary-button-row class='has_to_cook'>Has To Cook</binary-button-row>
-    <binary-button-row class='allergens'>Allergens</binary-button-row>
-    <binary-button-row class='has_eggs'>Has Eggs</binary-button-row>
-    <binary-button-row class='has_nuts'>Has Nuts</binary-button-row>
-    <binary-button-row class='has_lactose'>Has Lactose</binary-button-row>
-    <binary-button-row class='has_gluten'>Has Gluten</binary-button-row>       
+    <binary-button-row class='fingerfood_input'>Fingerfood</binary-button-row>
+    <binary-button-row class='has_to_cook_input'>Has To Cook</binary-button-row>
+    <binary-button-row class='allergens_input'>Allergens</binary-button-row>
+    <binary-button-row class='eggs_input'>Has Eggs</binary-button-row>
+    <binary-button-row class='nuts_input'>Has Nuts</binary-button-row>
+    <binary-button-row class='lactose_input'>Has Lactose</binary-button-row>
+    <binary-button-row class='gluten_input'>Has Gluten</binary-button-row>       
 
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
@@ -112,7 +120,7 @@ template.innerHTML =
 
     <!-- NUTRITIONAL VALUE -->
 
-    <number-input-row class='nutritonal_value_input'>Nutrition kcal</number-input-row>
+    <number-input-row class='nutriton_input'>Nutrition kcal</number-input-row>
 
     <!-- INTERESTING INFO -->
 
@@ -123,12 +131,8 @@ template.innerHTML =
     <div class='uploader__row--last'>
     </div>
 
-    <button class='button--save add_recipe'>Save</button>
+    <button class='button--save save_recipe'>Save</button>
     
-    <!--div class='uploader__row--last'>
-        <button class='uploader__button--save add_recipe'></button>
-    </div-->
-
   </div>
 
 
@@ -610,7 +614,7 @@ class RecipeView extends WCBase
         this.mRootElement   = this.shadowRoot.querySelector('.uploader');
         this.mViewNode      = this.shadowRoot.querySelector('.view_node');
         this.mEditorNode    = this.shadowRoot.querySelector('.uploader__frame.editor_node');
-        this.mAddButton     = this.shadowRoot.querySelector('.uploader__button--save.add_recipe');
+        this.mSaveButton     = this.shadowRoot.querySelector('.save_recipe');
         this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
         this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
         this.mStepEditor    = this.shadowRoot.querySelector('step-editor');
@@ -631,35 +635,20 @@ class RecipeView extends WCBase
         // ------------------
 
         this.mTitleInput        = this.shadowRoot.querySelector('.title_input');
-
-        // ------------------------------------------------------------------------------------
-        // - Here we grab references to recipe file input and to the thumbnail image element
-        // - Then we'll listen for a change event in the input, and when an image is chosen,
-        // - We'll render it in the thumbnail, thus overriding the placeholder image.
-        // - This notifies the user, that the chisen image is actually received and stored
-        // - In the system.
-        // ------------------------------------------------------------------------------------
-
         this.mFileInput         = this.shadowRoot.querySelector('.image_input');
+        this.mPrepTimeInput     = this.shadowRoot.querySelector('.prep_time_input');
+        this.mAgeInput          = this.shadowRoot.querySelector('.age_input');
+        this.mInstructionsInput = this.shadowRoot.querySelector('.instructions_input');
+        this.mStorageInput      = this.shadowRoot.querySelector('.storage_input');
+        this.mSeasonInput       = this.shadowRoot.querySelector('.season_input');
+        this.mFingerfoodInput   = this.shadowRoot.querySelector('.fingerfood_input');
+        this.mCookInput         = this.shadowRoot.querySelector('.has_to_cook_input');
+        this.mEggsInput         = this.shadowRoot.querySelector('.eggs_input');
+        this.mNutsInput         = this.shadowRoot.querySelector('.nuts_input');
+        this.mLactoseInput      = this.shadowRoot.querySelector('.lactose_input');
+        this.mGlutenInput       = this.shadowRoot.querySelector('.gluten_input');
+        this.mMealTypeInput     = this.shadowRoot.querySelector('.meal_type_input');
 
-        this.mPrepTimeInput     = this.shadowRoot.querySelector('.uploader__input.recipe_preparation_time');
-        this.mAgeInput          = this.shadowRoot.querySelector('.uploader__input.recipe_age');
-        
-        this.mInstructionsInput = this.shadowRoot.querySelector('.uploader__textarea.recipe_instructions');
-
-        // ------------------------------------------------------------------------------------
-        // - Mandatory checkbox inputs
-        // ------------------------------------------------------------------------------------
-
-        this.mFingerfoodInput   = this.shadowRoot.querySelector('.uploader__checkbox.fingerfood');
-        this.mCookInput         = this.shadowRoot.querySelector('.uploader__checkbox.cook');
-        this.mHasEggsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_eggs');
-        this.mHasNutsInput      = this.shadowRoot.querySelector('.uploader__checkbox.has_nuts');
-        this.mHasLactoseInput   = this.shadowRoot.querySelector('.uploader__checkbox.has_lactose');
-        this.mHasGlutenInput    = this.shadowRoot.querySelector('.uploader__checkbox.has_gluten');
-
-        this.mSeasonInput       = this.shadowRoot.querySelector('.uploader__select.recipe_season');
-     
         // -------------------------------------------------------------------------------------
         // - Mealtype is a multiselect -- recipe may have 1..N mealtypes
         // -------------------------------------------------------------------------------------
@@ -679,27 +668,21 @@ class RecipeView extends WCBase
         };
 
         // -----------------------------------------------
-        // - Reference to the ProductList custom element
-        // -----------------------------------------------
-
-        this.mIngredientInput   = this.shadowRoot.querySelector('.ingredient_input');
-
-        // -----------------------------------------------
         // - Non mandatory input set
         // -----------------------------------------------
 
-        this.mStorageInfoInput  = this.shadowRoot.querySelector('.uploader__input.recipe_storage');
-        this.mTipsInput         = this.shadowRoot.querySelector('.uploader__input.recipe_tips');
-        this.mNutritionInput    = this.shadowRoot.querySelector('.uploader__input.recipe_nutritional_value');
+        this.mTipsInput         = this.shadowRoot.querySelector('.tips_input');
+        this.mNutritionInput    = this.shadowRoot.querySelector('.nutrition_input');
+        this.mInfoInput         = this.shadowRoot.querySelector('.info_input');
 
         // ------------------------------
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
 
-        this.mAddButton.addEventListener
+        this.mSaveButton.addEventListener
         (
-            "click",
+            'click',
             e =>
             {
                 // --------------------------------------
@@ -755,13 +738,13 @@ class RecipeView extends WCBase
         // - Products
         // ----------------------------------------------
 
-        window.addEventListener("product-list", e => 
+        window.addEventListener('product-list', e => 
         {
             const list = e.detail;
 
             if (list && Array.isArray(list))
             {
-                this.mIngredientInput.loadWords(list);
+                this.mIngredientList.loadWords(list);
             }
         }, true);
     }
@@ -908,16 +891,30 @@ class RecipeView extends WCBase
      */
     compileDto()
     {
-        const title = this.mTitleInput.value;
+        const title     = this.mTitleInput.value;
+        const imageFile = this.mFileInput.value;
         const prepareTimeInMinutes = this.mPrepTimeInput.value;
-        const monthsOld = this.mAgeInput.value;
+        const monthsOld     = this.mAgeInput.value;
+        const instructions  = this.mInstructionsInput.value;
+        const storageInfo   = this.mStorageInput.value;
+        const season        = this.mSeasonInput.active;
+
+        const hasStepByStep = false;
+        const fingerFood    = this.mFingerfoodInput.checked;
+        const hasToCook     = this.mCookInput.checked;
+        const hasAllergens  = false;
+        const hasEggs       = this.mHasEggsInput.checked;
+        const hasNuts       = this.mHasNutsInput.checked;
+        const hasLactose    = this.mHasLactoseInput.checked;
+        const hasGluten     = this.mHasGlutenInput.checked;
 
         // --------------------------------------
         // - Ingredients (Products)
         // --------------------------------------
 
-        const products = [];
-
+        const products = this.mIngredientList.chosenProducts();
+        const steps    = this.mStepEditor.getStepList();
+        /**
         for (const elem of this.mIngredientsList.children)
         {
             const systemProductId = elem.getAttribute('data-id');
@@ -940,22 +937,7 @@ class RecipeView extends WCBase
             );
         }
 
-        const instructions = this.mInstructionsInput.value;
-
-        // ---------------------------------------
-        // - Checkbox inputs
-        // ---------------------------------------
-        const hasStepByStep = false;
-
-        const fingerFood = this.mFingerfoodInput.checked;
-        const hasToCook = this.mCookInput.checked;
-        const hasAllergens = false;
-        const hasEggs = this.mHasEggsInput.checked;
-        const hasNuts = this.mHasNutsInput.checked;
-        const hasLactose = this.mHasLactoseInput.checked;
-        const hasGluten = this.mHasGlutenInput.checked;
-
-        const season = selectValue(this.mSeasonInput);
+        */
 
         // - Mealtypes
         const mealTypes = [];
@@ -973,11 +955,9 @@ class RecipeView extends WCBase
         // - Optional fields
         // ----------------------------------------------
 
-        const storageInfo = this.mStorageInfoInput.value;
-        const interestingInfo = 'default';
+        const interestingInfo = this.mInfoInput.value;
         const tips = this.mTipsInput.value;
         const nutritionValue = this.mNutritionInput.value;
-
 
         if 
         ( 
@@ -985,7 +965,11 @@ class RecipeView extends WCBase
             prepareTimeInMinutes < 1 ||
             monthsOld < 1 ||
             instructions.length === 0 ||
-            products.length === 0
+            storageInfo.length === 0 ||
+            season.length === 0 ||
+            products.length === 0 ||
+            mealTypes.length === 0 ||
+            ! imageFile
         )
         {
             return null;
@@ -994,43 +978,28 @@ class RecipeView extends WCBase
         const dataObject =
         {
             title,
-            instructions,
             prepareTimeInMinutes,
             monthsOld,
-            season,
-            mealTypes,
-            interestingInfo,
-            tips,
+            instructions,
             storageInfo,
+            season,
             fingerFood,
             hasStepByStep,
-            products,
-            nutritionValue,
             hasToCook,
             hasAllergens,
             hasEggs,
             hasNuts,
             hasLactose,
-            hasGluten
+            hasGluten,
+            steps,
+            products,
+            mealTypes,
+            tips,
+            nutritionValue,
+            interestingInfo
         };
 
         return { title: 'recipe', data: JSON.stringify(dataObject) };
-    }
-
-    /**
-     * Returns first file in file input, if not present
-     * Returns null
-     * 
-     * @returns File | null
-     */
-    getFileInput()
-    {
-        if ('files' in this.mFileInput && this.mFileInput.files.length)
-        {
-            return this.mFileInput.files[0];
-        }
-
-        return null; 
     }
 
     /**
@@ -1120,15 +1089,6 @@ class RecipeView extends WCBase
                         ),
                         editButton,
                         removeButton
-                        /*newTagClassChildren
-                        (
-                            "div",
-                            "uploader__iconframe",
-                            [
-                                editButton,
-                                removeButton
-                            ]
-                        )*/
                     ]
                 )
             );
