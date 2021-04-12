@@ -56,13 +56,26 @@ template.innerHTML =
 
     <image-input-row class='image_input'>Cover Image</image-input-row>
 
-    <!-- PREPARATION TIME -->
+    <!-- RECIPE LINK -->
+ 
+    <text-input-row class='link_input' required>Recipe Link</text-input-row>
 
-    <number-input-row class='prep_time_input' required>Preparation time</number-input-row>
+    <!-- YOUTUBE LINK -->
+ 
+    <text-input-row class='youtube_input'>Video Link</text-input-row>
+
 
     <!-- AGE IN MONTHS -->
 
     <number-input-row class='age_input' required>Age in months</number-input-row>
+
+    <!-- PREPARATION TIME -->
+
+    <number-input-row class='prep_time_input' required>Preparation time</number-input-row>
+
+    <!-- COOKING TIME TIME -->
+
+    <number-input-row class='cook_time_input' required>Cook time</number-input-row>
 
     <!-- RECIPE INSTRUCTIONS -->
 
@@ -611,13 +624,13 @@ class RecipeView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement   = this.shadowRoot.querySelector('.uploader');
-        this.mViewNode      = this.shadowRoot.querySelector('.view_node');
-        this.mEditorNode    = this.shadowRoot.querySelector('.uploader__frame.editor_node');
+        this.mRootElement    = this.shadowRoot.querySelector('.uploader');
+        this.mViewNode       = this.shadowRoot.querySelector('.view_node');
+        this.mEditorNode     = this.shadowRoot.querySelector('.uploader__frame.editor_node');
         this.mSaveButton     = this.shadowRoot.querySelector('.save_recipe');
-        this.mRefreshButton = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
-        this.mRecipeList    = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
-        this.mStepEditor    = this.shadowRoot.querySelector('step-editor');
+        this.mRefreshButton  = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
+        this.mRecipeList     = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
+        this.mStepEditor     = this.shadowRoot.querySelector('.step_editor');
         this.mIngredientList = this.shadowRoot.querySelector('.ingredient_list');
 
         // ---------------------------
@@ -636,8 +649,11 @@ class RecipeView extends WCBase
 
         this.mTitleInput        = this.shadowRoot.querySelector('.title_input');
         this.mFileInput         = this.shadowRoot.querySelector('.image_input');
-        this.mPrepTimeInput     = this.shadowRoot.querySelector('.prep_time_input');
         this.mAgeInput          = this.shadowRoot.querySelector('.age_input');
+        this.mLinkInput         = this.shadowRoot.querySelector('.link_input');
+        this.mVideoInput        = this.shadowRoot.querySelector('.youtube_input');
+        this.mPrepTimeInput     = this.shadowRoot.querySelector('.prep_time_input');
+        this.mCookTimeInput     = this.shadowRoot.querySelector('.cook_time_input');
         this.mInstructionsInput = this.shadowRoot.querySelector('.instructions_input');
         this.mStorageInput      = this.shadowRoot.querySelector('.storage_input');
         this.mSeasonInput       = this.shadowRoot.querySelector('.season_input');
@@ -879,15 +895,16 @@ class RecipeView extends WCBase
      */
     compileDto()
     {
-        const title     = this.mTitleInput.value;
-        //const imageFile = this.mFileInput.value;
-        const prepareTimeInMinutes = this.mPrepTimeInput.value;
+        const title         = this.mTitleInput.value;
         const monthsOld     = this.mAgeInput.value;
+        const originalRecipeLink = this.mLinkInput.value;
+        const youtubeVideoLink   = this.mVideoInput.value;
+        const prepareTimeInMinutes = this.mPrepTimeInput.value;
+        const cookTimeInMinutes    = this.mCookTimeInput.value;
         const instructions  = this.mInstructionsInput.value;
         const storageInfo   = this.mStorageInput.value;
         const season        = this.mSeasonInput.active;
 
-        const hasStepByStep = false;
         const fingerFood    = this.mFingerfoodInput.state;
         const hasToCook     = this.mCookInput.state;
         const hasAllergens  = this.mAllergensInput.state;
@@ -897,9 +914,10 @@ class RecipeView extends WCBase
         const hasGluten     = this.mGlutenInput.state;
 
         const mealTypes   = this.mMealTypeInput.stateList;
-        const products    = this.mIngredientList.chosenProducts();
+        const products    = this.mIngredientList.chosenProducts;
         const stepBySteps = this.mStepEditor.getStepList();
 
+        const hasStepByStep = stepBySteps.length > 0 ? true : false;
         // ---------------------------------------------
         // - Optional fields
         // ----------------------------------------------
@@ -911,7 +929,9 @@ class RecipeView extends WCBase
         if 
         ( 
             title.length === 0 ||
+            originalRecipeLink.length === 0 ||
             prepareTimeInMinutes < 1 ||
+            cookTimeInMinutes < 1 ||
             monthsOld < 1 ||
             instructions.length === 0 ||
             storageInfo.length === 0 ||
@@ -926,8 +946,11 @@ class RecipeView extends WCBase
         const dataObject =
         {
             title,
-            prepareTimeInMinutes,
             monthsOld,
+            originalRecipeLink,
+            youtubeVideoLink,
+            prepareTimeInMinutes,
+            cookTimeInMinutes,
             instructions,
             storageInfo,
             season,
