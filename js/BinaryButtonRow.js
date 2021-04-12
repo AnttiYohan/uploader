@@ -100,6 +100,11 @@ class BinaryButtonRow extends WCBase
         }
     }
 
+    /**
+     * Returns the BinaryButtonRow state
+     * =================================
+     * @return {Boolean}
+     */
     get state() 
     {
         return this.mState;
