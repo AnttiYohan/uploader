@@ -234,47 +234,71 @@ class StepEditor extends WCBase
         const stepTextInput   = this.shadowRoot.querySelector('.step_text');
         const stepNumberInput = this.shadowRoot.querySelector('.step_number');
         const stepImageInput  = this.shadowRoot.querySelector('.step_image');
+
+        // ---------------------------
+        // - Define an step buffer
+        // ---------------------------
+
+        this.mBuffer = {};
         //const stepFileInput   = this.shadowRoot.querySelector('.uploader__file.step_file');
         //const stepImage       = this.shadowRoot.querySelector('.editor__image.step_image');
 
-        setImageFileInputThumbnail( stepFileInput, stepImage );
+        // setImageFileInputThumbnail( stepFileInput, stepImage );
 
-        this.mStepList      = this.shadowRoot.querySelector('.editor__frame.step_list');
+        this.mStepList      = this.shadowRoot.querySelector('.list');
         this.mAddStepButton = this.shadowRoot.querySelector('.editor__button--new.add_step');
-        this.mAddStepButton.addEventListener
-        ("click", e => 
+        this.mAddStepButton.addEventListener('click', e => 
         {
+            // ----------------------------------
+            // - Grab the values from the inputs
+            // - And validate them
+            // ----------------------------------
+
             const text   = stepTextInput.value;
             const number = stepNumberInput.value;
+            const image  = stepImageInput.value;
 
-            let file = null;
-
-            if ('files' in stepFileInput && stepFileInput.files.length)
+            if (! text.length || ! number || ! image)
             {
-                file = stepFileInput.files[0];
+                console.log(`All step data, text, number and image, has to be set`);
+                return;
             }
 
-            if (text.length && number > 0 && file)
-            {
-                this.addStep(text, number, file);
-                stepTextInput.value = '';
-                stepNumberInput.value = '';
-                delete stepFileInput.files;
-                stepImage.src = 'assets/icon_placeholder.svg';
-            }
+            // ------------------------------
+            // - Add the new step
+            // ------------------------------
+
+            this.addStep(text, number, image);
+
+            // ------------------------------
+            // - Lastly, Reset the inputs
+            // ------------------------------
+
+            stepTextInput.reset();
+            stepNumberInput.reset();
+            stepImageInput.reset();
+
         });
 
     }
 
-
+    /**
+     * Adds a new step into the step editor
+     * ------------------------------------
+     * @param {String} text 
+     * @param {Number} number 
+     * @param {File}   file 
+     */
     addStep(text, number, file)
     {
         console.log(`AddStep file: ${file}`);
 
-        const deleteButton = newTagClass("div", "editor__button--delete");
+        this.mBuffer[number] = ({ text, number, file });
 
+        const deleteButton = newTagClass("div", "editor__button--delete");
         const imageElement = newTagClass("img", "editor__image");
-        imageElement.src = file;
+        //imageElement.src = file;
+        setImageThumbnail(imageElement, file);
 
         const stepRowElement = newTagClassAttrsChildren
         (
@@ -292,11 +316,18 @@ class StepEditor extends WCBase
 
         deleteButton.addEventListener
         (
-            "click",
+            'click',
             e =>
             {
                 console.log(`Delete ${number}`);
                 stepRowElement.remove();
+
+                // --------------------------------
+                // - Delete the buffer element with
+                // - The number
+                // --------------------------------
+                
+                delete this.mBuffer[number];
             }
         );
 
@@ -307,9 +338,27 @@ class StepEditor extends WCBase
         //this.mFileList.push({id:number, file});
     }
 
+    /**
+     * Returns a list generated from mBuffer map
+     * -----------------------------------------
+     * @return {Array}
+     */
     getStepList()
     {
-        for (const row of this.mStepList.children)
+        const list = [];
+
+        for (const key in this.mBuffer)
+        {
+            const row    = this.mBuffer[key];
+            const text   = row.text;
+            const number = row.number;
+            const file   = row.file;
+
+            list.push({ text, number, file });
+        }
+
+        return list;
+        /*for (const row of this.mStepList.children)
         {
             const number = row.getAttribute('data-number');
             console.log(`Row data-number: ${number}`);
@@ -317,7 +366,11 @@ class StepEditor extends WCBase
             const textLabel = row.querySelector('.editor__label.step_text');
             const text = textLabel.textContent;
             console.log(`textlabel text: ${text}`);
-        }
+
+            const imageElement = row.querySelector('.editor__image');
+            const imageSource = imageElement.src;
+
+        }*/
     }
 
     // ----------------------------------------------
