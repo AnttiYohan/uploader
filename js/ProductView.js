@@ -30,26 +30,6 @@ template.innerHTML =
 
     <image-input-row class='image_input'>Product Image</image-input-row>
 
-    <!-- PRODUCT CATEGORY -->
-
-    <!--div class='uploader__inputrow'>
-        <label  class='uploader__label--select'>Category</label>
-            <select class='uploader__select product_category' name='product_category'>
-            <option value='BREAD_AND_PASTRY'>Bread and pastry</option>
-            <option value='FRUITS'>Fruits</option>
-            <option value='VEGETABLES'>Vegetables</option>
-            <option value='SPICES'>Spices</option>
-            <option value='GRAINS'>Grains</option>
-            <option value='DAIRY'>Dairy</option>
-            <option value='MEAT'>Meat</option>
-            <option value='SEAFOOD'>Seafood</option>
-            <option value='DRINKS'>Drinks</option>
-            <option value='FROZEN_AND_CONVENIENCE'>Frozen and convenience</option>
-            <option value='OTHERS'>Others</option>
-            <option value='NONE'>None</option>
-        </select>
-    </div -->
-
     <!-- PRODUCT LIST OF ALLERGENS -->
 
     <binary-button-row class='allergens_input'>Allergens</binary-button-row>
@@ -452,7 +432,7 @@ class ProductView extends WCBase
         // ---------------------------
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton   = this.shadowRoot.querySelector('.save_product');
+        this.mAddButton   = this.shadowRoot.querySelector('.button--save.save_product');
         this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
         
         const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
@@ -499,6 +479,7 @@ class ProductView extends WCBase
 
         this.mAddButton.addEventListener('click', e =>
         {
+            console.log(`Save product clicked`);
             // --------------------------------------
             // - Obtain input values and validate
             // - If dto and image file present, send
@@ -574,7 +555,7 @@ class ProductView extends WCBase
         // - all the allergen groups as false
         // ----------------------------------------------------
 
-        const hasAllergens = this.mHasAllergensInput.checked;
+        const hasAllergens = this.mAllergensInput.state;
         let hasEggs     = false;
         let hasNuts     = false;
         let hasLactose  = false;
@@ -582,10 +563,10 @@ class ProductView extends WCBase
 
         if (hasAllergens)
         {
-            hasEggs     = this.mHasEggsInput.checked;
-            hasNuts     = this.mHasNutsInput.checked;
-            hasLactose  = this.mHasLactoseInput.checked;
-            hasGluten   = this.mHasGlutenInput.checked;
+            hasEggs     = this.mEggsInput.state;
+            hasNuts     = this.mNutsInput.state;
+            hasLactose  = this.mLactoseInput.state;
+            hasGluten   = this.mGlutenInput.state;
         }
 
         // -----------------------------------------------
