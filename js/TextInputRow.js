@@ -73,11 +73,24 @@ class TextInputRow extends WCBase
         this.mInput = this.shadowRoot.querySelector('.row__input');
     }
 
+    /**
+     * Returns the text
+     * ----------------
+     * @return {String}
+     */
     get value() 
     {
         return this.mInput.value;
     }
 
+    /**
+     * Clears the text input
+     * ---------------------
+     */
+    reset()
+    {
+        this.mInput.value = '';
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

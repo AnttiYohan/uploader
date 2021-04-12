@@ -79,11 +79,24 @@ class NumberInputRow extends WCBase
         this.mInput = this.shadowRoot.querySelector('.row__input');
     }
 
+    /**
+     * Returns the input value
+     * -----------------------
+     * @return {Number}
+     */
     get value() 
     {
         return this.mInput.value;
     }
 
+    /**
+     * Clears the input value to zero
+     * 
+     */
+    reset()
+    {
+        this.mInput.value = 0;
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
