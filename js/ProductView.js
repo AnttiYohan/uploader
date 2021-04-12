@@ -48,18 +48,18 @@ template.innerHTML =
     <!-- PRODUCT CATEGORY LIST -->
 
     <radio-switch-group class='category_input' group='[
-        "Bread&Pastry", 
-        "Fruits",
-        "Vegetables",
-        "Spices",
-        "Grains",
-        "Dairy",
-        "Meat",
-        "Seafood",
-        "Drinks",
-        "Frozen&Convenience",
-        "Others",
-        "None"
+        { "title": "Bread&Pastry", "value": "BREAD_AND_PASTRY" }, 
+        { "title": "Fruits", "value": "FRUITS" },
+        { "title": "Vegetables", "value": "VEGETABLES" },
+        { "title": "Spices", "value": "SPICES" },
+        { "title": "Grains", "value": "GRAINS" },
+        { "title": "Dairy", "value": "DAIRY" },
+        { "title": "Meat", "value": "MEAT" },
+        { "title": "Seafood", "value": "SEAFOOD" },
+        { "title": "Drinks", "value": "DRINKS" },
+        { "title": "Frozen&Convenience", "value": "FROZEN_AND_CONVENIENCE" },
+        { "title": "Others", "value": "OTHERS" },
+        { "title": "None", "value": "NONE" }
     ]'>Category</radio-switch-group>
 
 
@@ -487,7 +487,8 @@ class ProductView extends WCBase
             // --------------------------------------
 
             const dto = this.compileDto();
-            const imageFile = this.getFileInput();
+            const imageFile = this.mFileInput.value;
+            //const imageFile = this.getFileInput();
 
             console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
             console.log(`Imagefile: ${imageFile}`);
