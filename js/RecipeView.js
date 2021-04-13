@@ -700,19 +700,90 @@ class RecipeView extends WCBase
 
                 console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
                 console.log(`Imagefile: ${imageFile}`);
+                console.log(`dto.data.hasStepByStep? ${dto.data.hasStepByStep}`);
 
                 if ( dto && imageFile )
                 {
-                    this.addRecipe(dto, imageFile)
-                        .then(response => 
+                    // -------------------------------------
+                    // - Check if dto has steps. If so,
+                    // - Call API route /with-steps
+                    // -------------------------------------
+
+                    if ( dto.data.hasStepByStep )
+                    {
+                        
+
+                        // ---------------------------------
+                        // - Compile step by step json array
+                        // ---------------------------------
+                        const stepDto = { title: 'steps', data: []};
+                        const stepImage = { title: 'stepImages', images: []};
+
+                        for (const step of dto.data.stepBySteps)
                         {
-                            console.log(`addRecipe response ok: ${response}`);
-                            this.loadRecipes();
-                        })
-                        .catch(error => 
+                            console.log(`Step ${step}`);
+                            stepDto.data.push({text: step.text, stepNumber: step.stepNumber});
+                            stepImage.images.push(step.image);
+                        }
+
+                        // --------------------------------------
+                        // - Remove the stepBySteps data from the
+                        // - main recipeDto and
+                        // - Compile stringified dto data version
+                        // --------------------------------------
+
+                        dto.data.stepBySteps = null;
+
+                        const finalDto = 
+                        { 
+                            title: dto.title, 
+                            data: JSON.stringify(dto.data)
+                        };
+
+                        // -----------------------------------------
+                        // - Construct also a data stringified final
+                        // - version from the child step data
+                        // -----------------------------------------
+
+                        const finalStepDto =
                         {
-                            console.log(`addRecipe response fail: ${error}`);
-                        });
+                            title: stepDto.title,
+                            data: JSON.stringify(stepDto.data)
+                        };
+
+                        this.addRecipeWithSteps(finalDto, imageFile, finalStepDto, stepImage)
+                            .then(response =>
+                            {
+                                console.log(`addRecipeWithSteps response: ${response}`);
+                                this.loadRecipes();
+                            })
+                            .catch(error =>
+                            {
+                                console.log(`addRecipeWithSteps fail: ${error}`);
+                            });
+
+                    }
+                    else
+                    {
+                        dto.data.stepBySteps = null;
+
+                        const finalDto = 
+                        { 
+                            title: dto.title, 
+                            data: JSON.stringify(dto.data)
+                        };
+
+                        this.addRecipe(finalDto, imageFile)
+                            .then(response => 
+                            {
+                                console.log(`addRecipe response ok: ${response}`);
+                                this.loadRecipes();
+                            })
+                            .catch(error => 
+                            {
+                                console.log(`addRecipe response fail: ${error}`);
+                            });
+                    }
                 }
                 else
                 {
@@ -970,7 +1041,7 @@ class RecipeView extends WCBase
             interestingInfo
         };
 
-        return { title: 'recipe', data: JSON.stringify(dataObject) };
+        return { title: 'recipe', data: dataObject };
     }
 
     /**
@@ -1111,12 +1182,34 @@ class RecipeView extends WCBase
     /**
      * Builds and executes the addRecipe HTTP Request
      * 
-     * @param {RecipetDto} dto 
-     * @param {File}       imageFile 
+     * @param  {RecipetDto} dto 
+     * @param  {File}       imageFile
+     * @return {String}
      */
     addRecipe(dto, imageFile)
     {
         return FileCache.postDtoAndImage(RECIPE_URL, dto, imageFile);
+    }
+
+    /**
+     * Builds and executes API addRecipeWithSteps route
+     * 
+     * @param  {RecipeDto} dto 
+     * @param  {File}      imageFile
+     * @param  {Array}     stepDtoList
+     * @param  {Array}     stepImageList
+     * @return {String}
+     */
+    addRecipeWithSteps(dto, imageFile, stepDtoList, stepImageList)
+    {
+        return FileCache.postDtoAndImageWithChildren
+        (
+            `${RECIPE_URL}/with-steps`, 
+            dto, 
+            imageFile,
+            stepDtoList,
+            stepImageList
+        );
     }
 
     /**
