@@ -274,6 +274,31 @@ class ProductList extends WCBase
      */
     addToList(word)
     {
+        // -----------------------------------------
+        // - Dispatch event with chosen product data
+        // - for the parent element
+        // -----------------------------------------
+
+        const product = this.mBufferMap[word];
+
+        if (product)
+        {
+            const productDetail = 
+            {
+                name: product.name,
+                hasAllergens: product.hasAllergens,
+                hasEggs: product.hasEggs,
+                hasNuts: product.hasNuts,
+                hasLactose: product.hasLactose,
+                hasGluten: product.hasGluten
+            };
+
+            this.shadowRoot.dispatchEvent
+            (
+                new CustomEvent('product-chosen', { bubbles: true, composed: true, detail: productDetail})
+            );
+        }
+
         const label = newTagClassHTML
         (
             'label',
