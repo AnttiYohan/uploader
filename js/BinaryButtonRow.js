@@ -17,6 +17,9 @@ class BinaryButtonRow extends WCBase
 
         this.mState = state;
 
+        this.mIsBlocked = false;
+
+        if (this.hasAttribute('blocked')) this.mIsBlocked = true;
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -76,8 +79,8 @@ class BinaryButtonRow extends WCBase
         (`<link rel='stylesheet' href='assets/css/components.css'> 
           <div class='row__label'><slot></div>
           <div class='row'>
-            <div class='row__button ${state ? "active" : ""}'>Yes</div>
-            <div class='row__button ${state ? "" : "active"}'>No</div>
+            <div class='row__button yes ${state ? "active" : ""}'>Yes</div>
+            <div class='row__button no ${state ? "" : "active"}'>No</div>
         </div>`);
 
         // ---------------------------
@@ -90,12 +93,15 @@ class BinaryButtonRow extends WCBase
             button.addEventListener
             ('click', e => 
             {
-                for (const b of buttons) b.classList.toggle('active');
-                this.mState = ! this.mState;
-                this.shadowRoot.dispatchEvent
-                (
-                    new CustomEvent('state', { bubbles: true, composed: true, detail: this.mState})
-                );
+                if ( ! this.mIsBlocked)
+                {
+                    for (const b of buttons) b.classList.toggle('active');
+                    this.mState = ! this.mState;
+                    this.shadowRoot.dispatchEvent
+                    (
+                        new CustomEvent('state', { bubbles: true, composed: true, detail: this.mState})
+                    );
+                }
             });
         }
     }
@@ -110,6 +116,51 @@ class BinaryButtonRow extends WCBase
         return this.mState;
     }
 
+    /**
+     * Set the internal blocking flag on
+     */
+    block()
+    {
+        this.mIsBlocked = true;
+    }
+
+    /**
+     * Set the internal blocking flag off
+     */
+     unblock()
+     {
+         this.mIsBlocked = false;
+     }
+
+
+
+    /**
+     * Sets the button state on
+     */
+    turnOn()
+    {
+        this.mState = true;
+        
+        const yesButton = this.shadowRoot.querySelector('.row__button.yes');
+        const noButton  = this.shadowRoot.querySelector('.row__button.no');
+
+        yesButton.classList.add('active');
+        noButton.classList.remove('active');
+    }
+
+    /**
+     * Sets the button state off
+     */
+     turnOff()
+     {
+         this.mState = false;
+         
+         const yesButton = this.shadowRoot.querySelector('.row__button.yes');
+         const noButton  = this.shadowRoot.querySelector('.row__button.no');
+ 
+         yesButton.classList.remove('active');
+         noButton.classList.add('active');
+     }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
