@@ -603,21 +603,6 @@ class ProductView extends WCBase
         return { title: 'product', data: JSON.stringify(dataObject) };
     }
 
-    /**
-     * Returns first file in file input, if not present
-     * Returns null
-     * 
-     * @returns File | null
-     */
-    getFileInput()
-    {
-        if ('files' in this.mFileInput && this.mFileInput.files.length)
-        {
-            return this.mFileInput.files[0];
-        }
-
-        return null; 
-    }
 
     /**
      * Generates the product list
