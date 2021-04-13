@@ -310,6 +310,80 @@ class FileCache
         return text;
     }
 
+  /**
+     * Performs a HTTP POST Multipart Request
+     * contains main json part and image part,
+     * then children as an array of json objects,
+     * and a list of image parts
+     * Includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}    route
+     * @param  {object}    dto
+     * @param  {File}      imageFile 
+     * @param  {object}    childrenDto
+     * @param  {object}    childrenImageDto
+     * @return {Promise}   response
+     */
+   static async postDtoAndImageWithChildren(route, dto, imageFile, childrenDto, childrenImageDto)
+   {
+       const bearer = `Bearer ${FileCache.getToken()}`;
+
+       console.log(`HTTP POST Multipart with chidlren. Authorization: ${bearer}`);
+
+       // ------------------------------------
+       // - Generate multipart payload
+       // ------------------------------------
+
+       const 
+       formData = new FormData();
+       formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+       formData.append('image', imageFile);
+
+       // ---------------------------------------
+       // - Children objects embedded in one part
+       // - As an array of objects
+       // ---------------------------------------
+
+       formData.append(childrenDto.title, new Blob([childrenDto.data],{type:'application/json'}));
+
+       // ---------------------------------------
+       // - Parse the child images
+       // ---------------------------------------
+
+       const childImageTitle = childrenImageDto.title;
+
+       for (const image of childrenImageDto.images)
+       {
+            formData.append(childImageTitle, image);
+       }
+
+       const response = await fetch
+       (
+           route,
+           {
+               method: 'POST',
+               credentials: 'include',
+               headers: 
+               {
+                   'Authorization' : bearer
+               },
+               body: formData
+           }
+       );
+
+       const text = await response.text();
+
+       // -----------------------------------
+       // - Clear route cache
+       // -----------------------------------
+
+       FileCache.clearCache(route);
+
+       return text;
+   }
+
+
     // ------------------------------------------------
     // -
     // - PUT/PATCH -- Update methods
