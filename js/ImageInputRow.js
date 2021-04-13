@@ -23,8 +23,8 @@ class ImageInputRow extends WCBase
               <p class='image__title'><slot></p>
               <img class='image__thumbnail' src='assets/icon_placeholder.svg' />
               <div class='image__area'>
-                <label for='image-upload-input'  class='image__label'>.</label>
                 <input  id='image-upload-input'  class='image__file' type='file'>
+                <label for='image-upload-input'  class='image__label'>.</label>
               </div>
             </div>
         `);
@@ -66,9 +66,14 @@ class ImageInputRow extends WCBase
             }
             .image__file {
                 position: absolute;
-                appereance: none;
+                appearance: none;
                 opacity: 0;
                 z-index: -10;
+            }
+            .image__file:focus ~ .image__label {
+                outline: 3px solid ${props.darkgrey};
+                /*border-radius: 2px;
+                border: 2px solid rgba(0,0,0,0.66);*/
             }
         `);
 
