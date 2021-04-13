@@ -44,7 +44,7 @@ template.innerHTML =
     <!-- REFRESH ROW -->
 
     <div class='uploader__refreshrow'>
-        <p class='uploader__paragraph'>Refresh Products</p>
+        <p class='uploader__paragraph'>Refresh Recipies</p>
         <button class='uploader__button--refresh force_reload'></button>
     </div>
 
@@ -85,7 +85,7 @@ template.innerHTML =
     
     <text-input-area class='storage_input' required>Storage</text-input-area>
 
-    <!-- RECIPE SEASON DROPDOWN -->
+    <!-- RECIPE SEASON RADIO SELECTION -->
 
     <radio-switch-group class='season_input' group='[
         { "title": "Winter", "value": "WINTER" }, 
@@ -95,23 +95,13 @@ template.innerHTML =
         { "title": "All", "value": "ALL" }
     ]'>Season</radio-switch-group>
 
-
-    <!-- label  class='uploader__label'>Season</label>
-    <div class='flex__row'>
-        <binary-switch class='winter_season'>Winter</binary-switch>
-        <binary-switch class='spring_season'>Spring</binary-switch>
-        <binary-switch class='summer_season'>Summer</binary-switch>
-        <binary-switch class='autumn_season'>Autumn</binary-switch>
-        <binary-switch class='all_season'>All</binary-switch>
-    </div -->
-
     <binary-button-row class='fingerfood_input'>Fingerfood</binary-button-row>
     <binary-button-row class='has_to_cook_input'>Has To Cook</binary-button-row>
-    <binary-button-row class='allergens_input'>Allergens</binary-button-row>
-    <binary-button-row class='eggs_input'>Has Eggs</binary-button-row>
-    <binary-button-row class='nuts_input'>Has Nuts</binary-button-row>
-    <binary-button-row class='lactose_input'>Has Lactose</binary-button-row>
-    <binary-button-row class='gluten_input'>Has Gluten</binary-button-row>       
+    <binary-button-row class='allergens_input' blocked>Allergens</binary-button-row>
+    <binary-button-row class='eggs_input' blocked>Has Eggs</binary-button-row>
+    <binary-button-row class='nuts_input' blocked>Has Nuts</binary-button-row>
+    <binary-button-row class='lactose_input' blocked>Has Lactose</binary-button-row>
+    <binary-button-row class='gluten_input' blocked>Has Gluten</binary-button-row>       
 
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
@@ -610,7 +600,7 @@ class RecipeView extends WCBase
             border-radius: 4px;
             box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
         }
-        @media (max-width: ${props.uploader_max_width})
+        @media (max-width: ${props.uploader_max_width}) 
         {
             .uploader  {
                 flex-direction: column;
@@ -665,12 +655,7 @@ class RecipeView extends WCBase
         this.mLactoseInput      = this.shadowRoot.querySelector('.lactose_input');
         this.mGlutenInput       = this.shadowRoot.querySelector('.gluten_input');
         this.mMealTypeInput     = this.shadowRoot.querySelector('.meal_types_input');
-
-        // -------------------------------------------------------------------------------------
-        // - Mealtype is a multiselect -- recipe may have 1..N mealtypes
-        // -------------------------------------------------------------------------------------
-
-     
+  
         // -----------------------------------------------
         // - Non mandatory input set
         // -----------------------------------------------
@@ -1159,17 +1144,7 @@ class RecipeView extends WCBase
             })
             .catch(error => { console.log(`Could not read recipes: ${error}`); });
     }
-    // ---------------------------------------------
-    // - HTTP Request methods
-    // - --------------------
-    // - (1) getRecipes
-    // - (2) addRecipe
-    // - (3) addStepByStep
-    // - (4) updateStepByStep
-    // - (5) removeStepByStep
-    // ----------------------------------------------
     
-
     /**
      * Builds and executes the getProducts HTTP Request
      * ------------------------------------------------
@@ -1237,18 +1212,37 @@ class RecipeView extends WCBase
     // - Lifecycle callbacks
     // ----------------------------------------------
 
-    connectedCallback()
-
-
-
-
-
-
-
-    
+    connectedCallback()    
     {
         console.log("RecipeView::callback connected");
-        
+
+        // -------------------------------------------
+        // - Add a 'product-chosen' event listener
+        // -------------------------------------------
+
+        this.shadowRoot.addEventListener('product-chosen', e => 
+        {
+            const productDetail = e.detail;
+
+            if (productDetail)
+            {
+                console.log(`Prodcut-chosen event intercepted, ${productDetail.name}`);
+                console.log(`Has allergens: ${productDetail.hasAllergens}`);
+
+                if ( ! productDetail.hasAllergens) return;
+
+                const hasEggs    = productDetail.hasEggs;
+                const hasNuts    = productDetail.hasNuts;
+                const hasLactose = productDetail.hasLactose;
+                const hasGluten  = productDetail.hasGluten;
+                
+                if (hasEggs)    this.mEggsInput.turnOn(); 
+                if (hasNuts)    this.mNutsInput.turnOn(); 
+                if (hasLactose) this.mLactoseInput.turnOn(); 
+                if (hasGluten)  this.mGlutenInput.turnOn(); 
+                 
+            }
+        }, true);
     }
 
     disconnectedCallback()
