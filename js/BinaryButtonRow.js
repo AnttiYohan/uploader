@@ -58,6 +58,7 @@ class BinaryButtonRow extends WCBase
             color: inherit;
         }
         .row__button {
+            ${this.mIsBlocked ? "" : "cursor: pointer;"}
             display: flex;
             justify-content: center;
             align-items: center;
