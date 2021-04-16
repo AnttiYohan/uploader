@@ -19,9 +19,11 @@ class ImageInputRow extends WCBase
   
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
-            <div class='image'>
-              <p class='image__title'><slot></p>
-              <img class='image__thumbnail' src='assets/icon_placeholder.svg' />
+            <div class='component'>
+              <div class='component__row'>
+                <p class='component__label'><slot></p>
+                <div class='component__img--required'></div>
+              </div>
               <div class='image__area'>
                 <input  id='image-upload-input'  class='image__file' type='file'>
                 <label for='image-upload-input'  class='image__label'>.</label>
@@ -57,6 +59,14 @@ class ImageInputRow extends WCBase
                 justify-content: center;
                 align-items: center;
             }
+            .image__area.notify-required {
+                border: 2px solid ${props.red};
+                width: ${props.input_width};
+                height: 94px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
             .image__label {
                 cursor: pointer;
                 width: 32px;
@@ -80,11 +90,36 @@ class ImageInputRow extends WCBase
         // ---------------------------
         // - Grab the input
         // ---------------------------
-
+        const asterisk = this.shadowRoot.querySelector('.component__img--required');
+        this.mArea  = this.shadowRoot.querySelector('.image__area');
         this.mImage = this.shadowRoot.querySelector('.image__thumbnail')
         this.mInput = this.shadowRoot.querySelector('.image__file');
 
         setImageFileInputThumbnail(this.mInput, this.mImage);
+
+        // -------------------------------
+        // - Observe image selection
+        // -------------------------------
+
+        this.mInput.addEventListener('change', e => 
+        {
+            if (this.mInput.files.length)
+            {
+                if (this.mInput.classList.contains('notify-required'))
+                {
+                    this.mInput.classList.remove('notify-required');
+                }
+
+                if (asterisk.style.display !== 'none')
+                {
+                    asterisk.style.display = 'none';
+                }
+            }
+            else
+            {
+                asterisk.style.display = 'initial';
+            }
+        });
     }
 
     /**
@@ -112,6 +147,14 @@ class ImageInputRow extends WCBase
         setImageThumbnail(this.mImage, 'assets/icon_placeholder.svg');
     }
 
+     /**
+     * Adds a class into the input, which sets a red border,
+     * In order to display that the input must be filled
+     */
+      notifyRequired()
+      {
+          this.mInput.classList.add('notify-required');
+      }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
