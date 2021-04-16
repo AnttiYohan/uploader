@@ -10,13 +10,22 @@
     --light:  #E2E0E0;
     --red:    #F00D0D;
     --white:  #FFFFFF;
+    --red-tint: #FF6868;
 
     --line-height: 48px;
     --image-area-side: 96px;
     --vt-pad: 8px;
     --input-height: 32px;
     --left-pad: 4px;
-    --frame-width: 300px;
+    --component-pad: 8px;
+    --frame-width: 40%;
+    --max-width: 1700px;
+    --max-frame-width: 600px;
+    --font-size-header: 14px;
+    --font-size-text: 12px;
+    --grey: #bcbcbc;
+    --dark-grey: #6d6d6d;
+    --light-grey: #eeeeee;
 }
 
 * {
@@ -30,7 +39,9 @@
     cursor: pointer;
     color: #fff;
     background-color: #008800;
-    height: 32px; /*var(--line-height);*/
+    width: 128px;
+    height: 32px;
+    margin: 0 auto;
     border-radius: 16px;
     border: 1px solid transparent;
     text-align: center;
@@ -45,3 +56,78 @@
     border-color: rgba(0,0,0, 0.5);
 }
 
+.uploader {
+    display: flex;
+    margin: 0 auto;
+    max-width: 1700px;
+    height: fit-content;
+}
+.uploader__header {
+    font-size: 14px;
+    color: var(--dark-grey, #6d6d6d);
+}
+.uploader__frame {
+    display: flex;
+    flex-direction: column;
+    margin: 16px auto;
+    max-width: 600px;
+    width: var(--frame-width, 40%);
+}
+.uploader__frame--scroll {
+    display: flex;
+    flex-direction: column;
+    border-radius: 2px;
+    border: 1px solid var(--light-grey, #eeeeee);
+    margin: 16px auto;
+    max-width: 600px;
+    width: var(--frame-width, 40%);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 40%;
+}
+.uploader__row--last {
+    display: flex;
+    flex-flow: row-reverse;
+    padding: 16px;
+    margin: 0 8px;
+    border-bottom: 2px solid var(--light-grey, #eeeeee);
+}
+
+.component {
+    padding: var(--component-pad, 8px);
+}
+.component__row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+.component__label {
+    font-size: var(--font-size-text, 12px);
+    font-weight: 200;
+    color: #222;
+}
+.component__input {
+    width: 100%;
+    border: 1px solid var(--grey, #bcbcbc);
+    padding: 5px 4px;
+    border-radius: 2px;
+    font-weight: 200;
+    color: #222;
+    box-shadow: 0 1px 6px 1px rgba(0,0,0,0.1);
+}
+.component__input:focus {
+    outline: none;
+    padding: 4px;
+    border: 2px solid var(--dark-grey, #656565);
+}
+.component__input.notify-required {
+    border: 2px solid var(--red-tint, #ff6868);
+}
+.component__img--required {
+    width: 16px;
+    background-image: url('assets/icon_asterisk.svg');
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: top;
+    background-size: 60%;  
+}
