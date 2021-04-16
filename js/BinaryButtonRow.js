@@ -29,66 +29,44 @@ class BinaryButtonRow extends WCBase
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`
-        .clickable {
-            cursor: pointer;
-        }
-        .zoomable {
-            transition: transform .15s ease-in-out;
-        }
-        .zoomable:hover {
-            transform: scale3D(1.1, 1.1, 1.1);
-        }
-        .row {
-            display: grid;
-            grid-template-columns: 70px 70px auto;
-            width: ${props.frame_width};
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            align-items: center;
-        }
-        .row__label {
-            padding-left: 8px;
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            color: inherit;
-        }
-        .row__button {
+        .binary__button {
             ${this.mIsBlocked ? "" : "cursor: pointer;"}
             display: flex;
             justify-content: center;
             align-items: center;
             width: 64px;
             height: 32px;
-            border: 2px solid ${props.darkgrey};
+            border: 1px solid ${props.color.dark};
             border-radius: 4px;
-            color: inherit;
-            background-color: ${props.lightgrey};
+            color: #ffffff;
+            box-shadow: 0 0 4px 0 rgba(0,0,0,0.25);
+            background-color: ${props.color.light};
+            font-weight: 200;
             transition: background-color .15s, color .15s;
         }
-        .row__button.active {
-            background-color: ${props.red};
-            color: #fff;
+        .binary__button:first-of-type {
+            margin-right: 4px;
+        }
+        .binary__button.active {
+            background-color: ${props.color.grey};
             font-weight: 400;
         }`);
 
         this.setupTemplate
-        (`<link rel='stylesheet' href='assets/css/components.css'> 
-          <div class='row__label'><slot></div>
-          <div class='row'>
-            <div class='row__button yes ${state ? "active" : ""}'>Yes</div>
-            <div class='row__button no ${state ? "" : "active"}'>No</div>
-        </div>`);
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+          <div class='component'>
+            <div class='component__label'><slot></div>
+            <div class='component__row'>
+              <div class='binary__button yes ${state ? "active" : ""}'>Yes</div>
+              <div class='binary__button no ${state ? "" : "active"}'>No</div>
+            </div>
+          </div>`);
 
         // ---------------------------
         // - Listen to buttons
         // ---------------------------
 
-        const buttons = this.shadowRoot.querySelectorAll('.row__button');
+        const buttons = this.shadowRoot.querySelectorAll('.binary__button');
         for (const button of buttons)
         {
             button.addEventListener
@@ -142,8 +120,8 @@ class BinaryButtonRow extends WCBase
     {
         this.mState = true;
         
-        const yesButton = this.shadowRoot.querySelector('.row__button.yes');
-        const noButton  = this.shadowRoot.querySelector('.row__button.no');
+        const yesButton = this.shadowRoot.querySelector('.binary__button.yes');
+        const noButton  = this.shadowRoot.querySelector('.binary__button.no');
 
         yesButton.classList.add('active');
         noButton.classList.remove('active');
@@ -156,8 +134,8 @@ class BinaryButtonRow extends WCBase
      {
          this.mState = false;
          
-         const yesButton = this.shadowRoot.querySelector('.row__button.yes');
-         const noButton  = this.shadowRoot.querySelector('.row__button.no');
+         const yesButton = this.shadowRoot.querySelector('.binary__button.yes');
+         const noButton  = this.shadowRoot.querySelector('.binary__button.no');
  
          yesButton.classList.remove('active');
          noButton.classList.add('active');
