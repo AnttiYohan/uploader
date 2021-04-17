@@ -9,19 +9,19 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
- <div class='uploader'>
+ <div class='root'>
  
    <!-- The admin bar in the header -->
 
-  <header class='uploader__adminframe'>
-    <div class='uploader__adminbar'>
-      <div class='uploader__logo'></div>
-      <div class='uploader__tabframe'>
-        <div class='uploader__tab product'>Product</div>
-        <div class='uploader__tab recipe'>Recipe</div>
-        <div class='uploader__tab admin'>Admin</div>
+  <header class='nav'>
+    <div class='nav__limiter'>
+      <div class='nav__logo'></div>
+      <div class='nav__tablist'>
+        <div class='nav__tab product'>Product</div>
+        <div class='nav__tab recipe'>Recipe</div>
+        <div class='nav__tab admin'>Admin</div>
       </div>
-      <div class='uploader__logout zoomable'></div> 
+      <div class='nav__logout zoomable'></div> 
     </div>
   </header>
   
@@ -71,34 +71,49 @@ class UploaderView extends WCBase
         .zoomable:hover {
             transform: scale3D(1.1, 1.1, 1.1);
         }
-        .uploader {
+        .root {
             display: flex;
             flex-direction: column;
             margin: 0;
             padding: 0;
-            height: fit-content;
         }
-        .uploader__adminframe {
-            width: 100vw;
-            /*background-color: ${props.admin_bar_bg};*/
-           /* height: ${props.admin_bar_height};*/
+        .nav {
             border-bottom: 1px solid rgba(0,0,0,0.33);
         }
-        .uploader__logo {
+        .nav__limiter {
+            max-width: 1700px;
+            display: flex;
+            justify-content: space-between;
+            margin: 0 auto;
+        }
+        .nav__logo {
+            width: 96px;
             background-image: url( 'assets/logo-small.png' );
             background-repeat: no-repeat;
             background-position-x: left;
             background-size: contain;
-            width: 96px;
         }
-        .uploader__adminbar {
-            width: 100%;
+        .nav__tablist {
             display: flex;
-            justify-content: space-between;
-            margin: 0 auto;
-            /*max-width: ${props.uploader_max_width};*/
+            flex-direction: row;
         }
-        .uploader__logout {
+        .nav__tab {
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            font-weight: 400;
+            color: ${props.disabled};
+            margin-bottom: 1px;
+        }
+        .nav__tab.active {
+            padding: 8px;
+            font-weight: 400;
+            color: ${props.red};
+            text-shadow: 0 3px 5px rgba(0,0,0,0.33);
+        }
+        .nav__logout {
             cursor: pointer;
             margin: 8px;
             width: 96px;
@@ -107,46 +122,9 @@ class UploaderView extends WCBase
             background-repeat: no-repeat;
             background-position-x: right;
         }
-        .uploader__tabframe {
-            display: flex;
-            flex-direction: row;
-        }
-        .uploader__tab {
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100px;
-            font-weight: 400;
-            color: ${props.disabled};
-            /*background: ${props.grey};*/
-            margin-bottom: 1px;
-            /*border-left: 1px solid ${props.darkgrey};*/
-        }
-        .uploader__tab.active {
-            padding: 8px;
-            font-weight: 400;
-            color: ${props.red};
-            text-shadow: 0 3px 5px rgba(0,0,0,0.33);
-        }
-        .uploader__tab:first-of-type {
-            //border-right: 1px solid rgba(255,255,255,0.5);
-        }
-        .uploader__button {
-            margin-top: 16px;
-            font-weight: 200;
-            height: ${props.lineHeight};
-            color: ${props.buttonColor};
-            background-color: ${props.buttonBg};
-        }
-        .uploader__response {
-            margin: 16px auto;
-            color: #f45;
-            font-weight: 200;
-        }
         @media (max-width: 500px)
         {
-            .uploader__tabframe  {
+            .nav__tablist  {
                 flex-direction: column;
             }
         }
@@ -158,12 +136,11 @@ class UploaderView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement   = this.shadowRoot.querySelector('.uploader');
-        //this.mHeaderFrame   = this.shadowRoot.querySelector('.uploader__adminbar');
-
-        this.mLogoutButton  = this.shadowRoot.querySelector('.uploader__logout');
-        this.mProductTab    = this.shadowRoot.querySelector('.uploader__tab.product');
-        this.mRecipeTab     = this.shadowRoot.querySelector('.uploader__tab.recipe');
+        this.mRootElement   = this.shadowRoot.querySelector('.root');
+       
+        this.mLogoutButton  = this.shadowRoot.querySelector('.nav__logout');
+        this.mProductTab    = this.shadowRoot.querySelector('.nav__tab.product');
+        this.mRecipeTab     = this.shadowRoot.querySelector('.nav__tab.recipe');
 
         this.mProductView   = this.shadowRoot.querySelector('.view__product');
         this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
