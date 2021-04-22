@@ -1,7 +1,19 @@
 import { WCBase, props } from './WCBase.js';
 
 /**
- * 
+ * NumberInputRow
+ * ------------
+ * This WebComponent is a number input,
+ * with a title on the top, and a paragraph
+ * at the right - a unit may be displayed there
+ * When 'required' attribute is set, and the input
+ * is empty/zero, the element
+ * will display an red asterisk at the right hand
+ * of the title
+ * --------------------------------------------
+ * Attributes:
+ * - require : boolean
+ * - unit    : string
  */
 class NumberInputRow extends WCBase
 {
@@ -10,73 +22,85 @@ class NumberInputRow extends WCBase
         super();
         
         // -----------------------------------------------
-        // - Setup member properties
+        // - Read element attributes
         // -----------------------------------------------
 
-        let required = false;
+        let required = this.hasAttribute('required') ? true : false;
 
-        if (this.hasAttribute('required')) required = true;
+        let unit = '';
+
+        if (this.hasAttribute('unit')) unit = this.getAttribute('unit');
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
 
-        const invalid_state = `.row__input:invalid {
-            border: 2px solid ${props.red};
-            background-image: url('assets/icon_circle_up.svg');
-        }`;
-
         this.attachShadow({mode : "open"});
-        this.setupStyle
-        (`
-        .row {
-            display: flex;
-            justify-content: space-between;
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .row__label {
-            width: ${props.row_label_width}; 
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            align-self: center;
-        }
-        .row__input {
-            height: ${props.row_input_height};
-            border: 1px solid ${props.grey};
-            padding: 4px;
-            border-radius: 2px;
-            font-weight: 200;
-            color: #222;
-            box-shadow: 0 1px 6px 1px rgba(0,0,0,0.1);
-        }
-        .row__input:focus {
-            outline: none;
-            border: 2px solid ${props.darkgrey};
-        }
-        .row__input:invalid {
-            border: 2px solid ${props.red};
-            background-image: url('assets/icon_asterisk.svg');
-            background-repeat: no-repeat;
-            background-position-x: right;
-        }
-        `);
 
+        /*
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
           <div class='row'>
             <div class='row__label'><slot></div>
             <input type='number' class='row__input' min='1' ${required ? "value='0'" : ""}>
+            <p class='row__unit'>unit</p>
           </div>`);
+            */
+
+          this.setupTemplate
+          (`<link rel='stylesheet' href='assets/css/components.css'>
+            <div class='component'>
+              <div class='component__row'>
+                <div class='component__label${required ? " required" : ""}'><slot></div>
+              </div>
+              <div class='component__row'> 
+                <input type='number' class='component__input type--number'>
+                <p class='component__unit'>${unit}</p>
+              </div>
+            </div>`);
 
         // ---------------------------
-        // - Grab the input
+        // - Grab the Title label and 
+        // - the number input elements
         // ---------------------------
 
-        this.mInput = this.shadowRoot.querySelector('.row__input');
+        this.mInput = this.shadowRoot.querySelector('.component__input');
+        const label = this.shadowRoot.querySelector('.component__label');
+
+        // ---------------------------
+        // - If the required attribute
+        // - is set, observe the input
+        // - content. 
+        // ---------------------------
+
+        if ( required )
+        {
+            this.mInput.addEventListener('input', e => 
+            {
+                if (
+                    this.mInput.value.length &&
+                    this.mInput.valueAsNumber > 0
+                    )
+                {
+                    if (this.mInput.classList.contains('notify-required'))
+                    {   
+                        this.mInput.classList.remove('notify-required');
+                    }
+
+                    if (label.classList.contains('required'))
+                    {
+                        label.classList.remove('required');
+                    }
+
+                }
+                else
+                {
+                    label.classList.add('required');
+                }
+            });
+        }
+        /* End if ( required ) */
     }
 
     /**
@@ -97,6 +121,16 @@ class NumberInputRow extends WCBase
     {
         this.mInput.value = 0;
     }
+     
+    /**
+     * Adds a class into the input, which sets a red border,
+     * In order to display that the input must be filled
+     */
+    notifyRequired()
+    {
+        this.mInput.classList.add('notify-required');
+    }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
