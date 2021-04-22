@@ -64,8 +64,10 @@ const props =
     logo_side: "48px",
     uploader_max_width: "600px",
     button_side: "32px",
-    frame_width: "300px",
+    /*frame_width: "300px",*/
+    frame_width: "40%",
     inner_pad: "4px",
+    asterisk_size: "12px",
     file_column_width: "48px",
     thumbnail_side: "32px",
     list_row_height: "64px",
@@ -78,10 +80,12 @@ const props =
     frame_width_value: 300,
     color: 
     {
-        grey:   '#656565',
-        light:  '#E2E0E0',
-        red:    '#F00D0D',
-        white:  '#FFFFFF'
+        dark:   '#656565',
+        grey:   '#aeaeae',
+        light:  '#eeeeee',
+        red:    '#f00d0d',
+        white:  '#ffffff',
+        text_dark:   '#282828'
     }
 };
 
