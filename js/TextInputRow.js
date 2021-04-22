@@ -1,6 +1,12 @@
 import { WCBase, props } from './WCBase.js';
 
 /**
+ * This element is a text input, with a title
+ * When 'required' attribute is set, the element
+ * will display an red asterisk when left empty
+ * --------------------------------------------
+ * Attributes:
+ * - require : boolean
  * 
  */
 class TextInputRow extends WCBase
@@ -10,10 +16,8 @@ class TextInputRow extends WCBase
         super();
         
         // -----------------------------------------------
-        // - Setup member properties
+        // - Read the 'required' attribute
         // -----------------------------------------------
-
-        this.mNotifyFlag = false;
 
         let required = false;
 
@@ -25,51 +29,53 @@ class TextInputRow extends WCBase
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
-
-
+ 
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
           <div class='component'>
             <div class='component__row'>
-              <div class='component__label'><slot></div>
-              <div class='component__img--required'></div>
+              <div class='component__label${required ? " required" : ""}'><slot></div>
             </div>
-            <input type='text' class='component__input' ${required ? 'required' : ''}>
-         </div>`);
+            <input type='text' class='component__input'>
+          </div>`);
 
         // -----------------------------------------------------
         // - Grab the input and the required asterisk div
         // -----------------------------------------------------
 
         this.mInput = this.shadowRoot.querySelector('.component__input');
-
-        const asterisk = this.shadowRoot.querySelector('.component__img--required');
-
+        const label = this.shadowRoot.querySelector('.component__label');
+        
         // -----------------------------------------------------
         // - Add an input event listener, in order to remove the
         // - Red bordered required highlight, when some content
         // - is added into the input
         // -----------------------------------------------------
 
-        this.mInput.addEventListener('input', e => 
+        if ( required )
         {
-            if (this.mInput.value.length)
+            this.mInput.addEventListener('input', e => 
             {
-                if (this.mInput.classList.contains('notify-required'))
-                {   
-                    this.mInput.classList.remove('notify-required');
-                }
-
-                if (asterisk.style.display !== 'none')
+                if (this.mInput.value.length)
                 {
-                    asterisk.style.display = 'none';
+                    if (this.mInput.classList.contains('notify-required'))
+                    {   
+                        this.mInput.classList.remove('notify-required');
+                    }
+
+                    if (label.classList.contains('required'))
+                    {
+                        label.classList.remove('required');
+                    }
+
                 }
-            }
-            else
-            {
-                asterisk.style.display = 'initial';
-            }
-        });
+                else
+                {
+                    label.classList.add('required');
+                }
+            });
+        }
+        /* End if (required) */
     }
 
     /**
