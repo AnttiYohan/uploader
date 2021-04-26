@@ -15,12 +15,14 @@ class RadioSwitch extends WCBase
 
         this.mTitle = blob.title;
         this.mValue = blob.value;
+        this.mWidth = '80px';
+
+        if ('width' in blob) this.mWidth = blob.width;
 
         if (this.hasAttribute('on')) state = true;
 
         this.mState = state;
 
-    
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -28,42 +30,38 @@ class RadioSwitch extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .button {
+        (`.switch {
             cursor: pointer;
+            word-wrap: break-word;
             display: flex;
-            justify-content: center;
+            text-align: center;
             align-items: center;
-            width: auto;
-            margin: 4px;
-            padding: 0 4px;
+            justify-content: center;
+            max-width: ${this.mWidth};
             height: 32px;
-            border: 2px solid ${props.darkgrey};
+            border: 1px solid ${props.color.dark};
             border-radius: 4px;
-            font: inherit;
-            color: inherit;
-            background-color: ${props.lightgrey};
+            color: #ffffff;
+            box-shadow: 0 0 4px 0 rgba(0,0,0,0.25);
+            background-color: ${props.color.light};
+            font-size: 12px;
+            font-weight: 200;
+            text-shadow: 0 0 4px #000;
             transition: background-color .15s, color .15s;
         }
-        .button.active {
-            background-color: ${props.red};
-            color: #fff;
+        .switch.active {
+            background-color: ${props.color.grey};
             font-weight: 400;
         }`);
 
         this.setupTemplate
-        (`<div class='button ${state ? "active" : ""}'>${this.mTitle}</div>`);
+        (`<div class='switch ${state ? "active" : ""}'>${this.mTitle}</div>`);
 
         // ---------------------------
         // - Listen to buttons
         // ---------------------------
 
-        this.mButton = this.shadowRoot.querySelector('.button');
+        this.mButton = this.shadowRoot.querySelector('.switch');
         this.mButton.addEventListener
         ('click', e => 
         {
@@ -151,23 +149,12 @@ class RadioSwitch extends WCBase
     }
 
     /**
-     * Returns the button title
-     * ========================
+     * Returns the button title string
      * @return {string}
      */
     get title()
     {
         return this.mTitle;
-    }
-
-    /**
-     * Returns the inner value
-     * =======================
-     * @return {string}
-     */
-    get value()
-    {
-        return this.mValue;
     }
 
     // ----------------------------------------------
