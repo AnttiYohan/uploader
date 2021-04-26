@@ -9,63 +9,96 @@ class BinarySwitchGroup extends WCBase
     {
         super();
         
+// -----------------------------------------------
+        // - Read the group attribute
+        // -----------------------------------------------
+
+        this.mSwitchArray = [];
+        this.mGroupList = [];
+        this.mContentAmount = 0;
+  
+        let gridPrefix = '';
+
+        if (this.hasAttribute('group'))
+        {
+            const group  = this.getAttribute('group');
+            const parsed = group ? JSON.parse(group) : undefined;
+
+            if (Array.isArray(parsed))
+            {
+                this.mGroupList = parsed;
+            }
+
+            this.mContentAmount = this.mGroupList.length;
+
+            // -----------------------------------
+            // - Check the content amount oddity
+            // -----------------------------------
+
+            if (this.mContentAmount % 6 === 0)
+            {
+                    gridPrefix = '--12';
+            }
+            else
+            if (this.mContentAmount % 5 === 0)
+            {
+                gridPrefix = '--10';
+            }
+        }
+        else
+        {
+            console.log(`attribute group not found`);
+        }
+
+        console.log(`Binary Switch Group: GridPrefix: ${gridPrefix}`);
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
 
-        this.attachShadow({mode : "open"});
-        this.setupStyle
-        (`* {
-            font-family: 'Baskerville Normal';
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .row {
-            display: flex;
-            flex-direction: row;
-            width: ${props.frame_width};
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};     
-        }
-        .row__paragraph {
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            font-color: #222;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 4px;
-            justify-content: center;
-            align-items: center;
-            width: ${props.frame_width};
-            border: 1px solid ${props.grey};
-            border-radius: 4px;
-        }`);
+        this.attachShadow({mode : "open"});      
 
         this.setupTemplate
-        (`<div class='row'>
-           <p class='row__paragraph'><slot></p>
-        </div>
-        <div class='container'>
-            <binary-switch>Breakfast</binary-switch>
-            <binary-switch>Lunch</binary-switch>
-            <binary-switch>Dinner</binary-switch>
-            <binary-switch>Snack</binary-switch>
-            <binary-switch>Dessert</binary-switch>
-            <binary-switch>Appetizer</binary-switch>
-            <binary-switch>Salad</binary-switch>
-            <binary-switch>Soup</binary-switch>
-            <binary-switch>Smoothie</binary-switch>
-            <binary-switch>Beverages</binary-switch>
-        </div>`);
+        (
+        `<link rel='stylesheet' href='assets/css/components.css'>
+         <div class='component'>  
+           <p class='component__label'><slot></p>
+           <div class='component__grid${gridPrefix}'>
+           </div>
+         </div>`
+        );
 
-        this.mContainerElement = this.shadowRoot.querySelector('.container');
-        this.mContainerElement.addEventListener('click', e => { console.log(this.stateList); });
+        this.mContainerElement = this.shadowRoot.querySelector(`.component__grid${gridPrefix}`);
+     
+         // ------------------------------------------------------
+        // - Add the group list items as binary switches
+        // ------------------------------------------------------
+
+        if (this.mGroupList.length)
+        {
+            let index = 0;
+
+            for (const item of this.mGroupList)
+            {
+                //const state = index > 0 ? false : true;
+                //index++;
+
+                this.mContainerElement.appendChild
+                (
+                    new BinarySwitch(item, false)
+                );
+            }
+
+            // -------------------------
+            // - Create the switch array
+            // -------------------------
+
+            this.mSwitchArray = Array.from(this.mContainerElement.children);
+
+        }
+        //this.mContainerElement = this.shadowRoot.querySelector('.container');
+        //this.mContainerElement.addEventListener('click', e => { console.log(this.stateList); });
     }
 
     get stateList()
