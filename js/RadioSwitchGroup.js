@@ -17,6 +17,20 @@ class RadioSwitchGroup extends WCBase
 
         this.mSwitchArray = [];
         this.mGroupList = [];
+        this.mContentAmount = 0;
+
+        /*
+        if (this.hasAttribute('content-amount'))
+        {
+            this.mContentAmount = parseInt(this.getAttribute('content-amount'));
+
+            if (typeof(this.mContentAmount) !== Number)
+            {
+                this.mContentAmount = 12;
+            }
+        }*/
+        
+        let gridPrefix = '';
 
         if (this.hasAttribute('group'))
         {
@@ -27,11 +41,29 @@ class RadioSwitchGroup extends WCBase
             {
                 this.mGroupList = parsed;
             }
+
+            this.mContentAmount = this.mGroupList.length;
+
+            // -----------------------------------
+            // - Check the content amount oddity
+            // -----------------------------------
+
+            if (this.mContentAmount % 6 === 0)
+            {
+                    gridPrefix = '--12';
+            }
+            else
+            if (this.mContentAmount % 5 === 0)
+            {
+                gridPrefix = '--10';
+            }
         }
         else
         {
-            console.log(`atrribute group not found`);
+            console.log(`attribute group not found`);
         }
+
+        console.log(`GridPrefix: ${gridPrefix}`);
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -39,46 +71,21 @@ class RadioSwitchGroup extends WCBase
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
-        this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .row {
-            display: flex;
-            flex-direction: row;
-            width: ${props.frame_width};
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};     
-        }
-        .row__paragraph {
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            font-color: #222;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 4px;
-            justify-content: center;
-            align-items: center;
-            width: ${props.frame_width};
-            border: 1px solid ${props.grey};
-            border-radius: 4px;
-        }`);
+        
 
         this.setupTemplate
-        (`<link rel='stylesheet' href='assets/css/components.css'>
-        <div class='row'>
-           <p class='row__paragraph'><slot></p>
-        </div>
-        <div class='container'>
-        </div>`);
+        (
+        `<link rel='stylesheet' href='assets/css/components.css'>
+         <div class='component'>  
+           <p class='component__label'><slot></p>
+           <div class='component__grid${gridPrefix}'>
+           </div>
+         </div>`
+        );
 
-        this.mContainerElement = this.shadowRoot.querySelector('.container');
+        console.log(`.component__grid${gridPrefix}`);
+
+        this.mContainerElement = this.shadowRoot.querySelector(`.component__grid${gridPrefix}`);
      
         // ------------------------------------------------------
         // - Add the group list items as radio buttons
@@ -163,12 +170,14 @@ class RadioSwitchGroup extends WCBase
 
             const title = e.detail.title;
 
+            //console.log(`RadioSwitchGroup: child title: ${title}`);
             // ---------------------------------
             // - Grab all other switches
             // ---------------------------------
 
             const siblingList = this.mSwitchArray.filter((elem) => elem.title !== title);
 
+            console.log(`RadioSwitchGroup: Sibling list length: ${siblingList.length}`);
             // ------------------------------
             // - Turn off all of the siblings
             // ------------------------------
