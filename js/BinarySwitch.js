@@ -5,13 +5,19 @@ import { WCBase, props } from './WCBase.js';
  */
 class BinarySwitch extends WCBase
 {
-    constructor(state = false)
+    constructor(blob, state = false)
     {
         super();
         
         // -----------------------------------------------
         // - Setup member properties
         // -----------------------------------------------
+
+        this.mTitle = blob.title;
+        this.mValue = blob.value;
+        this.mWidth = '80px';
+
+        if ('width' in blob) this.mWidth = blob.width;
 
         if (this.hasAttribute('on')) state = true;
 
@@ -25,43 +31,38 @@ class BinarySwitch extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Baskerville Normal';
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        .button {
+        (`.switch {
             cursor: pointer;
+            word-wrap: break-word;
             display: flex;
-            justify-content: center;
+            text-align: center;
             align-items: center;
-            width: auto;
-            margin: 4px;
-            padding: 0 4px;
+            justify-content: center;
+            max-width: ${this.mWidth};
             height: 32px;
-            border: 2px solid ${props.darkgrey};
+            border: 1px solid ${props.color.dark};
             border-radius: 4px;
-            font: inherit;
-            color: inherit;
-            font-size: 14px;
-            background-color: ${props.lightgrey};
+            color: #ffffff;
+            box-shadow: 0 0 4px 0 rgba(0,0,0,0.25);
+            background-color: ${props.color.light};
+            font-size: 12px;
+            font-weight: 200;
+            text-shadow: 0 0 4px #000;
             transition: background-color .15s, color .15s;
         }
-        .button.active {
-            background-color: ${props.red};
-            color: #fff;
+        .switch.active {
+            background-color: ${props.color.grey};
             font-weight: 400;
         }`);
 
         this.setupTemplate
-        (`<div class='button ${state ? "active" : ""}'><slot></div>`);
+        (`<div class='switch ${state ? "active" : ""}'>${this.mTitle}</div>`);
 
         // ---------------------------
         // - Listen to buttons
         // ---------------------------
 
-        const button = this.shadowRoot.querySelector('.button');
+        const button = this.shadowRoot.querySelector('.switch');
         button.addEventListener
         ('click', e => 
         {
@@ -74,6 +75,16 @@ class BinarySwitch extends WCBase
     get state() 
     {
         return this.mState;
+    }
+
+    get title()
+    {
+        return this.mTitle;
+    }
+
+    get value()
+    {
+        return this.mValue;
     }
 
     // ----------------------------------------------
