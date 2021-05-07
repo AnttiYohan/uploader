@@ -26,15 +26,12 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
- <div>
+ <!--div-->
   <!-- The editor is connected here when utilized -->
 
-  <div class='uploader__frame editor_node'>
+  <div class='popup__connector'>
   </div>
-  <!--header>
-    <h3 class='uploader__header'>Recipes</h3>
-  </header-->
-
+  
   <!-- Wrapper for the whole recipe view, display set to none while in editor -->
   <div class='uploader view_node'>
 
@@ -43,10 +40,7 @@ template.innerHTML =
 
     <!-- REFRESH ROW -->
 
-    <div class='uploader__refreshrow'>
-        <p class='uploader__paragraph'>Refresh Recipies</p>
-        <button class='uploader__button--refresh force_reload'></button>
-    </div>
+    <button class='button--refresh'>Refresh</button>
 
     <!-- RECIPE TITLE ROW -->
 
@@ -65,17 +59,21 @@ template.innerHTML =
     <text-input-row class='youtube_input'>Video Link</text-input-row>
 
 
-    <!-- AGE IN MONTHS -->
+    <!-- AGE -->
 
-    <number-input-row class='age_input' required>Age in months</number-input-row>
+    <number-input-row class='age_input' unit='Months' required>Age</number-input-row>
 
     <!-- PREPARATION TIME -->
 
-    <number-input-row class='prep_time_input' required>Preparation time</number-input-row>
+    <number-input-row class='prep_time_input' unit='Min' required>Preparation time</number-input-row>
 
     <!-- COOKING TIME TIME -->
 
-    <number-input-row class='cook_time_input' required>Cook time</number-input-row>
+    <number-input-row class='cook_time_input' unit='Min' required>Cook time</number-input-row>
+
+    <!-- INGREDIENT INPUT -->
+
+    <product-list class='ingredient_list'></product-list>
 
     <!-- RECIPE INSTRUCTIONS -->
 
@@ -87,13 +85,13 @@ template.innerHTML =
 
     <!-- RECIPE SEASON RADIO SELECTION -->
 
-    <radio-switch-group class='season_input' group='[
+    <binary-switch-group class='season_input' group='[
         { "title": "Winter", "value": "WINTER" }, 
         { "title": "Spring", "value": "SPRING" },
         { "title": "Summer", "value": "SUMMER" },
         { "title": "Autumn", "value": "AUTUMN" },
         { "title": "All", "value": "ALL" }
-    ]'>Season</radio-switch-group>
+    ]'>Season</binary-switch-group>
 
     <binary-button-row class='fingerfood_input'>Fingerfood</binary-button-row>
     <binary-button-row class='has_to_cook_input'>Has To Cook</binary-button-row>
@@ -105,15 +103,22 @@ template.innerHTML =
 
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
-    <binary-switch-group class='meal_types_input'>Meal Types</binary-switch-group>
+    <binary-switch-group class='meal_types_input' group='[
+        { "title": "Breakfast", "value": "BREAKFAST" },
+        { "title": "Lunch", "value": "LUNCH" }, 
+        { "title": "Dinner", "value": "DINNER" },
+        { "title": "Snack", "value": "SNACK" },
+        { "title": "Dessert", "value": "DESSERT" },
+        { "title": "Appetizer", "value": "APPETIZER" },
+        { "title": "Salad", "value": "SALAD" },
+        { "title": "Soup", "value": "SOUP" },
+        { "title": "Smoothie", "value": "SMOOTHIE" },
+        { "title": "Beverages", "value": "BEVERAGES" }
+    ]'>Meal Types</binary-switch-group>
 
     <!-- STEP EDITOR -->
     
     <step-editor class='step_editor'></step-editor>
-
-    <!-- INGREDIENT INPUT -->
-
-    <product-list class='ingredient_list'></product-list>
 
     <!-- NON MANDATORY INPUT SET -->
 
@@ -141,14 +146,12 @@ template.innerHTML =
 
   <!-- Existing recipe list wrapper -->
 
-  <div class='uploader__frame'>
     <div class='uploader__frame recipe_list'>
     </div>
-  </div>
-
+  
   </div> <!-- End of recipe view wrapper -->
 
-</div>`;
+<!--/div-->`;
 
 /**
  * 
@@ -180,355 +183,17 @@ class RecipeView extends WCBase
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`* {
-            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        .clickable {
-            cursor: pointer;
-        }
-        .zoomable {
-            transition: transform .15s ease-in-out;
-        }
-        .zoomable:hover {
-            transform: scale3D(1.1, 1.1, 1.1);
-        }
-        .uploader {
-            display: ${this.mDisplay};
-            margin: 0 auto;
-            max-width: 1400px;
-            height: fit-content;
-            background-image: url('assets/background-mesh.png');
-            background-repeat: repeat;
-        }
-        .uploader__header {
-            font-size: ${props.header_font_size};
-            color: ${props.darkgrey};
-        }
-        .uploader__frame {
-            display: flex;
-            flex-direction: column;
-            margin: 0 auto;
-            max-width: 600px;
+        .popup__connector {
+            width: 0;
+            height: 0;
         }
         .flex__row {
             display: flex;
             flex-wrap: wrap:
-        }
-        .uploader__row {
-            display: flex;
-            flex-direction: row;
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__row--last {
-            display: flex;
-            flex-flow: row-reverse;
-            padding: 16px;
-            margin: 0 8px;
-            border-bottom: 2px solid ${props.lightgrey};
-        }
-        .uploader__frame--scroll {
-            display: flex;
-            flex-direction: column;
-            border-radius: 2px;
-            border: 1px solid ${props.lightgrey};
-            margin: 16px auto;
-            max-width: 600px;
-            width: ${props.frame_width};
-            overflow-x: hidden;
-            overflow-y: scroll;
-            height: 75vh;
-        }
-        .uploader__refreshrow {
-            display: flex;
-            justify-content: space-between;
-            padding: ${props.uploader_row_pad};
-            height: ${props.uploader_row_height};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__gridrow {
-            display: grid;
-            grid-template-columns: 128px auto 64px;
-            height: 48px;
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__inputrow {
-            display: flex;
-            justify-content: space-between;
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__inputrow .uploader__label {
-            width: 128px;
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;          
-        }
-        .uploader__inputrow--file {
-            display: flex;
-            justify-content: space-between;
-            height: ${props.uploader_row_height};
-            padding: ${props.uploader_row_pad};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__fileframe {
-            position: relative;
-        }
-        .uploader__file {
-            position: absolute;
-            appereance: none;
-            z-index: -1;
-            opacity: 0;
-        }
-        .uploader__filelabel {
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 4px;
-            background-color: ${props.green};
-            background-image: url( 'assets/icon_publish.svg' );
-            background-repeat: no-repeat;
-            background-position-x: right;
-            padding: 5px 0 0 0;
-            border: 2px solid rgba(0, 0, 0, 0.33);
-            width: 153px;
-            height: 32px;
-            color: #fff;
-            font-size: ${props.header_font_size};
-            font-weight: 500;
-            text-align: center;
-            text-shadow: 0 0 2px #000;
-            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
-        }
-        .uploader__paragraph {
-            color: #222;
-            font-weight: 200;
-            font-size: ${props.text_font_size};
-            align-self: center;
-        }
-        .uploader__image {
-            width: ${props.thumbnail_side};
-            height: ${props.thumbnail_side};
-            border-radius: 4px;
-            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
-        }
-        .uploader__input,
-        .uploader__select {
-            height: ${props.lineHeight};
-            margin-bottom: 12px;
-            padding: ${props.inner_pad};
-            background-color: ${props.lightgrey};
-            border: none;
-            border-bottom: 1px solid ${props.darkgrey};
-            outline: none;
-        }
-        .uploader__reciperow {
-            display: grid;
-            grid-template-columns: ${props.list_image_space} auto 48px 48px;
-            height: ${props.list_row_height};
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .uploader__list
-        {
-            margin-top: 24px;
-            margin-bottom: 24px;
-            background-color: ${props.lightgrey};
-            border-left: 1px solid ${props.grey};
-        }
-        .ingredient__frame
-        {
-            display: flex;
-            flex-direction: column;
-            padding: 4px 0;
-            color: #222;
-            font-size: ${props.small_font_size};
-            text-shadow: 0 2px 10px ${props.blue};
-            border-bottom: 1px solid ${props.green};
-        }
-        .ingredient__row
-        {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            height: 32px;
-        }
-        .ingredient__title
-        {
-            flex-basis: 88px;
-            color: #222;
-            font-size: ${props.small_font_size};
-            text-shadow: 0 2px 10px ${props.blue};
-            height: ${props.ingredient_height};
-        }
-        .ingredient__amount
-        {
-            background: transparent;
-            outline: none;
-            border-top: 0;
-            border-left: 0;
-            border-right: 0;
-            border-bottom: 2px solid ${props.darkgrey};
-            width: 32px;
-            color: #222;
-            font-size: ${props.small_font_size};
-            text-shadow: 0 2px 10px ${props.blue};
-            margin-left: 8px;
-            height: ${props.ingredient_height};
-        }
-        .ingredient__unit
-        {
-            background: transparent;
-            outline: none;
-            border-top: 0;
-            border-left: 0;
-            border-right: 0;
-            border-bottom: 2px solid ${props.darkgrey};
-            width: 96px;
-            color: #222;
-            font-size: ${props.small_font_size};
-            text-shadow: 0 2px 10px ${props.blue};
-            height: ${props.ingredient_height};
-        }
-        .ingredient__category
-        {
-            color: #222;
-            font-size: ${props.small_font_size};
-            text-shadow: 0 2px 10px ${props.blue};
-            min-height: 32px;
-            padding: 8px 0;
-        } 
-        .ingredient__button--remove
-        {
-            margin-left: 4px;
-            margin-top: 2px;
-            width: 16px;
-            height: 16px;
-            background-image: url('assets/icon_cancel');
-            background-repeat: no-repeat;
-        }
-        .uploader__label {
-            height: ${props.row_input_height};
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            padding: 4px 8px;
-        },
-        .uploader__label--text,
-        .uploader__label--file,
-        .uploader__label--select {
-            display: block;
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            align-self: center;
-        }
-        .uploader__label--checkbox {
-            cursor: pointer;
-            display: block;
-            position: relative;
-            padding-left: ${props.checkmark_label_left};
-            margin-bottom: 12px;
-            font-size: ${props.text_font_size};
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none:
-        }
-        .uploader__label--checkbox .uploader__checkbox {
-            cursor: pointer;
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .uploader__checkmark {
-            position: absolute;
-            top: 0;
-            left: 0;
-            border-radius: 8px;
-            border: 2px solid ${props.darkgrey};
-            height: ${props.checkmark_height};
-            width: ${props.checkmark_width};
-            background-color: ${props.disabled};
-            background-image: url('assets/icon_cancel');
-            background-origin: content-box;
-            background-repeat: no-repeat;
-            background-position-x: left;
-            transition: background-position .15s ease-in-out, background-color .5s ease-in-out;
-        }
-        .uploader__label--checkbox:hover ~ .uploader__checkmark {
-            background-color: ${props.lightgrey};
-        }
-        .uploader__label--checkbox .uploader__checkbox:checked ~ .uploader__checkmark {
-            background-color: ${props.red};
-            background-position-x: right;
-        }
-        /* Checkmark indicator when not checked */
-        .uploader__checkmark::after {
-            content: '';
-            position: absolute;
-            display: none;
-        }
-        /* Checkmark indicator display on check*/
-        .uploader__label--checkbox .uploader__checkbox:checked ~ .uploader__checkmark::after {
-            display: block;
-        }
-        /* Style the checkmark */
-        .uploader__label--checkbox .uploader__checkmark::after {
-            background-position-x: right;
-        }
-        .uploader__checkboxgroup {
-            margin-top: 24px;
-            border: 1px solid ${props.lightgrey};
-            margin-left: ${props.checkmark_width};
-        }
-        .uploader__input {
-            height: ${props.lineHeight};
-            margin-bottom: 12px;           
-        }
-        .uploader__select {
-            height: ${props.lineHeight};
-            margin-bottom: 12px;
-            width: ${props.input_width};
-        }
-        .uploader__textarea {
-            margin-bottom: ${props.lineHeight};
-            height: 100px;
-            padding: 8px;
-            color: #222;
-            font-size: ${props.small_font_size};
-            font-weight: 300;
-            border: 1px solid ${props.lightgrey};
-        }
-        .uploader__iconframe {
-            display: flex;
-        }
-        .uploader__button {
-            cursor: pointer;
-            border-radius: 4px;
-            margin-top: 16px;
-            font-size: ${props.header_font_size};
-            font-weight: 300;
-            height: ${props.lineHeight};
-            color: #fff;
-            background-color: ${props.red};
-            background-repeat: no-repeat;
-            background-origin: center;
-        }
-        .uploader__button--save {
-            cursor: pointer;
-            width: 64px;
-            height: 64px;
-            border-radius: 6px;
-            border: 2px solid ${props.darkgrey};
-            color: #fff;
-            background-color: ${props.red};
-            background-image: url('assets/icon_save.svg');
-            background-repeat: no-repeat;
-            background-origin: center;
         }
         .uploader__button--edit {
             cursor: pointer;
@@ -1052,7 +717,7 @@ class RecipeView extends WCBase
             // - Add a product reference
             this.mRecipeObjects.push({title});
 
-            const imgElem = newTagClass("img", "list__thumbnail");
+            const imgElem = newTagClass("img", "preview__img");
             
             if ( recipe.image !== null )
             {
@@ -1068,7 +733,7 @@ class RecipeView extends WCBase
             // ----------------------------------------
 
             const 
-            editButton = newTagClass("button", "uploader__button--edit mg-vt-left-16");
+            editButton = newTagClass("button", "preview__button--edit");
             editButton.addEventListener
             (
                 "click",
@@ -1085,7 +750,7 @@ class RecipeView extends WCBase
             // ----------------------------------------
 
             const 
-            removeButton = newTagClass("button", "uploader__button--delete");
+            removeButton = newTagClass("button", "preview__button--delete");
             removeButton.addEventListener
             (
                 "click",
@@ -1105,13 +770,13 @@ class RecipeView extends WCBase
                 newTagClassChildren
                 (
                     "div",
-                    "uploader__reciperow",
+                    "preview__row",
                     [
                         imgElem,
                         newTagClassHTML
                         (
                             "p",
-                            "list__paragraph",
+                            "preview__label",
                             `${title}, ${id}`
                         ),
                         editButton,

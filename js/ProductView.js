@@ -10,17 +10,11 @@ template = document.createElement("template");
 template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
  <div class='uploader'>
-  <!--header>
-    <h3 class='uploader__header'>Products</h3>
-  </header-->
   <div class='uploader__frame'>
 
     <!-- REFRESH ROW -->
 
-    <div class='uploader__refreshrow'>
-      <p class='uploader__paragraph'>Refresh Products</p>
-      <button class='uploader__button--refresh'></button>
-    </div>
+    <button class='button--refresh'>Refresh</button>
 
     <!-- PRODUCT NAME ROW -->
 
@@ -48,7 +42,7 @@ template.innerHTML =
     <!-- PRODUCT CATEGORY LIST -->
 
     <radio-switch-group class='category_input' group='[
-        { "title": "Bread&Pastry", "value": "BREAD_AND_PASTRY" }, 
+        { "title": "Bread & Pastry", "value": "BREAD_AND_PASTRY" }, 
         { "title": "Fruits", "value": "FRUITS" },
         { "title": "Vegetables", "value": "VEGETABLES" },
         { "title": "Spices", "value": "SPICES" },
@@ -57,7 +51,7 @@ template.innerHTML =
         { "title": "Meat", "value": "MEAT" },
         { "title": "Seafood", "value": "SEAFOOD" },
         { "title": "Drinks", "value": "DRINKS" },
-        { "title": "Frozen&Convenience", "value": "FROZEN_AND_CONVENIENCE" },
+        { "title": "Frozen & Convenience", "value": "FROZEN_AND_CONVENIENCE" },
         { "title": "Others", "value": "OTHERS" },
         { "title": "None", "value": "NONE" }
     ]'>Category</radio-switch-group>
@@ -89,9 +83,6 @@ class ProductView extends WCBase
         // -----------------------------------------------
         // - Setup member properties
         // -----------------------------------------------
-
-        this.mDisplay = 'flex';
-        this.mToken   = '';
         this.mProductObjects = [];
 
         console.log(`ProductView::constructor called`);
@@ -103,61 +94,17 @@ class ProductView extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupStyle
-        (`* {
-            font-family: 'Roboto', sans-serif;
+        (`::host {
+            background-image: url('assets/background-mesh.png');
+            background-repeat: repeat;
+        }
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        .clickable {
-            cursor: pointer;
-        }
-        .zoomable {
-            transition: transform .15s ease-in-out;
-        }
-        .zoomable:hover {
-            transform: scale3D(1.1, 1.1, 1.1);
-        }
-        .uploader {
-            display: ${this.mDisplay};
-            margin: 0 auto;
-            max-width: 1400px;
-            height: fit-content;
-            background-image: url('assets/background-mesh.png');
-            background-repeat: repeat;
-        }
-        .uploader__header {
-            font-size: ${props.header_font_size};
-            color: ${props.darkgrey};
-        }
-        .uploader__frame {
-            display: flex;
-            flex-direction: column;
-            margin: 16px auto;
-            max-width: 600px;
-            width: 300px;
-        }
-        .uploader__frame--scroll {
-            display: flex;
-            flex-direction: column;
-            border-radius: 2px;
-            border: 1px solid ${props.lightgrey};
-            margin: 16px auto;
-            max-width: 600px;
-            width: ${props.frame_width};
-            overflow-x: hidden;
-            overflow-y: scroll;
-            height: 75vh;
-        }
         .uploader__groupframe {
             margin: 16px 8px;
-        }
-        .uploader__row--last {
-            display: flex;
-            flex-flow: row-reverse;
-            padding: 16px;
-            margin: 0 8px;
-            border-bottom: 2px solid ${props.lightgrey};
         }
         .uploader__refreshrow {
             display: flex;
@@ -214,6 +161,7 @@ class ProductView extends WCBase
             color: #222;
             align-self: center;
         }
+        /*
         .uploader__checkboxgroup {
             border: 1px solid ${props.lightgrey};
             margin-left: ${props.checkmark_width};
@@ -344,7 +292,7 @@ class ProductView extends WCBase
             background-image: url('assets/icon_save.svg');
             background-repeat: no-repeat;
             background-origin: center;
-        }
+        }*/
         .product__button--delete {
             cursor: pointer;
             margin: 16px;
@@ -393,7 +341,6 @@ class ProductView extends WCBase
             height: 48px;
         }
         .product__row {
-            width: ${props.frame_width};
             display: grid;
             grid-template-columns: 64px auto 64px;
             padding-left: 8px;
@@ -435,9 +382,9 @@ class ProductView extends WCBase
         this.mAddButton   = this.shadowRoot.querySelector('.button--save.save_product');
         this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
         
-        const refreshButton = this.shadowRoot.querySelector('.uploader__button--refresh');
+        const refreshButton = this.shadowRoot.querySelector('.button--refresh');
         refreshButton.addEventListener
-        ("click", e => 
+        ('click', e => 
         { 
             FileCache.clearCache(PRODUCT_URL);
             this.loadProducts();
@@ -488,11 +435,7 @@ class ProductView extends WCBase
 
             const dto = this.compileDto();
             const imageFile = this.mFileInput.value;
-            //const imageFile = this.getFileInput();
-
-            console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
-            console.log(`Imagefile: ${imageFile}`);
-
+   
             if ( dto && imageFile )
             {
                 this.addProduct(dto, imageFile)
@@ -508,19 +451,30 @@ class ProductView extends WCBase
                         this.loadProducts();
                     })
                     .catch(error => { console.log(`addProduct response fail: ${error}`); });
+
+                this.resetInputs();
             }
             else
             {
+                if ( imageFile === undefined ) this.mFileInput.notifyRequired();   
                 console.log(`Add proper data and image file`);
             }
         }
         );
 
-        this.mToken = localStorage.getItem('token');
-
-
-        // FileCache.setToken(this.mToken);
         this.loadProducts();
+    }
+
+    resetInputs()
+    {
+        this.mNameInput.reset();
+        this.mFileInput.reset();
+        this.mAllergensInput.reset();
+        this.mEggsInput.reset();
+        this.mNutsInput.reset();
+        this.mLactoseInput.reset();
+        this.mGlutenInput.reset();
+        this.mCategoryInput.reset();
     }
 
     /**
@@ -577,12 +531,13 @@ class ProductView extends WCBase
         const productCategory = this.mCategoryInput.active;
        
         // -----------------------------------------------
-        // - Ensure that the name and category are defined
+        // - Ensure that the name and image are set
         // -----------------------------------------------
-
-        if ( name.length === 0 || productCategory.length === 0 )
+    
+        if ( name.length === 0 )
         {
-            return null;
+            this.mNameInput.notifyRequired();
+            return undefined;
         }
 
         // ----------------------------------------------------

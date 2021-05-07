@@ -1,7 +1,9 @@
 import { WCBase, props } from './WCBase.js';
 
 /**
- * This element is a text input, with a title
+ * TextInputRow
+ * ------------
+ * This WebComponent is a text input, with a title
  * When 'required' attribute is set, the element
  * will display an red asterisk when left empty
  * --------------------------------------------

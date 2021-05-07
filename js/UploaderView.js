@@ -57,7 +57,6 @@ class UploaderView extends WCBase
         this.attachShadow({mode : "open"});
         this.setupStyle
         (`* {
-            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -76,8 +75,12 @@ class UploaderView extends WCBase
             flex-direction: column;
             margin: 0;
             padding: 0;
+            height: 100%;
+            background-image: url('assets/background-mesh.png');
+            background-repeat: repeat;
         }
         .nav {
+            background-color: #fff;
             border-bottom: 1px solid rgba(0,0,0,0.33);
         }
         .nav__limiter {
@@ -146,7 +149,7 @@ class UploaderView extends WCBase
         this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
 
         // ----------------------------------------------------------------
-        // - Define tab functionality
+        // - Define tab functionalitylpijd
         // ----------------------------------------------------------------
 
         this.mLogoutButton.addEventListener

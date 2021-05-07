@@ -140,6 +140,11 @@ class BinaryButtonRow extends WCBase
          yesButton.classList.remove('active');
          noButton.classList.add('active');
      }
+
+     reset()
+     {
+         this.turnOff();
+     }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

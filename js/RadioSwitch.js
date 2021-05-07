@@ -121,6 +121,11 @@ class RadioSwitch extends WCBase
         this.mButton.classList.remove('active');
     }
 
+    reset()
+    {
+        this.turnOff();
+    }
+
     /**
      * Sets the button state
      * @param {boolean} value

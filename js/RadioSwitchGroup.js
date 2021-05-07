@@ -134,6 +134,22 @@ class RadioSwitchGroup extends WCBase
     }
 
     /**
+     * Reset the group to initial state,
+     * The first element will be active
+     */
+    reset( firstOff = false )
+    {
+        this.mSwitchArray[0].state = !firstOff;
+
+        const len = this.mSwitchArray.length;
+        
+        for (let i = 1; i < len; i++)
+        {
+            this.mSwitchArray[i].turnOff();
+        }
+    }
+
+    /**
      * Returns the active RadioSwitch title
      * ====================================
      * @return {string}

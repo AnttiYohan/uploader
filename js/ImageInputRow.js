@@ -26,7 +26,8 @@ class ImageInputRow extends WCBase
               </div>
               <div class='image__area'>
                 <input  id='image-upload-input'  class='image__file' type='file'>
-                <label for='image-upload-input'  class='image__label'>.</label>
+                <img class='thumbnail' src='assets/icon_image_input.svg'>
+                <label for='image-upload-input'  class='image__label'></label>
               </div>
             </div>
         `);
@@ -67,12 +68,16 @@ class ImageInputRow extends WCBase
                 justify-content: center;
                 align-items: center;
             }
-            .image__label {
+            .thumbnail {
                 cursor: pointer;
                 width: 32px;
                 height: 32px;
-                background-image: url('assets/icon_image_input.svg');
-                background-repeat: no-repeat;
+                object-fit: 100%;
+            }
+            .image__label {
+                position: absolute;
+                width: 0;
+                height: 0;
             }
             .image__file {
                 position: absolute;
@@ -80,7 +85,7 @@ class ImageInputRow extends WCBase
                 opacity: 0;
                 z-index: -10;
             }
-            .image__file:focus ~ .image__label {
+            .image__file:focus ~ .thumbnail {
                 outline: 3px solid ${props.darkgrey};
                 /*border-radius: 2px;
                 border: 2px solid rgba(0,0,0,0.66);*/
@@ -92,7 +97,7 @@ class ImageInputRow extends WCBase
         // ---------------------------
         const asterisk = this.shadowRoot.querySelector('.component__img--required');
         this.mArea  = this.shadowRoot.querySelector('.image__area');
-        this.mImage = this.shadowRoot.querySelector('.image__thumbnail')
+        this.mImage = this.shadowRoot.querySelector('.thumbnail');
         this.mInput = this.shadowRoot.querySelector('.image__file');
 
         setImageFileInputThumbnail(this.mInput, this.mImage);
@@ -105,9 +110,9 @@ class ImageInputRow extends WCBase
         {
             if (this.mInput.files.length)
             {
-                if (this.mInput.classList.contains('notify-required'))
+                if (this.mArea.classList.contains('notify-required'))
                 {
-                    this.mInput.classList.remove('notify-required');
+                    this.mArea.classList.remove('notify-required');
                 }
 
                 if (asterisk.style.display !== 'none')
@@ -135,7 +140,7 @@ class ImageInputRow extends WCBase
             return this.mInput.files[0];
         }
 
-        return null; 
+        return undefined; 
     }
 
     /**
@@ -144,17 +149,18 @@ class ImageInputRow extends WCBase
     reset()
     {
         this.mInput.value = '';
+        this.mArea.classList.remove('notify-required');
         setImageThumbnail(this.mImage, 'assets/icon_placeholder.svg');
     }
 
-     /**
-     * Adds a class into the input, which sets a red border,
-     * In order to display that the input must be filled
+    /**
+     * Adds a class into the image area element, to display
+     * a red border
      */
-      notifyRequired()
-      {
-          this.mInput.classList.add('notify-required');
-      }
+     notifyRequired()
+    {
+          this.mArea.classList.add('notify-required');
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

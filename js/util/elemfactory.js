@@ -707,7 +707,8 @@ function deleteChildren(elem)
 /**
  * Reads the selected value
  * 
- * @param {HTMLOptionElement} elem 
+ * @param  {HTMLSelectElement} elem
+ * @return {String}
  */
 function selectValue(elem)
 {

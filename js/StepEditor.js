@@ -16,47 +16,26 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<div class='step-editor'>
-   <div class='editor__rowset'>
-     <h3  class='editor__subheader'>Steps</h3>
-     <button class='editor__button--new add_step'></button>
-  </div>
+    <div class='component__row'>
+        <p class='component__label'>Steps</p>
+    </div>
 
   <!-- STEP EDITOR -->
 
   <div class='editor__frame step_editor'>
-    <!--div class='editor__rowset'>
-      <label class='editor__label'>Text</label>
-      <input class='editor__input step_text' type='text'>
-    </div>
-    <div class='editor__rowset'>
-      <label class='editor__label'>Number</label>
-      <input class='editor__input step_number' type='number' min='1' default='1'>
-    </div-->
-
-    <!-- DESCRIBING TEXT INPUT -->
-
-    <text-input-row class='step_text'>Text</text-input-row>
+   
 
     <!-- STEP NUMBER INPUT -->
 
-    <number-input-row class='step_number'>Number</number-input-row>
+    <!-- number-input-row class='step_number'>Number</number-input-row -->
 
-    <!-- IMAGE INPUT -->
+    <!-- STEP INPUTS -->
+    <div class='editor__rowset'>
+      <image-input-row class='step_image'>Image</image-input-row>
+      <text-input-area class='step_text' rows='6'>Text</text-input-area>
+      <div class='editor__button--plus add_step'></div>
+    </div>
 
-    <image-input-row class='step_image'>Image</image-input-row>
-
-    <!--div class='editor__rowset'>
-      <img   class='editor__image step_image' src='assets/icon_placeholder.svg'>
-      <div   class='uploader__fileframe'>
-        <label class='uploader__filelabel' for='image-upload-input'>image upload</label>
-        <input class='uploader__file step_file' type='file' id='image-upload-input'>
-      </div>
-    </div-->
-
-    <!-- div class='editor__rowset'>
-      <label  class='editor__label'>Add step</label>
-      <button class='editor__button--new add_step'></button>
-    </div -->
   </div>
 
   <!-- Display the exsisting steps here -->
@@ -107,11 +86,20 @@ class StepEditor extends WCBase
             display: flex;
             flex-direction: column;
         }
+        .component__row {
+            display: flex;
+            padding: 4px;
+        }
+        .component__label {
+            font-size: 14px;
+            color: #222;
+            font-weight: 200;
+            padding: 0;    
+        }
         .editor__rowset {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
-            height: 48px;
+            align-items: flex-start;
             padding: 8px;
             border-bottom: 1px solid ${props.lightgrey};
         }
@@ -145,6 +133,15 @@ class StepEditor extends WCBase
             outline: none;
             border-bottom: 2px solid ${props.grey};
             height: ${props.lineHeight};
+        }
+        .editor__button--plus {
+            cursor: pointer;
+            margin-top: 16px;
+            width: 32px;
+            height: 32px;
+            background-image: url('assets/icon_plus.svg');
+            background-repeat: no-repeat;
+            background-size: 32px;
         }
         .editor__button {
             cursor: pointer;
@@ -232,21 +229,16 @@ class StepEditor extends WCBase
         // ---------------------------
 
         const stepTextInput   = this.shadowRoot.querySelector('.step_text');
-        const stepNumberInput = this.shadowRoot.querySelector('.step_number');
         const stepImageInput  = this.shadowRoot.querySelector('.step_image');
 
         // ---------------------------
         // - Define an step buffer
         // ---------------------------
 
-        this.mBuffer = {};
-        //const stepFileInput   = this.shadowRoot.querySelector('.uploader__file.step_file');
-        //const stepImage       = this.shadowRoot.querySelector('.editor__image.step_image');
-
-        // setImageFileInputThumbnail( stepFileInput, stepImage );
+        this.mBuffer = [];
 
         this.mStepList      = this.shadowRoot.querySelector('.editor__frame.step_list');
-        this.mAddStepButton = this.shadowRoot.querySelector('.editor__button--new.add_step');
+        this.mAddStepButton = this.shadowRoot.querySelector('.add_step');
         this.mAddStepButton.addEventListener('click', e => 
         {
             // ----------------------------------
@@ -255,10 +247,9 @@ class StepEditor extends WCBase
             // ----------------------------------
 
             const text   = stepTextInput.value;
-            const number = stepNumberInput.value;
             const image  = stepImageInput.value;
 
-            if (! text.length || ! number || ! image)
+            if (! text.length || ! image)
             {
                 console.log(`All step data, text, number and image, has to be set`);
                 return;
@@ -268,14 +259,13 @@ class StepEditor extends WCBase
             // - Add the new step
             // ------------------------------
 
-            this.addStep(text, number, image);
+            this.addStep(text, image);
 
             // ------------------------------
             // - Lastly, Reset the inputs
             // ------------------------------
 
             stepTextInput.reset();
-            stepNumberInput.reset();
             stepImageInput.reset();
 
         });
@@ -289,11 +279,12 @@ class StepEditor extends WCBase
      * @param {Number} number 
      * @param {File}   file 
      */
-    addStep(text, number, file)
+    addStep(text, file)
     {
         console.log(`AddStep file: ${file}`);
 
-        this.mBuffer[number] = ({ text, number, file });
+        this.mBuffer.push({text, file});
+        const number = this.mBuffer.length;
 
         const deleteButton = newTagClass("div", "editor__button--delete");
         const imageElement = newTagClass("img", "editor__image");
@@ -327,13 +318,14 @@ class StepEditor extends WCBase
                 // - The number
                 // --------------------------------
                 
-                delete this.mBuffer[number];
+                this.mBuffer.splice(number - 1, 1);
             }
         );
 
 
 
         this.mStepList.appendChild(stepRowElement);
+
 
         //this.mFileList.push({id:number, file});
     }
@@ -348,35 +340,25 @@ class StepEditor extends WCBase
         const list = [];
 
         console.log(`Parsing the step list`);
+        let index = 1;
 
-        for (const key in this.mBuffer)
+        for (const elem of this.mBuffer)
         {
             console.log(`Step key ${key}`)
 
-            const row        = this.mBuffer[key];
-            const text       = row.text;
-            const stepNumber = row.number;
-            const image      = row.file;
+            const text       = elem.text;
+            const stepNumber = index;
+            const image      = elem.file;
 
             console.log(`Text: ${text}, number: ${stepNumber}`);
 
             list.push({ text, stepNumber, image });
+
+            index++;
         }
 
         return list;
-        /*for (const row of this.mStepList.children)
-        {
-            const number = row.getAttribute('data-number');
-            console.log(`Row data-number: ${number}`);
-
-            const textLabel = row.querySelector('.editor__label.step_text');
-            const text = textLabel.textContent;
-            console.log(`textlabel text: ${text}`);
-
-            const imageElement = row.querySelector('.editor__image');
-            const imageSource = imageElement.src;
-
-        }*/
+     
     }
 
     // ----------------------------------------------
