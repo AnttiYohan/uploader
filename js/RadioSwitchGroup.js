@@ -70,6 +70,8 @@ class RadioSwitchGroup extends WCBase
         // - from template 
         // -----------------------------------------------
 
+
+        this.setAttribute('tabIndex', '-1');
         this.attachShadow({mode : "open"});
         
 

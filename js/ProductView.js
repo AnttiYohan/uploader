@@ -1,9 +1,11 @@
 import { WCBase, props, PRODUCT_URL } from './WCBase.js';
 import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
+import { ContentBrowser } from './ContentBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { RadioSwitchGroup } from './RadioSwitchGroup.js';
+import { MultiEntryRow } from './MultiEntryRow.js';
 
 const 
 template = document.createElement("template");
@@ -68,6 +70,8 @@ template.innerHTML =
 
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
+    <content-browser>Product:</content-browser>
+    <multi-entry-row>Tips:</multi-entry-row>
   </div>
 </div>`;
 

@@ -25,6 +25,14 @@ class WCBase extends HTMLElement
         this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 
+    emit(type, msg = '')
+    {
+        const options = { bubbles: true, composed: true };
+
+        if ( msg !== '' ) options['details'] = msg;
+
+        this.shadowRoot.dispatchEvent(new CustomEvent( type, options ));
+    }
 }
 
 const props = 

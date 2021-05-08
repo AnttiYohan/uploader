@@ -27,13 +27,6 @@ class SearchInput extends WCBase
         // - Introduce properties
         // -----------------------------------------------
 
-        /**
-         * List is the string dataSet
-         * container
-         * ---------
-         * @property {string[]} mList
-         */
-        this.mList = [];
 
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
@@ -100,6 +93,12 @@ class SearchInput extends WCBase
             this.emit('input', e.target.value);
         });
 
+        this.mInput.addEventListener
+        ('focus', e => 
+        {
+            console.log(`SearchInput focus catched`);
+        }, true);
+
 
     }
 
@@ -113,39 +112,17 @@ class SearchInput extends WCBase
 
     get length()
     {
-        return this.mList.length;
+        return this.mInput.value.length;
     }
 
-    addItem( dataItem )
+    reset()
     {
-        if ( dataItem === typeof'string' )
-        {
-            this.mList.push(dataItem);
-        }
+        this.mInput.value = '';
     }
 
-    pushDataSet(dataSet)
+    setFocus()
     {
-        for (const dataItem of dataSet)
-        {
-            this.addItem( dataItem );
-        }
-    }
-
-    emit(eventType, msg)
-    {
-        this.shadowRoot.dispatchEvent
-        (
-            new CustomEvent
-            (
-                eventType, 
-                {
-                    bubbles:  true, 
-                    composed: true, 
-                    detail:   msg
-                }
-            )
-        );
+        this.mInput.focus();
     }
 
     // ----------------------------------------------
