@@ -1,13 +1,14 @@
-import { WCBase, props } from './WCBase.js';
+import { InputBase } from './InputBase.js';
+import { props } from './WCBase.js';
 
 /**
  * 
  */
-class BinaryButtonRow extends WCBase
+class BinaryButtonRow extends BinaryBase
 {
     constructor(state = false)
     {
-        super();
+        super({state});
         
         // -----------------------------------------------
         // - Setup member properties
@@ -90,10 +91,20 @@ class BinaryButtonRow extends WCBase
      * =================================
      * @return {Boolean}
      */
-    get state() 
+    get value() 
     {
         return this.mState;
     }
+
+    /**
+     * Returns the BinaryButtonRow state
+     * =================================
+     * @return {Boolean}
+     */
+     get state() 
+     {
+         return this.mState;
+     }
 
     /**
      * Set the internal blocking flag on
@@ -145,6 +156,7 @@ class BinaryButtonRow extends WCBase
      {
          this.turnOff();
      }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
