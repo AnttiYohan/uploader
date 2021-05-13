@@ -1,4 +1,4 @@
-import { InputBase } from './InputBase.js';
+import { BinaryBase } from './BinaryBase.js';
 import { props } from './WCBase.js';
 
 /**
