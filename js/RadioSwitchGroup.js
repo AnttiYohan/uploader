@@ -152,18 +152,24 @@ class RadioSwitchGroup extends WCBase
     }
 
     /**
-     * Returns the active RadioSwitch title
-     * ====================================
+     * Returns the active switch value
+     * ===============================
      * @return {string}
      */
-    get active()
+    get value()
     {
+        let result = '';
+
         for (const elem of this.mSwitchArray)
         {
-            if (elem.state) return elem.value;
+            if (elem.state) 
+            {
+                result = elem.value;
+                break;
+            }
         }
 
-        return '';
+        return result;
     }
 
     // ----------------------------------------------
