@@ -25,10 +25,17 @@ class InputBase extends WCBase
         
         /* Input class members */
 
-        /** Unique header and identifier. */
+        /** Visible title */
         this.mTitle = options.hasOwnProperty('title')
                     ? options.title
                     : '';
+
+        /** Unique string as key for HTTP Request */
+        this.mKey   = options.hasOwnProperty('data-input')
+                    ? options.dataInput
+                    : this.hasAttribute('data-input')
+                        ? this.getAttribute('data-input')
+                        : this.mTitle;
 
         /** Status of input content requirement */
         this.mRequired = this.hasAttribute('required')
@@ -47,7 +54,7 @@ class InputBase extends WCBase
         this.mInput = undefined;
 
         /** Notirfier element */
-        this.mNofifier = undefined;
+        this.mNotifier = undefined;
       
     }
 
@@ -91,9 +98,13 @@ class InputBase extends WCBase
         return this.mRequired;
     }
 
+    object()
+    {
+        return {[this.mKey]: this.mInput.value};
+    }
+
     /**
-     * Clears the input
-     * ---------------------
+     * Clear the input
      */
     reset()
     {
@@ -160,7 +171,7 @@ class InputBase extends WCBase
      */
     notifyRequired()
     {
-        this.mNotifier.classList.add('notify-required');
+        if (this.mRequired) this.mNotifier.classList.add('notify-required');
     }
 
     // ----------------------------------------------
