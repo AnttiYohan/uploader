@@ -1,6 +1,7 @@
 import { WCBase, props, PRODUCT_URL } from './WCBase.js';
 import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
+import { InputOperator } from './util/InputOperator.js';
 import { ContentBrowser } from './ContentBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
@@ -12,7 +13,7 @@ template = document.createElement("template");
 template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
  <div class='uploader'>
-  <div class='uploader__frame'>
+  <div class='uploader__frame' data-input-frame>
 
     <!-- REFRESH ROW -->
 
@@ -20,30 +21,30 @@ template.innerHTML =
 
     <!-- PRODUCT NAME ROW -->
 
-    <text-input-row class='name_input' required>Name</text-input-row>
+    <text-input-row class='name_input' data-input='name' required>Name</text-input-row>
 
     <!-- PRODUCT IMAGE -->
 
-    <image-input-row class='image_input'>Product Image</image-input-row>
+    <image-input-row class='image_input' data-input='image' required>Product Image</image-input-row>
 
     <!-- PRODUCT LIST OF ALLERGENS -->
 
-    <binary-button-row class='allergens_input'>Allergens</binary-button-row>
+    <binary-button-row class='allergens_input' data-input='hasAllergens'>Allergens</binary-button-row>
 
     <div class='allergens'>
         <div class='two_column'>
-           <binary-button-row class='gluten_input'>Gluten</binary-button-row>
-           <binary-button-row class='lactose_input'>Lactose</binary-button-row>
+           <binary-button-row class='gluten_input' data-input='hasGluten'>Gluten</binary-button-row>
+           <binary-button-row class='lactose_input' data-input='hasLactose'>Lactose</binary-button-row>
         </div>
         <div class='two_column'>
-          <binary-button-row class='nuts_input'>Nuts</binary-button-row>
-          <binary-button-row class='eggs_input'>Eggs</binary-button-row>
+          <binary-button-row class='nuts_input' data-input='hasNuts'>Nuts</binary-button-row>
+          <binary-button-row class='eggs_input' data-input='hasEggs'>Eggs</binary-button-row>
         </div>
     </div>
 
     <!-- PRODUCT CATEGORY LIST -->
 
-    <radio-switch-group class='category_input' group='[
+    <radio-switch-group class='category_input' data-input='productCategory' group='[
         { "title": "Bread & Pastry", "value": "BREAD_AND_PASTRY" }, 
         { "title": "Fruits", "value": "FRUITS" },
         { "title": "Vegetables", "value": "VEGETABLES" },
@@ -70,7 +71,7 @@ template.innerHTML =
 
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
-    <content-browser>Product:</content-browser>
+    <content-browser class='product-browser'>Products:</content-browser>
     <multi-entry-row>Tips:</multi-entry-row>
   </div>
 </div>`;
@@ -384,7 +385,7 @@ class ProductView extends WCBase
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
         this.mAddButton   = this.shadowRoot.querySelector('.button--save.save_product');
-        this.mProductList = this.shadowRoot.querySelector('.uploader__frame--scroll.product_list');
+        this.mProductList = this.shadowRoot.querySelector('.product-browser');
         
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
         refreshButton.addEventListener
@@ -393,6 +394,17 @@ class ProductView extends WCBase
             FileCache.clearCache(PRODUCT_URL);
             this.loadProducts();
         });
+
+        const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
+        const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
+
+        this.mInputOperator = new InputOperator(inputArray);
+        console.log(`InputArray lenght: ${inputArray.length}`);
+
+        for (const element of inputArray)
+        {
+            console.log(`Input element: ${element.localName}, ${element.classList}`);
+        }
 
         // ------------------
         // - Input references
@@ -437,9 +449,19 @@ class ProductView extends WCBase
             // - To the server
             // --------------------------------------
 
-            const dto = this.compileDto();
-            const imageFile = this.mFileInput.value;
+            //const dto = this.compileDto();
+            //const imageFile = this.mFileInput.value;
    
+            this.mInputOperator.printRequest();
+
+            const dto = this.mInputOperator.values();
+            const imageFile = this.mInputOperator.imageFile();
+
+            //console.log(`Dto: ${dto}`);
+            //console.log(`Imagefile: ${imageFile}`);
+
+            return;
+
             if ( dto && imageFile )
             {
                 this.addProduct(dto, imageFile)
@@ -471,6 +493,8 @@ class ProductView extends WCBase
 
     resetInputs()
     {
+        this.mInputOperator.reset();
+        /*
         this.mNameInput.reset();
         this.mFileInput.reset();
         this.mAllergensInput.reset();
@@ -478,7 +502,7 @@ class ProductView extends WCBase
         this.mNutsInput.reset();
         this.mLactoseInput.reset();
         this.mGlutenInput.reset();
-        this.mCategoryInput.reset();
+        this.mCategoryInput.reset();*/
     }
 
     /**
@@ -570,12 +594,22 @@ class ProductView extends WCBase
      */
     generateList(list)
     {
-        deleteChildren(this.mProductList);
+        //deleteChildren(this.mProductList);
         this.mProductObjects = [];
+
+        const titles = [];
 
         if ( Array.isArray(list) )
         {
             window.dispatchEvent(new CustomEvent('product-list', {detail: list}));
+            
+            for (const item of list)
+            {
+                titles.push(item.name);
+            }
+
+            this.mProductList.pushDataSet(titles);
+            /*
             for (const item of list)
             {
                 const id = item.id;
@@ -624,7 +658,7 @@ class ProductView extends WCBase
                         ]
                     )
                 );
-            }
+            }*/
         }
     }
 
