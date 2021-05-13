@@ -26,7 +26,7 @@ class ImageInputRow extends WCBase
               </div>
               <div class='image__area'>
                 <input  id='image-upload-input'  class='image__file' type='file'>
-                <img class='thumbnail' src='assets/icon_image_input.svg'>
+                <!--div class='thumbnail'></div-->
                 <label for='image-upload-input'  class='image__label'></label>
               </div>
             </div>
@@ -53,12 +53,18 @@ class ImageInputRow extends WCBase
                 transform: translate3d(48px, 28px, 0);
             }
             .image__area {
+                position: relative;
                 border: 1px solid ${props.color.grey};
                 width: ${props.input_width};
                 height: 96px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-image: url('assets/icon_image_input.svg');
+                background-repeat: no-repeat;
+                background-size: 50%;
+                background-position: center center;
+            
             }
             .image__area.notify-required {
                 border: 2px solid ${props.red};
@@ -69,10 +75,12 @@ class ImageInputRow extends WCBase
                 align-items: center;
             }
             .thumbnail {
-                cursor: pointer;
-                width: 32px;
-                height: 32px;
-                object-fit: 100%;
+                /*cursor: pointer;*/
+                width: 48px;
+                height: 48px;
+                background-image: url('assets/icon_image_input.svg');
+                background-repeat: no-repeat;
+                background-size: cover;
             }
             .image__label {
                 position: absolute;
@@ -80,10 +88,13 @@ class ImageInputRow extends WCBase
                 height: 0;
             }
             .image__file {
+                cursor: pointer;
                 position: absolute;
                 appearance: none;
                 opacity: 0;
-                z-index: -10;
+                z-index: 10;
+                width: 100%;
+                height: 100%;
             }
             .image__file:focus ~ .thumbnail {
                 outline: 3px solid ${props.darkgrey};
@@ -100,7 +111,7 @@ class ImageInputRow extends WCBase
         this.mImage = this.shadowRoot.querySelector('.thumbnail');
         this.mInput = this.shadowRoot.querySelector('.image__file');
 
-        setImageFileInputThumbnail(this.mInput, this.mImage);
+        //setImageFileInputThumbnail(this.mInput, this.mImage);
 
         // -------------------------------
         // - Observe image selection
@@ -119,6 +130,15 @@ class ImageInputRow extends WCBase
                 {
                     asterisk.style.display = 'none';
                 }
+                //const url = URL.createObjectURL(e.target.files[0]);
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onloadend = (pe) =>
+                {
+                    this.mArea.style.backgroundImage = `url('${reader.result}')`;
+                    this.mArea.style.backgroundSize = `100%`;
+                }
+                reader.readAsDataURL(file);
             }
             else
             {
@@ -150,7 +170,9 @@ class ImageInputRow extends WCBase
     {
         this.mInput.value = '';
         this.mArea.classList.remove('notify-required');
-        setImageThumbnail(this.mImage, 'assets/icon_placeholder.svg');
+        this.mArea.style.backgroundImage = `url('assets/icon_image_input.svg')`;
+        this.mArea.style.backgroundSize = `50%`;
+        //setImageThumbnail(this.mImage, 'assets/icon_placeholder.svg');
     }
 
     /**
