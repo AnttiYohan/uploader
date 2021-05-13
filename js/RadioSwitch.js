@@ -32,11 +32,11 @@ class RadioSwitch extends WCBase
         this.setupStyle
         (`.switch {
             cursor: pointer;
-            word-wrap: break-word;
             display: flex;
-            text-align: center;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            word-wrap: break-word;
             max-width: ${this.mWidth};
             height: 32px;
             border: 1px solid ${props.color.dark};
@@ -44,9 +44,7 @@ class RadioSwitch extends WCBase
             color: #ffffff;
             box-shadow: 0 0 4px 0 rgba(0,0,0,0.25);
             background-color: ${props.color.light};
-            font-size: 12px;
             font-weight: 200;
-            text-shadow: 0 0 4px #000;
             transition: background-color .15s, color .15s;
         }
         .switch.active {
@@ -162,6 +160,24 @@ class RadioSwitch extends WCBase
         return this.mTitle;
     }
 
+    /**
+     * Returns the value when state is on
+     * @return {string|null}
+     */
+    get value()
+    {
+        return this.mState ? this.mValue : null
+    }
+
+    /**
+     * Return the value
+     * @return {string}
+     */
+    getValue()
+    {
+        return this.mValue;
+    }
+    
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
