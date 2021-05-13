@@ -15,7 +15,7 @@ class BinarySwitch extends WCBase
 
         this.mTitle = blob.title;
         this.mValue = blob.value;
-        this.mWidth = '80px';
+        this.mWidth = '100%';
 
         if ('width' in blob) this.mWidth = blob.width;
 
@@ -39,15 +39,13 @@ class BinarySwitch extends WCBase
             align-items: center;
             justify-content: center;
             max-width: ${this.mWidth};
-            height: 32px;
+            height: 48px;
             border: 1px solid ${props.color.dark};
             border-radius: 4px;
             color: #ffffff;
             box-shadow: 0 0 4px 0 rgba(0,0,0,0.25);
             background-color: ${props.color.light};
-            font-size: 12px;
             font-weight: 200;
-            text-shadow: 0 0 4px #000;
             transition: background-color .15s, color .15s;
         }
         .switch.active {
@@ -105,4 +103,4 @@ class BinarySwitch extends WCBase
 
 window.customElements.define('binary-switch', BinarySwitch );
 
-export { BinarySwitch};
+export { BinarySwitch };
