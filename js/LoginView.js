@@ -216,9 +216,8 @@ class LoginView extends WCBase
             this.mNotificationText.textContent = '';
         });
 
-        button.addEventListener
-        ('click', e => {
-
+        const handler = () => 
+        {
             const email     = this.mEmailInput.value;
             const password  = this.mPasswordInput.value;
 
@@ -239,7 +238,20 @@ class LoginView extends WCBase
                     this.displayLoginFail('Invalid credentials.'); 
                     console.log(`Login fail: ${error}`); 
                 });
+        }
 
+        this.shadowRoot.addEventListener('keydown', e => 
+        {
+            if (e.keyCode === this.ENTER)
+            {
+                handler();
+            }
+        });
+
+        button.addEventListener
+        ('click', e => 
+        {
+            handler();    
         });
 
     }
