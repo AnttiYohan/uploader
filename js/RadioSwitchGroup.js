@@ -1,94 +1,16 @@
-import { WCBase, props } from './WCBase.js';
 import { RadioSwitch } from './RadioSwitch.js';
+import { SelectBase } from './SelectBase.js';
 
 /**
  * Container class for RadioSwitch elements
  * ======================================== 
  */
-class RadioSwitchGroup extends WCBase
+class RadioSwitchGroup extends SelectBase
 {
     constructor()
     {
-        super();
+        super({multiSelect: false, type: 'string'});
         
-        // -----------------------------------------------
-        // - Read the group attribute
-        // -----------------------------------------------
-
-        this.mSwitchArray = [];
-        this.mGroupList = [];
-        this.mContentAmount = 0;
-
-        /*
-        if (this.hasAttribute('content-amount'))
-        {
-            this.mContentAmount = parseInt(this.getAttribute('content-amount'));
-
-            if (typeof(this.mContentAmount) !== Number)
-            {
-                this.mContentAmount = 12;
-            }
-        }*/
-        
-        let gridPrefix = '';
-
-        if (this.hasAttribute('group'))
-        {
-            const group  = this.getAttribute('group');
-            const parsed = group ? JSON.parse(group) : undefined;
-
-            if (Array.isArray(parsed))
-            {
-                this.mGroupList = parsed;
-            }
-
-            this.mContentAmount = this.mGroupList.length;
-
-            // -----------------------------------
-            // - Check the content amount oddity
-            // -----------------------------------
-
-            if (this.mContentAmount % 6 === 0)
-            {
-                    gridPrefix = '--12';
-            }
-            else
-            if (this.mContentAmount % 5 === 0)
-            {
-                gridPrefix = '--10';
-            }
-        }
-        else
-        {
-            console.log(`attribute group not found`);
-        }
-
-        console.log(`GridPrefix: ${gridPrefix}`);
-
-        // -----------------------------------------------
-        // - Setup ShadowDOM: set stylesheet and content
-        // - from template 
-        // -----------------------------------------------
-
-
-        this.setAttribute('tabIndex', '-1');
-        this.attachShadow({mode : "open"});
-        
-
-        this.setupTemplate
-        (
-        `<link rel='stylesheet' href='assets/css/components.css'>
-         <div class='component'>  
-           <p class='component__label'><slot></p>
-           <div class='component__grid${gridPrefix}'>
-           </div>
-         </div>`
-        );
-
-        console.log(`.component__grid${gridPrefix}`);
-
-        this.mContainerElement = this.shadowRoot.querySelector(`.component__grid${gridPrefix}`);
-     
         // ------------------------------------------------------
         // - Add the group list items as radio buttons
         // ------------------------------------------------------
@@ -118,24 +40,6 @@ class RadioSwitchGroup extends WCBase
     }
 
     /**
-     * Returns the titles of every active 
-     * RadioSwitch elements
-     * 
-     * @return {Array}
-     */
-    get stateList()
-    {
-        const list = [];
-
-        for (const elem of this.mSwitchArray)
-        {
-            if (elem.state) list.push({name: elem.title});
-        }
-
-        return list;
-    }
-
-    /**
      * Reset the group to initial state,
      * The first element will be active
      */
@@ -151,26 +55,7 @@ class RadioSwitchGroup extends WCBase
         }
     }
 
-    /**
-     * Returns the active switch value
-     * ===============================
-     * @return {string}
-     */
-    get value()
-    {
-        let result = '';
-
-        for (const elem of this.mSwitchArray)
-        {
-            if (elem.state) 
-            {
-                result = elem.value;
-                break;
-            }
-        }
-
-        return result;
-    }
+    
 
     // ----------------------------------------------
     // - Lifecycle callbacks
