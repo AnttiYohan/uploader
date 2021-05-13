@@ -15,7 +15,7 @@ class RadioSwitch extends WCBase
 
         this.mTitle = blob.title;
         this.mValue = blob.value;
-        this.mWidth = '80px';
+        this.mWidth = '100%';
 
         if ('width' in blob) this.mWidth = blob.width;
 
@@ -38,7 +38,7 @@ class RadioSwitch extends WCBase
             text-align: center;
             word-wrap: break-word;
             max-width: ${this.mWidth};
-            height: 32px;
+            height: 48px;
             border: 1px solid ${props.color.dark};
             border-radius: 4px;
             color: #ffffff;
@@ -177,7 +177,7 @@ class RadioSwitch extends WCBase
     {
         return this.mValue;
     }
-    
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
