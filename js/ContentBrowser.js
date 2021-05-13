@@ -1,6 +1,7 @@
 import { WCBase, props } from './WCBase.js';
 import { SearchInput } from './SearchInput.js'; 
 import { ScrollContainer } from './ScrollContainer.js';
+import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
 
 /**
  * Content browser consists of a search input element
@@ -20,7 +21,7 @@ import { ScrollContainer } from './ScrollContainer.js';
  */
 class ContentBrowser extends WCBase
 {
-    constructor(args = {})
+    constructor()
     {
         super();
 
@@ -41,6 +42,8 @@ class ContentBrowser extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component'>
+              <p class='component__label'><slot></p>
+              <div class='content__list'></div>
               <!--search-input class='input'><slot></search-input-->
               <input class='search__input' type='text'>
               <scroll-container class='container'></scroll-container>
@@ -69,6 +72,18 @@ class ContentBrowser extends WCBase
         .component.active {
             border: 2px solid rgba(0, 0, 0, 0.5);
         }
+        .content__list {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);    
+            background-color: #fff;
+            overflow-y: scroll;
+         }
         .search__input {
             border-radius: 12px;
             background-color: #fff;
@@ -96,6 +111,15 @@ class ContentBrowser extends WCBase
         `);
 
         const componentFrame = this.shadowRoot.querySelector('.component');
+        
+
+        /**
+         * The Content list
+         * @member {HTMLDivElement} mContentList
+         * -------
+         */
+         this.mContentList = this.shadowRoot.querySelector('.content__list');
+
 
         /**
          * The search input
@@ -125,10 +149,16 @@ class ContentBrowser extends WCBase
             {
                 matches = this.findMatches(input);
             }
+            else
+            {
+                this.mScrollContainer.blur();
+            }
+
 
             if (matches.length)
             {
                 this.mScrollContainer.pushContentAsStrings(matches);
+                this.mScrollContainer.blur();
             }
             else
             {
@@ -148,11 +178,13 @@ class ContentBrowser extends WCBase
             {
                 case this.KEYDOWN :
                 {
+                    this.mScrollContainer.down();
                     console.log(`Navigate down`);
                     break;
                 }
                 case this.KEYUP :
                 {
+                    this.mScrollContainer.up();
                     console.log(`Navigate up`);
                     break;
                 }
@@ -210,6 +242,37 @@ class ContentBrowser extends WCBase
         return this.mScrollContainer.count();
     }
 
+    populateContentList(list)
+    {
+        let len = list.length;
+        if (len > 5) len = 5;
+
+        deleteChildren(this.mContentList);
+
+        console.log(`ContentBrowser::populateContentList, list len: ${len}`);
+
+        for (let i = 0; i < len; i++)
+        {
+            console.log(`Title: ${list[i]}`);
+
+            const headingRow = newTagClassChildren
+            (
+                'div',
+                'component__row',
+                [
+                    newTagClassHTML
+                    (
+                        'p',
+                        'component__label',
+                        list[i]
+                    )
+                ]
+            );
+
+            this.mContentList.appendChild(headingRow);
+        }
+    }
+
     /**
      * Adds a string into the content array
      * ------------------------------------
@@ -232,6 +295,8 @@ class ContentBrowser extends WCBase
     pushDataSet(dataSet)
     {
         this.mList = [];
+
+        this.populateContentList(dataSet);
 
         for (const dataItem of dataSet)
         {
@@ -291,6 +356,8 @@ class ContentBrowser extends WCBase
             'xylitol'
         ];
 
+        //this.populateContentList(testSet);
+
         this.pushDataSet(testSet);
 
         console.log(`ContentBrowser: Used ${testSet.length} strings to create a test dataset. Dataset size: ${this.size} entries`);
@@ -318,7 +385,7 @@ class ContentBrowser extends WCBase
     connectedCallback()
     {
         console.log("<content-browser> connected");
-        this.createTestSet();
+        //this.createTestSet();
         //const result = this.mScrollContainer.createTestContent();
         //console.log(`ContentBrowser: scroll container test populating result: ${result}`);
     }
