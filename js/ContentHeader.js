@@ -99,7 +99,7 @@ class ContentHeader extends WCBase
         .title {
             font-size: 14px;
             color: #444;
-            min-width: 50%;
+            min-width: 100%;
             text-align: middle;
         }
         .component__row.selected {
@@ -151,6 +151,24 @@ class ContentHeader extends WCBase
          */
          this.mRowElement = this.shadowRoot.querySelector('.component__row');
 
+         const label = this.shadowRoot.querySelector('.title');
+         label.addEventListener('click', e =>
+         {
+             //this.emit('content-header-click', 'hardcode' );
+             this.shadowRoot.dispatchEvent
+             (
+                 new CustomEvent('content-header-click', 
+                 {
+                     bubbles: true,
+                     composed: true,
+                     detail: 
+                     {
+                         "title": this.mTitle,
+                         "other": 'hardcode'
+                     }
+                 })
+             );
+         });
         /**
          * Listen for scroll container cursor change events
         */
