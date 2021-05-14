@@ -47,22 +47,30 @@ class RadioSwitch extends WCBase
             font-weight: 200;
             transition: background-color .15s, color .15s;
         }
+        .switch:focus,
+        .switch:active {
+            outline: none;
+            border: 2px solid ${props.color.dark};
+            height: 46px;
+        }
         .switch.active {
             background-color: ${props.color.grey};
             font-weight: 400;
         }`);
 
         this.setupTemplate
-        (`<div class='switch ${state ? "active" : ""}'>${this.mTitle}</div>`);
+        (`<div tabindex='0' class='switch ${state ? "active" : ""}'>${this.mTitle}</div>`);
 
         // ---------------------------
         // - Listen to buttons
         // ---------------------------
 
+        let hasFocus = false;
+        
         this.mButton = this.shadowRoot.querySelector('.switch');
-        this.mButton.addEventListener
-        ('click', e => 
-        {
+
+        const switchHandler = e => {
+
             // -------------------------------------
             // - Take action ONLY when radio switch
             // - Is not set
@@ -70,12 +78,6 @@ class RadioSwitch extends WCBase
 
             if ( ! this.mState)
             {
-                // button.classList.toggle('active');
-                //this.mState = ! this.mState;
-                // -------------------------------------
-                // - Set the switch
-                // -------------------------------------
-
                 this.mState = true;
                 this.mButton.classList.add('active');
                 
@@ -96,6 +98,26 @@ class RadioSwitch extends WCBase
                         }
                     })
                 );
+            }
+        }
+
+        this.mButton.addEventListener('focus', e => 
+        {
+            hasFocus = true;
+        });
+
+        this.mButton.addEventListener('blur', e => 
+        {
+            hasFocus = false;
+        });
+
+        this.mButton.addEventListener('click', e => switchHandler(e));
+
+        this.shadowRoot.addEventListener('keydown', e =>
+        {
+            if (hasFocus && e.keyCode === this.ENTER)
+            {
+                switchHandler(e);
             }
         });
     
