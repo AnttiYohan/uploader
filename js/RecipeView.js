@@ -1,10 +1,14 @@
 import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
+import { ProductRow } from './ProductRow.js';
 import { ProductList } from './ProductList.js';
+import { EventBouncer } from './EventBouncer.js';
 import { TextInputRow } from './TextInputRow.js';
 import { TextInputArea } from './TextInputArea.js';
+import { InputOperator } from './util/InputOperator.js';
 import { ImageInputRow } from './ImageInputRow.js';
+import { MultiEntryRow } from './MultiEntryRow.js';
 import { NumberInputRow } from './NumberInputRow.js'
 import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
@@ -36,66 +40,47 @@ template.innerHTML =
   <div class='uploader view_node'>
 
   <!-- New Recipe Frame -->
-  <div class='uploader__frame'>
+  <div class='uploader__frame' data-input-frame>
 
     <!-- REFRESH ROW -->
 
     <button class='button--refresh'>Refresh</button>
 
-    <!-- RECIPE TITLE ROW -->
+    <!-- Input's begin -->
 
-    <text-input-row class='title_input' required>Title</text-input-row
+    <text-input-row  class='title_input' data-input='title' required>Title</text-input-row
+    <image-input-row class='image_input' data-input='image'>Recipe Image</image-input-row>
+    <text-input-row  class='link_input'  data-input='originalRecipeLink' required>Recipe Link</text-input-row> 
+    <text-input-row  class='youtube_input' data-input='youtubeVideoLink'>Video Link</text-input-row>
+    <number-input-row class='age_input' data-input='monthsOld' unit='Months' required>Age</number-input-row>
+    <number-input-row class='prep_time_input' data-input='prepareTimeInMinutes' unit='Min' required>Preparation time</number-input-row>
+    <number-input-row class='cook_time_input' data-input='cookTimeInMinutes' unit='Min' required>Cook time</number-input-row>
 
-    <!-- RECIPE IMAGE INPUT ROW -->
-
-    <image-input-row class='image_input'>Cover Image</image-input-row>
-
-    <!-- RECIPE LINK -->
- 
-    <text-input-row class='link_input' required>Recipe Link</text-input-row>
-
-    <!-- YOUTUBE LINK -->
- 
-    <text-input-row class='youtube_input'>Video Link</text-input-row>
-
-
-    <!-- AGE -->
-
-    <number-input-row class='age_input' unit='Months' required>Age</number-input-row>
-
-    <!-- PREPARATION TIME -->
-
-    <number-input-row class='prep_time_input' unit='Min' required>Preparation time</number-input-row>
-
-    <!-- COOKING TIME TIME -->
-
-    <number-input-row class='cook_time_input' unit='Min' required>Cook time</number-input-row>
-
-    <!-- INGREDIENT INPUT -->
-
-    <product-list class='ingredient_list'></product-list>
-
-    <!-- RECIPE INSTRUCTIONS -->
-
-    <text-input-area class='instructions_input' required>Instructions</text-input-area>
+    <!-- Product add input -->
+    <event-bouncer data-emitters='["product-select"]'>
+        <content-browser data-connect='host' class='product-input' 
+                         data-input='productsMenu'
+                         data-emit='product-select'
+        >Products:</content-browser>
+        <product-row data-connect='slave' data-input='products' data-collect='product-select'></product-row>
+    </event-bouncer>
     
-    <!-- STORAGE INFO -->
-    
-    <text-input-area class='storage_input' required>Storage</text-input-area>
+    <text-input-area class='instructions_input' data-input='instructions' required>Instructions</text-input-area>
+    <text-input-area class='storage_input' data-input='storageInfo' required>Storage</text-input-area>
 
     <!-- RECIPE SEASON RADIO SELECTION -->
 
-    <binary-switch-group class='season_input' group='[
+    <binary-switch-group class='season_input' data-input='season' data-null='no' group='[
         { "title": "Winter", "value": "WINTER" }, 
         { "title": "Spring", "value": "SPRING" },
         { "title": "Summer", "value": "SUMMER" },
         { "title": "Autumn", "value": "AUTUMN" },
-        { "title": "All", "value": "ALL" }
+        { "title": "All", "value": "ALL", "rule": "fill" }
     ]'>Season</binary-switch-group>
 
-    <binary-button-row class='fingerfood_input'>Fingerfood</binary-button-row>
-    <binary-button-row class='has_to_cook_input'>Has To Cook</binary-button-row>
-    <binary-button-row class='allergens_input' blocked>Allergens</binary-button-row>
+    <binary-button-row class='fingerfood_input'  data-input='fingerFood'>Fingerfood</binary-button-row>
+    <binary-button-row class='has_to_cook_input' data-input='hasToCook'>Has To Cook</binary-button-row>
+    <binary-button-row class='allergens_input'   data-input='allergens' blocked>Allergens</binary-button-row>
     <binary-button-row class='eggs_input' blocked>Has Eggs</binary-button-row>
     <binary-button-row class='nuts_input' blocked>Has Nuts</binary-button-row>
     <binary-button-row class='lactose_input' blocked>Has Lactose</binary-button-row>
@@ -103,7 +88,7 @@ template.innerHTML =
 
     <!-- RECIPE MEALTYPES MULTISELECTION -->
 
-    <binary-switch-group class='meal_types_input' group='[
+    <binary-switch-group data-input='mealTypes' class='meal_types_input' group='[
         { "title": "Breakfast", "value": "BREAKFAST" },
         { "title": "Lunch", "value": "LUNCH" }, 
         { "title": "Dinner", "value": "DINNER" },
@@ -115,24 +100,14 @@ template.innerHTML =
         { "title": "Smoothie", "value": "SMOOTHIE" },
         { "title": "Beverages", "value": "BEVERAGES" }
     ]'>Meal Types</binary-switch-group>
-
-    <!-- STEP EDITOR -->
-    
-    <step-editor class='step_editor'></step-editor>
+     
+    <step-editor class='step_editor' data-input='stepBySteps'></step-editor>
 
     <!-- NON MANDATORY INPUT SET -->
 
-    <!-- TIPS -->
-
-    <text-input-row class='tips_input'>Tips</text-input-row>
-
-    <!-- NUTRITIONAL VALUE -->
-
-    <number-input-row class='nutrition_input'>Nutrition kcal</number-input-row>
-
-    <!-- INTERESTING INFO -->
-
-    <text-input-row class='info_input'>Interesting Info</text-input-row>
+    <multi-entry-row  data-input='tips'>Tips</multi-entry-row>
+    <number-input-row data-input='nutritionValue'>Nutrition kcal</number-input-row>
+    <text-input-row   data-input='interestingInfo'>Interesting Info</text-input-row>
 
     <!-- SAVE BUTTON -->
 
@@ -147,6 +122,7 @@ template.innerHTML =
   <!-- Existing recipe list wrapper -->
 
     <div class='uploader__frame recipe_list'>
+      <content-browser data-input='browser' class='browser'>Recipes</content-browser>
     </div>
   
   </div> <!-- End of recipe view wrapper -->
@@ -283,10 +259,18 @@ class RecipeView extends WCBase
         this.mViewNode       = this.shadowRoot.querySelector('.view_node');
         this.mEditorNode     = this.shadowRoot.querySelector('.uploader__frame.editor_node');
         this.mSaveButton     = this.shadowRoot.querySelector('.save_recipe');
-        this.mRefreshButton  = this.shadowRoot.querySelector('.uploader__button--refresh.force_reload');
         this.mRecipeList     = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
         this.mStepEditor     = this.shadowRoot.querySelector('.step_editor');
         this.mIngredientList = this.shadowRoot.querySelector('.ingredient_list');
+
+        const refreshButton  = this.shadowRoot.querySelector('.button--refresh');
+
+        const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
+        const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
+
+        this.mInputOperator = new InputOperator('recipes', inputArray);
+        console.log(`RecipeView: InputArray lenght: ${inputArray.length}`);
+
 
         // ---------------------------
         // - Listen to the step editor
@@ -442,8 +426,7 @@ class RecipeView extends WCBase
             }
         );
 
-        this.mRefreshButton.addEventListener
-        ("click", e => 
+        refreshButton.addEventListener('click', e => 
         {
              FileCache.clearCache(RECIPE_URL);
              this.loadRecipes(); 
@@ -469,7 +452,17 @@ class RecipeView extends WCBase
 
             if (list && Array.isArray(list))
             {
-                this.mIngredientList.loadWords(list);
+                const menu = this.mInputOperator.getInput('productsMenu');
+
+                console.log(`RecipeView, init product-menu: ${menu.dataset.input} with ${list}`);
+                
+                try  {
+                
+                    menu.pushDataSet(list);
+
+                } catch (error) {
+                    console.log(`RecipeView product menu init error: ${error}`);
+                }
             }
         }, true);
     }
