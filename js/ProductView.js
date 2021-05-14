@@ -3,10 +3,12 @@ import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, sele
 import { FileCache } from './util/FileCache.js';
 import { InputOperator } from './util/InputOperator.js';
 import { ContentBrowser } from './ContentBrowser.js';
+import { ProductRow } from './ProductRow.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { RadioSwitchGroup } from './RadioSwitchGroup.js';
 import { MultiEntryRow } from './MultiEntryRow.js';
+import { EventBouncer } from './EventBouncer.js';
 
 const 
 template = document.createElement("template");
@@ -27,6 +29,7 @@ template.innerHTML =
 
     <image-input-row class='image_input' data-input='image' required>Product Image</image-input-row>
 
+    
     <!-- PRODUCT LIST OF ALLERGENS -->
 
     <binary-button-row class='allergens_input' data-input='hasAllergens'>Allergens</binary-button-row>
@@ -71,8 +74,7 @@ template.innerHTML =
 
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
-    <content-browser class='product-browser'>Products:</content-browser>
-    <multi-entry-row>Tips:</multi-entry-row>
+    <content-browser data-input='browser' class='product-browser'>Products:</content-browser>
   </div>
 </div>`;
 
@@ -385,7 +387,7 @@ class ProductView extends WCBase
 
         this.mRootElement = this.shadowRoot.querySelector('.uploader');
         this.mAddButton   = this.shadowRoot.querySelector('.button--save.save_product');
-        this.mProductList = this.shadowRoot.querySelector('.product-browser');
+        this.mBrowser     = this.shadowRoot.querySelector('.product-browser');
         
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
         refreshButton.addEventListener
@@ -398,7 +400,7 @@ class ProductView extends WCBase
         const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
         const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
 
-        this.mInputOperator = new InputOperator(inputArray);
+        this.mInputOperator = new InputOperator('products', inputArray);
         console.log(`InputArray lenght: ${inputArray.length}`);
 
         for (const element of inputArray)
@@ -524,68 +526,6 @@ class ProductView extends WCBase
             .catch(error => { console.log(`Could not read products: ${error}`); });
     }
 
-    /**
-     * Returns a product dto
-     * 
-     * @returns {object}
-     */
-    compileDto()
-    {
-        const name = this.mNameInput.value;
-
-        // ----------------------------------------------------
-        // - Read has allergens input, if it is not set, leave
-        // - all the allergen groups as false
-        // ----------------------------------------------------
-
-        const hasAllergens = this.mAllergensInput.state;
-        let hasEggs     = false;
-        let hasNuts     = false;
-        let hasLactose  = false;
-        let hasGluten   = false;
-
-        if (hasAllergens)
-        {
-            hasEggs     = this.mEggsInput.state;
-            hasNuts     = this.mNutsInput.state;
-            hasLactose  = this.mLactoseInput.state;
-            hasGluten   = this.mGlutenInput.state;
-        }
-
-        // -----------------------------------------------
-        // - Read the active product category
-        // -----------------------------------------------
-
-        const productCategory = this.mCategoryInput.active;
-       
-        // -----------------------------------------------
-        // - Ensure that the name and image are set
-        // -----------------------------------------------
-    
-        if ( name.length === 0 )
-        {
-            this.mNameInput.notifyRequired();
-            return undefined;
-        }
-
-        // ----------------------------------------------------
-        // - Construct and return the product DTO
-        // ----------------------------------------------------
-
-        const dataObject =
-        {
-            name,
-            hasAllergens,
-            hasEggs,
-            hasNuts,
-            hasLactose,
-            hasGluten,
-            productCategory
-        };
-
-        return { title: 'product', data: JSON.stringify(dataObject) };
-    }
-
 
     /**
      * Generates the product list
@@ -594,21 +534,25 @@ class ProductView extends WCBase
      */
     generateList(list)
     {
-        //deleteChildren(this.mProductList);
         this.mProductObjects = [];
 
         const titles = [];
 
+        console.log(`ProductView::generateList, length: ${list.length}`);
+
         if ( Array.isArray(list) )
         {
-            window.dispatchEvent(new CustomEvent('product-list', {detail: list}));
             
             for (const item of list)
             {
                 titles.push(item.name);
             }
 
-            this.mProductList.pushDataSet(titles);
+            console.log(`Titles: ${titles}`);
+
+            this.mBrowser.pushDataSet(titles);
+            window.dispatchEvent(new CustomEvent('product-list', {detail: titles}));
+            
             /*
             for (const item of list)
             {
