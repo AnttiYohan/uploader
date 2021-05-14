@@ -93,6 +93,20 @@ class ScrollContainer extends WCBase
     // - Methods
     // ----------------------------------------------
 
+    get valueAtIndex()
+    {
+        let result = undefined;
+
+        const rows = this.mContainer.children;
+
+        if (this.hasFocus && this.rowIndex > -1)
+        {
+            result = rows[this.rowIndex].title; 
+        }
+
+        return result;
+    }
+
     clear()
     {
         this.rowIndex = -1;
@@ -110,6 +124,7 @@ class ScrollContainer extends WCBase
         this.hasFocus = false;
         this.rowIndex = -1;
     }
+
 
     /**
      * 
@@ -406,6 +421,15 @@ class ScrollContainer extends WCBase
     {
         console.log("<scroll-container> connected");
         this.emit('scroll-container-connected');
+
+        /*
+        this.shadowRoot.addEventListener('content-header-click', e =>
+        {
+            const title = e.detail;
+
+            console.log(`ScrollContainer: ${e.target} item click received`);
+
+        }, true);*/
     }
 
     disconnectedCallback()
