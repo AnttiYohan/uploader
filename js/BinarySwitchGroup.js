@@ -1,10 +1,10 @@
-import { BinarySwitch } from './BinarySwitch.js'
-import { BinaryBase } from './BinaryBase.js';
+import { BinarySwitch } from './BinarySwitch.js';
+import { SelectBase } from './SelectBase.js';
 
 /**
  * Multi Select input container
  */
-class BinarySwitchGroup extends BinaryBase
+class BinarySwitchGroup extends SelectBase
 {
     constructor()
     {
