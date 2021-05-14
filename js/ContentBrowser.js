@@ -1,7 +1,7 @@
 import { WCBase, props } from './WCBase.js';
 import { SearchInput } from './SearchInput.js'; 
 import { ScrollContainer } from './ScrollContainer.js';
-import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML } from './util/elemfactory.js';
 
 /**
  * Content browser consists of a search input element
@@ -33,6 +33,15 @@ class ContentBrowser extends WCBase
          */
          this.mList = [];
 
+        /**
+         * List content tagging
+         */
+        this.mTag = (this.hasAttribute('data-list') && 
+                     this.getAttribute('data-list') === 'tag')
+                     ? true
+                     : false;
+        
+                  
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -84,6 +93,12 @@ class ContentBrowser extends WCBase
             background-color: #fff;
             overflow-y: scroll;
          }
+        .content__list .listed {
+            cursor: pointer;
+        }
+        .content__list .listed:hover {
+            background-color: #eee;
+        }
         .search__input {
             border-radius: 12px;
             background-color: #fff;
@@ -141,8 +156,6 @@ class ContentBrowser extends WCBase
         this.mInput.addEventListener('input', e => 
         {
             const input = e.target.value;
-            console.log(`ContentBrowser input event: ${input}`);
-
             let matches = [];
 
             if (input.length)
@@ -153,7 +166,6 @@ class ContentBrowser extends WCBase
             {
                 this.mScrollContainer.blur();
             }
-
 
             if (matches.length)
             {
@@ -179,18 +191,16 @@ class ContentBrowser extends WCBase
                 case this.KEYDOWN :
                 {
                     this.mScrollContainer.down();
-                    console.log(`Navigate down`);
                     break;
                 }
                 case this.KEYUP :
                 {
                     this.mScrollContainer.up();
-                    console.log(`Navigate up`);
                     break;
                 }
                 case this.ENTER :
                 {
-                    console.log(`Enter`);
+                    this.emitContent();   
                     break;
                 }
             }
@@ -242,6 +252,38 @@ class ContentBrowser extends WCBase
         return this.mScrollContainer.count();
     }
 
+    emitListed(title)
+    {
+        if (typeof title !== 'string' || title.length === 0) return;
+
+        try {
+         
+            if (this.dataset.hasOwnProperty('connect') && this.dataset.connect === 'host')
+            {
+                this.parentElement.connectFromHost(title);
+            }
+            
+        } catch (error) {
+
+            console.log(`ContentBrowser::emitListed(${title}): ${error}`);
+
+        }
+    }
+
+    emitContent()
+    {
+        const value = this.mScrollContainer.valueAtIndex;
+
+        console.log(`ContentBrowser::emitContent value: ${value}`);
+
+        if ( ! value ) return;
+
+        console.log(`ContentBrowser: emitting product-select with: ${value}`);
+
+        this.parentElement.connectFromHost(value);
+        //this.emit('product-select', value);
+    }
+
     populateContentList(list)
     {
         let len = list.length;
@@ -255,10 +297,11 @@ class ContentBrowser extends WCBase
         {
             console.log(`Title: ${list[i]}`);
 
-            const headingRow = newTagClassChildren
+            const headingRow = newTagClassAttrsChildren
             (
                 'div',
-                'component__row',
+                'component__row listed',
+                { 'data-title': list[i], 'data-index': i },
                 [
                     newTagClassHTML
                     (
@@ -268,6 +311,11 @@ class ContentBrowser extends WCBase
                     )
                 ]
             );
+
+            headingRow.addEventListener('click', e => 
+            {
+                console.log(`ContentBrowser listed: ${e.target.dataset}, ${list[i]}`);
+            });
 
             this.mContentList.appendChild(headingRow);
         }
@@ -316,7 +364,11 @@ class ContentBrowser extends WCBase
      */
     findMatches(needle)
     {
-        return this.mList.filter( entry => entry.startsWith(needle));
+        return this.mList.filter(
+
+            entry => entry.toLowerCase().startsWith(needle)
+        
+        );
     }
 
     createTestSet()
@@ -385,9 +437,23 @@ class ContentBrowser extends WCBase
     connectedCallback()
     {
         console.log("<content-browser> connected");
-        //this.createTestSet();
+        // this.createTestSet();
         //const result = this.mScrollContainer.createTestContent();
         //console.log(`ContentBrowser: scroll container test populating result: ${result}`);
+        this.shadowRoot.addEventListener('content-header-click', e =>
+        {
+            const title = e.detail.title;
+
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`ContentBrowser: ${title} item click received`);
+
+            if (typeof title === 'string' && title.length)
+            {
+                this.emitListed(title);
+            }
+            
+        }, true);
     }
 
     disconnectedCallback()
