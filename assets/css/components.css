@@ -157,9 +157,14 @@
     grid-column-gap: 4px;
     grid-row-gap: 4px;
 }
-@media (max-width: 1400px) {
+@media screen and (max-width: 1400px) {
     .component__grid--12 {
-        grid-template-columns: repeat(4, 23%);
+        grid-template-columns: repeat(4, 25%);
+    }
+}
+@media screen and (max-width: 950px) {
+    .component__grid--12 {
+        grid-template-columns: repeat(3, 33%);
     }
 }
 .component__grid--10 {
@@ -201,7 +206,8 @@
 .component__input.type--number {
     width: 64px;
 }
-.component__input:focus {
+.component__input:focus,
+.component__row *:focus {
     outline: none;
     padding: 4px;
     border: 2px solid var(--dark-grey, #656565);
