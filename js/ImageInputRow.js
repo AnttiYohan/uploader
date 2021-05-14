@@ -26,7 +26,6 @@ class ImageInputRow extends WCBase
               </div>
               <div class='image__area'>
                 <input  id='image-upload-input'  class='image__file' type='file'>
-                <!--div class='thumbnail'></div-->
                 <label for='image-upload-input'  class='image__label'></label>
               </div>
             </div>
@@ -55,6 +54,7 @@ class ImageInputRow extends WCBase
             .image__area {
                 position: relative;
                 border: 1px solid ${props.color.grey};
+                border-radius: 2px;
                 width: ${props.input_width};
                 height: 96px;
                 display: flex;
@@ -62,17 +62,19 @@ class ImageInputRow extends WCBase
                 align-items: center;
                 background-image: url('assets/icon_image_input.svg');
                 background-repeat: no-repeat;
-                background-size: 50%;
+                background-size: 75px;
                 background-position: center center;
-            
+            }
+            .image__area.focus {
+                border: 2px solid #656565;
+                height: 94px;
+            }
+            .image__area:hover {
+                background-size: 78px;
             }
             .image__area.notify-required {
                 border: 2px solid ${props.red};
-                width: ${props.input_width};
                 height: 94px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
             }
             .thumbnail {
                 /*cursor: pointer;*/
@@ -93,6 +95,8 @@ class ImageInputRow extends WCBase
                 appearance: none;
                 opacity: 0;
                 z-index: 10;
+                left: 0;
+                top: 0;
                 width: 100%;
                 height: 100%;
             }
@@ -108,10 +112,20 @@ class ImageInputRow extends WCBase
         // ---------------------------
         const asterisk = this.shadowRoot.querySelector('.component__img--required');
         this.mArea  = this.shadowRoot.querySelector('.image__area');
-        this.mImage = this.shadowRoot.querySelector('.thumbnail');
         this.mInput = this.shadowRoot.querySelector('.image__file');
 
-        //setImageFileInputThumbnail(this.mInput, this.mImage);
+        // -------------------------------
+        // - Observe input focus/blur
+        // -------------------------------
+        this.mInput.addEventListener('focus', e =>
+        {
+            this.mArea.classList.add('focus');
+        });
+
+        this.mInput.addEventListener('blur', e =>
+        {
+            this.mArea.classList.remove('focus');
+        });
 
         // -------------------------------
         // - Observe image selection
