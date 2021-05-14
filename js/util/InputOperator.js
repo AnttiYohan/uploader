@@ -12,8 +12,20 @@
  */
 class InputOperator
 {
-    constructor(inputArray = [], options = {})
+    constructor(key, inputArray = [], options = {})
     {
+        if (typeof key !== 'string')
+        {
+            throw new Error('InputOperator::constructor(): key must be a string');
+        }
+
+        /**
+         * The key for request header
+         * ------
+         * @type {string}
+         */
+        this.mKey = key;
+
         /**
          * Centralized storage for input element references
          * -------------
@@ -30,6 +42,12 @@ class InputOperator
 
         if (Array.isArray(inputArray)) this.load(inputArray);
     }
+
+    getInput(name)
+    {
+        return this.mStore.find(elem => elem.dataset.input === name);
+    }
+
 
     load(array)
     {
@@ -77,6 +95,11 @@ class InputOperator
         return this.mStore.length;
     }
 
+    /**
+     * Compiles all input values into
+     * an array
+     * @return {Array<object>}
+     */
     values()
     {
         const result = [];
@@ -89,6 +112,24 @@ class InputOperator
         return result;
     }
 
+    /**
+     * Generates a request object from
+     * the input collection values
+     * ----------------
+     * @return {object}
+     */
+    requestObject()
+    {
+        const dataObject = this.values();
+
+        if ( dataObject )
+        {
+            return { title: this.mKey, data: JSON.stringify(dataObject) };
+        }
+
+        return undefined;
+    }
+    
     /**
      * 
      * @return {File|null}
@@ -114,6 +155,73 @@ class InputOperator
     {
         this.mImage.notifyRequired();
         this.mStore.forEach(element => element.notifyRequired());
+    }
+
+    /**
+     * Displays input data
+     * in request form
+     */
+    printRequest()
+    {
+        console.log(`InputOperator: forming a request of input data`);
+
+        let index = 0;
+        const objList = this.values();
+
+        if ( ! objList || objList.length === 0)
+        {
+            console.log(`No objects found, nothing to output.`);
+            return;
+        }
+
+        console.log(`InputOperator: there are ${objList.length} input(s) besides image input`);
+        
+        for (const obj of objList)
+        {
+            index++;
+            //console.log(`Input ${index} ${obj.localName}`);
+            
+            //const type   = obj.type;
+            //const kv     = obj.object();
+            
+            let keys = Object.keys(obj);
+            let value = obj[keys[0]];
+
+            console.log(`${keys[0]} => ${value}`);
+
+            if (Array.isArray(value))
+            {
+                for (const item of value)
+                {
+                    if (typeof item === 'object') for (const key in item)
+                    {
+                        console.log(`${key} => ${item[key]}`);
+                    }
+                    else
+                    {
+                        console.log(`${item}`);
+                    }
+                }
+            }
+            else
+            if (typeof value === 'object')
+            {
+                for (const key in value)
+                {
+                    console.log(`${key} => ${value[key]}`);
+                }
+            }
+        }
+
+        if (this.mImage && this.mImage.value)
+        {
+            const file = this.mImage.value;
+        
+            console.log(`image => ${this.mImage.value}`);
+
+            for (const key in file)
+                console.log(`${key} => ${file[key]}`);
+        }
     }
 }
 
