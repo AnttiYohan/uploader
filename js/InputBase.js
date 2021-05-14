@@ -171,7 +171,13 @@ class InputBase extends WCBase
      */
     notifyRequired()
     {
-        if (this.mRequired) this.mNotifier.classList.add('notify-required');
+        if ( this.required ) 
+        {
+            if (this.value.length === 0 || this.value === 0)
+            {
+                this.mNotifier.classList.add('notify-required');
+            }
+        }
     }
 
     // ----------------------------------------------
@@ -180,7 +186,7 @@ class InputBase extends WCBase
 
     connectedCallback()
     {
-        this.mTitle = this.shadowRoot.querySelector('slot');
+        this.mTitle = this.shadowRoot.querySelector('slot').textContent;
     }
   
 }
