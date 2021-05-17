@@ -27,6 +27,9 @@ class ProductRow extends WCBase
         (`<link rel='stylesheet' href='assets/css/components.css'>
           <div class='component'>
             <div class='component__row'>
+                <p class='component__label required'>Ingredient list</p>
+            </div>
+            <div class='component__row'>
                 <p class='component__label name'></p>
                 <input class='component__input type--number amount' type='number'>
                 <div class='select__toggler unit' tabindex='0'>
@@ -48,13 +51,23 @@ class ProductRow extends WCBase
 
         
         this.setupStyle
-         (`.component__row { justify-content: space-between; }
+         (`
+         .component {
+             border: 1px solid transparent;
+         }
+         .component__row { justify-content: space-between; }
          .component__label {
             padding: 4px;
             background-color: #ffffff;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: 8px;
-             flex-basis: 40%;
+            flex-basis: 40%;
+         }
+         .component__label.required {
+            background-color: transparent;
+            border: none;
+            position: absolute;
+            transform: translate3d(0, -1.6em, 0);
          }
          .component__input {
              flex-basis: 20%
@@ -98,7 +111,7 @@ class ProductRow extends WCBase
             background-color: #656565;
          }
          .store .component__row {
-             justify-content: flex-start;
+             justify-content: space-between;
          }
          .store__field {
             color: #444;
@@ -112,10 +125,10 @@ class ProductRow extends WCBase
             flex-basis: 40%;
          }
          .store__field.amount {
-             flex-basis: 20%;
+            flex-basis: 20%;
          }
          .store__field.unit {
-             width: 64px;
+            width: 64px;
          }
          .action {
             cursor: pointer;
@@ -142,6 +155,8 @@ class ProductRow extends WCBase
             background-image: url('assets/icon_delete_perm.svg');
         }`);
 
+        this.mFrame         = this.shadowRoot.querySelector('.component');
+        this.mAsteriskLabel = this.shadowRoot.querySelector('.component__label.required');
         this.mNameLabel     = this.shadowRoot.querySelector('.name');
         this.mAmountInput   = this.shadowRoot.querySelector('.amount');
         this.mUnitInput     = this.shadowRoot.querySelector('.unit');
@@ -339,9 +354,16 @@ class ProductRow extends WCBase
         return result;
     }
 
+    /**
+     * Returns value of the input if set, or undefined
+     * -------
+     * @return {array|undefined}
+     */
     get value()
     {
-        return this.fields();
+        const  result = this.fields();
+
+        return result.length ? result : undefined;
     }
 
     get count()
@@ -386,16 +408,20 @@ class ProductRow extends WCBase
         button.addEventListener('click', e =>
         {
             row.remove();
+            this.checkAsterisk();
         });
 
         this.mStore.appendChild( row );
         this.clear();
+        this.checkAsterisk();
+        this.mFrame.classList.remove('notify-required');
     }
 
     reset()
     {
         this.clear();
         deleteChildren( this.mStore );
+        this.checkAsterisk();
     }
     
     applyConnection(name)
@@ -435,6 +461,32 @@ class ProductRow extends WCBase
 
             index++;
         }
+    }
+
+    checkAsterisk()
+    {
+        if (this.count)
+        {
+            this.mAsteriskLabel.classList.add('off');
+            return;    
+        }
+        
+        this.mAsteriskLabel.classList.remove('off');
+    }
+    /**
+     * Adds a class into the image area element, to display
+     * a red border -- when ensure is set,
+     * the notification fires only when the input is not set
+     * ------
+     * @param {boolean} ensure
+     */
+    notifyRequired(ensure = true)
+    {
+        const notify = () => { this.mFrame.classList.add('notify-required'); }
+        
+        if ( ensure === false ) { notify(); }
+        else 
+        if ( this.value === undefined) { notify(); }
     }
 
     // ----------------------------------------------
