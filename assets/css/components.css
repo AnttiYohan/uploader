@@ -193,6 +193,9 @@
     background-size: 12px;
     padding-right: 12px;
 }
+.component__label.required.off {
+    background-image: none;
+}
 .component__input {
     width: 100%;
     border: 1px solid var(--grey, #bcbcbc);
@@ -212,6 +215,11 @@
     padding: 4px;
     border: 2px solid var(--dark-grey, #656565);
 }
+.component.notify-required {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+.component.notify-required,
 .component__input.notify-required {
     border: 2px solid var(--red-tint, #ff6868);
 }
