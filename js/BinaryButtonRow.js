@@ -107,6 +107,16 @@ class BinaryButtonRow extends BinaryBase
      }
 
     /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+     get required()
+     {
+         return false;
+     }
+      
+    /**
      * Set the internal blocking flag on
      */
     block()

@@ -65,7 +65,14 @@ class InputBase extends WCBase
      */
     get value() 
     {
-        return this.mInput.value;
+        const  result = this.mInput.value;
+
+        if (typeof(result) === 'number' && result === 0)
+        {
+            return undefined;
+        }
+
+        return result.length ? result : undefined;
     }
 
     /**
@@ -100,7 +107,8 @@ class InputBase extends WCBase
 
     object()
     {
-        return {[this.mKey]: this.mInput.value};
+        const  result = this.value;
+        return result ? {[this.mKey]: result} : result;
     }
 
     /**
@@ -169,15 +177,15 @@ class InputBase extends WCBase
      * Adds a class into the input, which sets a red border,
      * In order to display that the input must be filled
      */
-    notifyRequired()
+    notifyRequired(ensure = true)
     {
-        if ( this.required ) 
-        {
-            if (this.value.length === 0 || this.value === 0)
-            {
-                this.mNotifier.classList.add('notify-required');
-            }
-        }
+        if ( ! this.required ) return;
+
+        const notify = () => { this.mNotifier.classList.add('notify-required'); }
+        
+        if ( ensure === false ) { notify(); }
+        else 
+        if ( this.value === undefined) { notify(); }
     }
 
     // ----------------------------------------------

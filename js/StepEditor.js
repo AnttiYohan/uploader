@@ -225,6 +225,12 @@ class StepEditor extends WCBase
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         // ---------------------------
+        // - Get the key
+        // ---------------------------
+
+        this.mKey = 'stepBySteps';
+
+        // ---------------------------
         // - Save element references
         // ---------------------------
 
@@ -338,19 +344,13 @@ class StepEditor extends WCBase
     getStepList()
     {
         const list = [];
-
-        console.log(`Parsing the step list`);
         let index = 1;
 
         for (const elem of this.mBuffer)
         {
-            console.log(`Step key ${key}`)
-
             const text       = elem.text;
             const stepNumber = index;
             const image      = elem.file;
-
-            console.log(`Text: ${text}, number: ${stepNumber}`);
 
             list.push({ text, stepNumber, image });
 
@@ -358,7 +358,35 @@ class StepEditor extends WCBase
         }
 
         return list;
-     
+    }
+
+    get value()
+    {
+        const result = this.getStepList();
+
+        if ( ! result || ! result.length )
+        {
+            return undefined;
+        }
+
+        return result;
+    }
+
+    object()
+    {
+        const  result = this.value;
+
+        return result ? {[this.mKey]: result} : result;
+    }
+
+    /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+    get required()
+    {
+        return false;
     }
 
     // ----------------------------------------------

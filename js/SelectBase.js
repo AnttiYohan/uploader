@@ -42,9 +42,11 @@ class SelectBase extends WCBase
                         : this.mTitle;
 
         /** Status of input content requirement */
-        this.mRequired = this.hasAttribute('required')
+        this.mRequired = false;
+        
+        /*this.hasAttribute('required')
                        ? true
-                       : false;
+                       : false;*/
         
         /** Type of value/values {string} */
         this.mType = options.hasOwnProperty('type') 
@@ -218,6 +220,20 @@ class SelectBase extends WCBase
     {
     }
 
+    fill()
+    {
+
+        if (this.mMultiSelect)
+        {
+            console.log(`Turn on elems`);
+            this.mSwitchArray.forEach(elem => elem.turnOn());
+        }
+    }
+
+    empty()
+    {
+        this.mSwitchArray.forEach(elem => elem.turnOff());
+    }
     /**
      * Initializes the element
      * to act as the notifier by
@@ -230,14 +246,12 @@ class SelectBase extends WCBase
         this.mNotifier = element;
     }
 
-   
     /**
-     * Adds a class into the input, which sets a red border,
-     * In order to display that the input must be filled
+     * method stub
      */
-    notifyRequired()
+    notifyRequired(ensure = true) 
     {
-        //if (this.mRequired) this.mNotifier.classList.add('notify-required');
+        return '';
     }
 
     // ----------------------------------------------

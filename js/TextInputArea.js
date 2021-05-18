@@ -13,6 +13,12 @@ class TextInputArea extends WCBase
         // - Read attributes
         // -----------------------------------------------
 
+        this.mKey = this.hasAttribute('data-input')
+                  ? this.getAttribute('data-input')
+                  : 'textArea';
+
+        //if ( this.mKey.length === 0) throw new Error('TextInputArea: No unique key given!');
+
         const required = this.hasAttribute('required') ? true : false;
 
         const rows = this.hasAttribute('rows') ? this.getAttribute('rows') : 8;
@@ -77,7 +83,16 @@ class TextInputArea extends WCBase
 
     get value() 
     {
-        return this.mInput.value;
+        const  result = this.mInput.value;
+
+        return result.length ? result : undefined;
+    }
+
+    object()
+    {
+        const  result = this.value;
+
+        return result ? {[this.mKey]: result} : result;
     }
 
     /**
@@ -93,10 +108,11 @@ class TextInputArea extends WCBase
       * Adds a class into the input, which sets a red border,
       * In order to display that the input must be filled
       */
-     notifyRequired()
+     notifyRequired(ensure = true)
      {
          this.mInput.classList.add('notify-required');
      }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

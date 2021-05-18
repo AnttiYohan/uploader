@@ -9,7 +9,7 @@ class RadioSwitchGroup extends SelectBase
 {
     constructor()
     {
-        super({multiSelect: false, type: 'string'});
+        super({multiselect: false, type: 'string'});
         
         // ------------------------------------------------------
         // - Add the group list items as radio buttons

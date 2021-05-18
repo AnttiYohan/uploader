@@ -27,7 +27,7 @@ class MultiEntryRow extends WCBase
          */
         this.mRequired = this.hasAttribute('required') ? true : false;
 
-
+        
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -62,12 +62,21 @@ class MultiEntryRow extends WCBase
          }
          .action {
             cursor: pointer;
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
+            border: 1px solid transparent;
+            border-radius: 16px;
             background-color: transparent;
             background-repeat: no-repeat;
+            background-position-x: -1px;
             background-size: cover;
-            box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);
+        }
+        .action:focus,
+        .action:active {
+            outline: none;
+            background-color: #ffffffc0;
+            border: 1px solid rgba(50, 0, 88, 0.53);
+            box-shadow: 0 0 12px 0px rgba(0, 0, 40, 0.35);
         }
         .action.add {
             background-image: url('assets/icon_plus.svg');
@@ -79,12 +88,19 @@ class MultiEntryRow extends WCBase
 
         this.mStore = this.shadowRoot.querySelector('.store'); 
         this.mInput = this.shadowRoot.querySelector('.component__input');
-     
+        
+        const slot = this.shadowRoot.querySelector('slot');
+        this.mTitle = slot.textContent;
+
+        this.mKey   = this.hasAttribute('data-input')
+                    ? this.getAttribute('data-input')
+                    : this.mTitle;
+
         /**
          * Create the remove button listener
          */
         const addButton = this.shadowRoot.querySelector('.action.add');
-        addButton.addEventListener('click', e =>
+        addButton.addEventListener('click', e => 
         {
             const value = this.mInput.value;
 
@@ -94,6 +110,18 @@ class MultiEntryRow extends WCBase
             }
         });
 
+        /**
+         * Create top level keyboard listener 
+         */
+        this.shadowRoot.addEventListener('keydown', e => 
+        {
+            const value = this.mInput.value;
+
+            if (value.length && e.keyCode === this.ENTER)
+            {
+                this.addField(value);  
+            }
+        });    
     }
 
     // ----------------------------------------------
@@ -113,9 +141,40 @@ class MultiEntryRow extends WCBase
         return result;
     }
 
+    get value()
+    {
+        return this.fields();
+    }
+
     get count()
     {
         return this.mStore.children.length;
+    }
+
+    /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+    get required()
+    {
+        return false;
+    }
+
+    object()
+    {
+        if ( ! this.mKey || typeof this.mKey !== 'string' || ! this.mKey.length)
+        {
+            console.log(`MultiEntryRow: unique key not set! Returning from object()`);
+            return undefined;
+        }
+
+        if ( ! this.value.length )
+        {
+            return undefined;
+        }
+
+        return {[this.mKey]: this.value};
     }
 
     /**
@@ -132,12 +191,13 @@ class MultiEntryRow extends WCBase
         const button = newTagClass('button', 'action');
         button.classList.add('remove');
 
-        const row    = newTagClassChildren
-        ('div', 'component__row',
-            [
-                field,
-                button
-            ]
+        const row = newTagClassChildren
+        ('div', 
+         'component__row', 
+          [ 
+            field, 
+            button 
+          ]
         );
 
         button.dataset.row = `${index}`;
@@ -147,12 +207,21 @@ class MultiEntryRow extends WCBase
         });
 
         this.mStore.appendChild( row );
+        this.mInput.value = '';
     }
 
     reset()
     {
         this.mInput.value = '';
         deleteChildren( this.mStore );
+    }
+    
+    /**
+     * method stub
+     */
+    notifyRequired(ensure = true) 
+    {
+        return '';
     }
     // ----------------------------------------------
     // - Lifecycle callbacks

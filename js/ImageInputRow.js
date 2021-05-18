@@ -178,6 +178,16 @@ class ImageInputRow extends WCBase
     }
 
     /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+    get required()
+    {
+        return true;
+    }
+
+    /**
      * Clears the thumbnail and the file input
      */
     reset()
@@ -186,17 +196,24 @@ class ImageInputRow extends WCBase
         this.mArea.classList.remove('notify-required');
         this.mArea.style.backgroundImage = `url('assets/icon_image_input.svg')`;
         this.mArea.style.backgroundSize = `50%`;
-        //setImageThumbnail(this.mImage, 'assets/icon_placeholder.svg');
     }
 
     /**
      * Adds a class into the image area element, to display
-     * a red border
+     * a red border -- when ensure is set,
+     * the notificatio fires only when the input is not set
+     * ------
+     * @param {boolean} ensure
      */
-     notifyRequired()
+    notifyRequired(ensure = true)
     {
-          this.mArea.classList.add('notify-required');
+        const notify = () => { this.mArea.classList.add('notify-required'); }
+        
+        if ( ensure === false ) { notify(); }
+        else 
+        if ( this.value === undefined) { notify(); }
     }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

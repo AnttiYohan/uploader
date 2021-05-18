@@ -45,6 +45,16 @@ class BinaryBase extends WCBase
     }
 
     /**
+     * Return the state
+     * ------
+     * @return {boolean}
+     */
+    get value()
+    {
+        return this.mState;
+    }
+
+    /**
      * Return title property
      * -------------
      * @return {string}
@@ -79,6 +89,13 @@ class BinaryBase extends WCBase
         return {[this.mKey]: this.mState};
     }
 
+    /**
+     * method stub
+     */
+     notifyRequired(ensure = true) 
+     {
+         return '';
+     }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

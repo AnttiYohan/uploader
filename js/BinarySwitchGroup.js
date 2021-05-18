@@ -8,7 +8,7 @@ class BinarySwitchGroup extends SelectBase
 {
     constructor()
     {
-        super({multiSelect: true, type: 'string'});
+        super({multiselect: true, type: 'string'});
         
         // ------------------------------------------------------
         // - Add the group list items as binary switches
@@ -18,6 +18,10 @@ class BinarySwitchGroup extends SelectBase
         {
             for (const item of this.mGroupList)
             {
+                if (item.hasOwnProperty('fill'))
+                {
+                    console.log(`Fill: ${item.rule}`);
+                }
                 this.mContainerElement.appendChild
                 (
                     new BinarySwitch(item, false)
@@ -39,7 +43,16 @@ class BinarySwitchGroup extends SelectBase
     connectedCallback()
     {
         console.log("<binary-switch-group> connected");
-        
+        this.shadowRoot.addEventListener('switch-fill-on', e =>
+        {
+            console.log(`BinarySwitchGroup: fill on received`);
+            this.fill();
+        });
+        this.shadowRoot.addEventListener('switch-fill-off', e =>
+        {
+            console.log(`BinarySwitchGroup: fill off received`);
+            this.empty();
+        });
     }
 
     disconnectedCallback()

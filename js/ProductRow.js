@@ -15,6 +15,7 @@ class ProductRow extends WCBase
     {
         super();
 
+        this.mKey  = 'products';
         this.mName = name ? name : 'Placeholder';
 
         // -----------------------------------------------
@@ -369,6 +370,23 @@ class ProductRow extends WCBase
     get count()
     {
         return this.mStore.children.length;
+    }
+
+    object()
+    {
+        const  result = this.value;
+
+        return result ? {[this.mKey]: result} : result;
+    }
+
+    /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+    get required()
+    {
+        return true;
     }
 
     /**
