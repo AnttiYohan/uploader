@@ -13,11 +13,13 @@ class BinarySwitch extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
+        this.mFill  = blob.hasOwnProperty('fill') ? true : false;
         this.mTitle = blob.title;
         this.mValue = blob.value;
         this.mWidth = '100%';
 
         if ('width' in blob) this.mWidth = blob.width;
+        //if ('fill'  in blob) this.mFill  = true;
 
         if (this.hasAttribute('on')) state = true;
 
@@ -65,6 +67,10 @@ class BinarySwitch extends WCBase
         // ---------------------------
         // - Listen to buttons
         // ---------------------------
+        this.mButton = this.shadowRoot.querySelector('.switch');
+        const button = this.mButton;
+        button.addEventListener
+        ('click', e => switchHandler(e));
 
         let hasFocus = false;
 
@@ -72,11 +78,13 @@ class BinarySwitch extends WCBase
         
             button.classList.toggle('active');
             this.mState = ! this.mState;
-        };
 
-        const button = this.shadowRoot.querySelector('.switch');
-        button.addEventListener
-        ('click', e => switchHandler(e));
+            if (this.mFill)
+            {
+                const fillState = this.mState ? 'on' : 'off';
+                this.emit( `switch-fill-${fillState}` );
+            }
+        };
 
         button.addEventListener('focus', e => 
         {
@@ -111,6 +119,20 @@ class BinarySwitch extends WCBase
     get value()
     {
         return this.mValue;
+    }
+
+    turnOn()
+    {
+        console.log(`${this.localName}: turnOn`);
+        this.mButton.classList.add('active');
+        this.mState = true;
+    }
+
+    turnOff()
+    {
+        console.log(`${this.localName}: turnOff`);
+        this.mButton.classList.remove('active');
+        this.mState = false;
     }
 
     // ----------------------------------------------

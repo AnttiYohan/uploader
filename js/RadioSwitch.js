@@ -156,11 +156,11 @@ class RadioSwitch extends WCBase
 
         if (val)
         {
-            button.classList.add('active');
+            this.mButton.classList.add('active');
         }
         else
         {
-            button.classList.remove('active');
+            this.mButton.classList.remove('active');
         }
     }
 
