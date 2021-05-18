@@ -1,7 +1,6 @@
 import { WCBase, props } from './WCBase.js';
-import { SearchInput } from './SearchInput.js'; 
 import { ScrollContainer } from './ScrollContainer.js';
-import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML, newTagClassAttrs } from './util/elemfactory.js';
 
 /**
  * Content browser consists of a search input element
@@ -12,7 +11,7 @@ import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagCl
  * is clicked/pressed on/touched
  * Browser also listens to changes in the dataset.
  * 
- * @emits   item-click
+ * @emits   content-header-click
  * @listens tab
  * @listens change
  * @member  SearchInput
@@ -34,6 +33,14 @@ class ContentBrowser extends WCBase
          this.mList = [];
 
         /**
+         * List is the string dataSet
+         * container
+         * ---------
+         * @property {object} mPropertyList
+         */
+                  this.mPropertyList = [];
+
+        /**
          * List content tagging
          */
         this.mTag = (this.hasAttribute('data-list') && 
@@ -41,7 +48,26 @@ class ContentBrowser extends WCBase
                      ? true
                      : false;
         
-                  
+        /**
+         * List actions
+         **/
+        const group  = this.getAttribute('data-actions');
+        const parsed = group ? JSON.parse(group) : undefined;
+
+        this.mActionList = Array.isArray(parsed) ? parsed : [];
+
+        let type = 'default';
+        if (this.mActionList.length) type = this.mActionList[0];
+
+        const actionObject = 
+        {
+            type,
+            'detail': `works from n3`,
+            'iconUrl': 'assets/icon_edit.svg'
+        };
+
+        const actions = [];
+        actions.push(actionObject);
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -53,7 +79,6 @@ class ContentBrowser extends WCBase
             <div class='component'>
               <p class='component__label'><slot></p>
               <div class='content__list'></div>
-              <!--search-input class='input'><slot></search-input-->
               <input class='search__input' type='text'>
               <scroll-container class='container'></scroll-container>
             </div>
@@ -93,11 +118,19 @@ class ContentBrowser extends WCBase
             background-color: #fff;
             overflow-y: scroll;
          }
-        .content__list .listed {
+        /*.content__list .listed {
             cursor: pointer;
         }
         .content__list .listed:hover {
             background-color: #eee;
+        }*/
+        .component__row.listed {
+            cursor: pointer;
+            justify-content: space-between;
+        }
+        .component__row .tag {
+            width: 32px;
+            padding: 6px;
         }
         .search__input {
             border-radius: 12px;
@@ -169,7 +202,7 @@ class ContentBrowser extends WCBase
 
             if (matches.length)
             {
-                this.mScrollContainer.pushContentAsStrings(matches);
+                this.mScrollContainer.pushContentAsStrings(matches, actions);
                 this.mScrollContainer.blur();
             }
             else
@@ -279,9 +312,67 @@ class ContentBrowser extends WCBase
         if ( ! value ) return;
 
         console.log(`ContentBrowser: emitting product-select with: ${value}`);
+        this.addToList(value);
+        
+        try {
+         
+            if (this.dataset.hasOwnProperty('connect') && this.dataset.connect === 'host')
+            {
+                this.parentElement.connectFromHost(value);
+            }
+        } catch (error) {
 
-        this.parentElement.connectFromHost(value);
-        //this.emit('product-select', value);
+            console.log(`ContentBrowser::emitListed(${value}): ${error}`);
+
+        }
+
+    }
+
+    createListItem(title, options = {})
+    {
+        const fields = [
+            newTagClassHTML
+            (
+                'p',
+                'component__label',
+                title
+            )
+        ];
+
+        if (this.mTag)
+        {
+            fields.push(
+
+                newTagClassAttrs(
+                    'input',
+                    'tag',
+                    {
+                        type: 'checkbox'
+                    }
+                )
+
+            );
+        }
+
+        const headingRow = newTagClassAttrsChildren
+        (
+            'div',
+            'component__row listed',
+            { 'data-title': title },
+            fields
+        );
+
+        headingRow.addEventListener('click', e => 
+        {
+            console.log(`ContentBrowser listed: ${e.target.dataset}, ${title}`);
+        });
+
+        return headingRow;
+    }
+
+    addToList(item)
+    {
+        this.mContentList.appendChild(this.createListItem(item));
     }
 
     populateContentList(list)
@@ -297,26 +388,7 @@ class ContentBrowser extends WCBase
         {
             console.log(`Title: ${list[i]}`);
 
-            const headingRow = newTagClassAttrsChildren
-            (
-                'div',
-                'component__row listed',
-                { 'data-title': list[i], 'data-index': i },
-                [
-                    newTagClassHTML
-                    (
-                        'p',
-                        'component__label',
-                        list[i]
-                    )
-                ]
-            );
-
-            headingRow.addEventListener('click', e => 
-            {
-                console.log(`ContentBrowser listed: ${e.target.dataset}, ${list[i]}`);
-            });
-
+    
             this.mContentList.appendChild(headingRow);
         }
     }
@@ -326,12 +398,30 @@ class ContentBrowser extends WCBase
      * ------------------------------------
      * @param {string} dataItem 
      */
-    addItem( dataItem )
+    addItem( dataItem, model = [] )
     {
-        if ( typeof(dataItem) === 'string' )
+        let key = '';
+        let title = '';
+
+        if (typeof dataItem !== 'string')
         {
-            this.mList.push(dataItem);
+            for (const t_key in dataItem)
+            {
+                console.log(`Content: key ${t_key} : ${dataItem[t_key]}`);
+                title += ` ${dataItem[t_key]}`;
+            }
         }
+
+        if (model.length) key = model[0];
+        
+        //const title = key.length ? dataItem[key] : dataItem;
+
+        if ( typeof(title) === 'string' )
+        {
+            this.mList.push(dataItem['name']);
+        }
+
+        if (this.mContentList.children.length < 5) this.addToList(title);
     }
 
     /**
@@ -340,15 +430,13 @@ class ContentBrowser extends WCBase
      * ---------------
      * @param {Array<string>} dataSet 
      */
-    pushDataSet(dataSet)
+    pushDataSet(dataSet, model = [])
     {
         this.mList = [];
 
-        this.populateContentList(dataSet);
-
-        for (const dataItem of dataSet)
+        for (const dataItem of dataSet )
         {
-            this.addItem( dataItem );
+            this.addItem( dataItem, model );
         }
     }
 
