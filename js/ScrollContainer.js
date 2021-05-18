@@ -235,7 +235,7 @@ class ScrollContainer extends WCBase
             {
                 'type': 'search-fill',
                 'detail': `works from n${i+1}`,
-                'iconUrl': 'assets/icon_arrow_down.svg'
+                'iconUrl': 'assets/icon_edit.svg'
             };
 
             const actions = new Array(actionObject);
@@ -331,43 +331,15 @@ class ScrollContainer extends WCBase
         }
 
         rows[this.rowIndex].select();
-        /*
-        const bounds = this.mContainer.getBoundingClientRect();
-        const rowBounds = rows[this.cursor.pos].getBoundingClientRect();
-        
-        const viewBottom = bounds.top + bounds.height;
-        const rowBottom  = rowBounds.top + rowBounds.height;
-
-        console.log(`ScrollContainer::down() cursor pos: ${this.cursor.pos}`);
-
-        console.log(`Container bottom: ${viewBottom}, pos bottom: ${rowBottom}`);
-
-        const diff = (rowBottom + 4) - viewBottom;
-
-        if (diff > 0)
-        {
-            //this.mContainer.scrollBy({y: diff, behavior: 'smooth'});
-            this.scrollBy(0, diff);
-        }*/
-
+      
         const cursorTop = this.rowIndex * this.rowHeight;   
         const viewTop = this.mContainer.scrollTop;
-
-        console.log(`View top: ${viewTop}, cursor top: ${cursorTop}`);
-
         const diff = cursorTop - viewTop;
-
-        const height = this.mContainer.getBoundingClientRect().height;
 
         if (diff < 0)
         {
-            const mod = -diff % this.rowHeight;
-            console.log(`Diff${-diff} mod 28 => ${mod}`);
-            const distance = mod - diff;
             this.mContainer.scrollTo(0, cursorTop);
-            //this.mContainer.scroll({top: distance, behavior: 'smooth'});
         }
-
     }
 
     down()
@@ -398,15 +370,11 @@ class ScrollContainer extends WCBase
         const bounds = this.mContainer.getBoundingClientRect();
         const cursorBottom = this.rowIndex * this.rowHeight + this.rowHeight;   
         const viewBottom = bounds.height;
-
-        console.log(`Container bottom: ${viewBottom}, pos bottom: ${cursorBottom}`);
-
         const diff = viewBottom - cursorBottom;
 
         if (diff < 0)
         {
             const mod = -diff % this.rowHeight;
-            console.log(`Diff${-diff} mod 28 => ${mod}`);
             const distance = mod - diff;
             this.mContainer.scroll({top: distance});
         }
