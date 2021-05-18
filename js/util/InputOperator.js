@@ -129,6 +129,55 @@ class InputOperator
 
         return undefined;
     }
+
+    processInputs()
+    {
+        const dataObject = [];
+        let   success = true;
+
+        console.log(`InputOperator::processInputs()`);
+
+        this.mStore.forEach(element => 
+        {
+            console.log(`Processing ${element.mKey}`);
+
+            const result = element.object();
+
+            if ( result === undefined )
+            {
+                console.log(`${element.mKey} not set, required? ${element.required}`);
+
+                if ( element.required )
+                {
+                    success = false;
+                    element.notifyRequired();
+                }
+            }
+            else
+            {
+                console.log(`${element.mKey} result: ${result}`);
+                dataObject.push(result);
+            }
+        });
+
+        console.log(`Results read from ${dataObject.length} element`);
+
+        const image = this.imageFile();
+
+        if ( ! image ) 
+        {
+            this.mImage.notifyRequired();
+            console.log(`Image file not set`);
+            success = false;
+        }
+
+        if ( success && dataObject.length )
+        {
+            return { title: this.mKey, data: JSON.stringify(dataObject) };
+        }
+        
+        return undefined;
+    }
     
     /**
      * 
@@ -142,7 +191,7 @@ class InputOperator
         }
         catch (error) {}
 
-        return null;
+        return undefined;
     }
 
     reset()
@@ -154,7 +203,11 @@ class InputOperator
     notifyRequired()
     {
         this.mImage.notifyRequired();
-        this.mStore.forEach(element => element.notifyRequired());
+        this.mStore.forEach(element =>
+            {
+                //if (element.)
+                element.notifyRequired()
+            });
     }
 
     /**
