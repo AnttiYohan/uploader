@@ -21,14 +21,8 @@ template.innerHTML =
 
     <button class='button--refresh'>Refresh</button>
 
-    <!-- PRODUCT NAME ROW -->
-
     <text-input-row class='name_input' data-input='name' required>Name</text-input-row>
-
-    <!-- PRODUCT IMAGE -->
-
     <image-input-row class='image_input' data-input='image' required>Product Image</image-input-row>
-
     
     <!-- PRODUCT LIST OF ALLERGENS -->
 
@@ -62,19 +56,22 @@ template.innerHTML =
         { "title": "None", "value": "NONE" }
     ]'>Category</radio-switch-group>
 
-
     <!-- SAVE BUTTON -->
 
     <div class='uploader__row--last'>
     </div>
-
     <button class='button--save save_product'>Save</button>
 
   </div>
 
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
-    <content-browser data-input='browser' class='product-browser'>Products:</content-browser>
+    <content-browser data-input='browser'
+                     class='product-browser'
+                     data-list='tag'
+                     data-actions='[
+                         "remove"
+                     ]'>Products:</content-browser>
   </div>
 </div>`;
 
@@ -412,23 +409,16 @@ class ProductView extends WCBase
         // - Input references
         // ------------------
 
-        this.mNameInput         = this.shadowRoot.querySelector('.name_input');
-        this.mFileInput         = this.shadowRoot.querySelector('.image_input');  
-        this.mAllergensInput    = this.shadowRoot.querySelector('.allergens_input');
-        this.mEggsInput         = this.shadowRoot.querySelector('.eggs_input');
-        this.mNutsInput         = this.shadowRoot.querySelector('.nuts_input');
-        this.mLactoseInput      = this.shadowRoot.querySelector('.lactose_input');
-        this.mGlutenInput       = this.shadowRoot.querySelector('.gluten_input');
-        this.mCategoryInput     = this.shadowRoot.querySelector('.category_input');
       
         // -----------------------------------------------------------------------------
         // - Allergen group enabling/disabling setting
         // -----------------------------------------------------------------------------
 
+        const allergenInput = this.shadowRoot.querySelector('.allergens_input');
         const allergenGroup = this.shadowRoot.querySelector('.allergens');
         allergenGroup.style.opacity = 0.25;
 
-        this.mAllergensInput.addEventListener('state', e =>
+        allergenInput.addEventListener('state', e =>
         {
             console.log(`Allergen state event: ${e.detail}`);
             if (! e.detail) 
@@ -454,16 +444,23 @@ class ProductView extends WCBase
             //const dto = this.compileDto();
             //const imageFile = this.mFileInput.value;
    
-            this.mInputOperator.printRequest();
+            const dto = this.mInputOperator.processInputs();
 
-            const dto = this.mInputOperator.values();
+            console.log(`Process input result: ${dto}`);
+
+            if ( ! dto ) return;
+
+            //const dto = this.mInputOperator.values();
             const imageFile = this.mInputOperator.imageFile();
 
+            this.mInputOperator.reset();
+            
+            //const dto = this.mInputOperator.compileRequest();
             //console.log(`Dto: ${dto}`);
             //console.log(`Imagefile: ${imageFile}`);
 
             return;
-
+            
             if ( dto && imageFile )
             {
                 this.addProduct(dto, imageFile)
@@ -484,7 +481,9 @@ class ProductView extends WCBase
             }
             else
             {
-                if ( imageFile === undefined ) this.mFileInput.notifyRequired();   
+                //this.mInputOperator.notifyRequired();
+                if ( imageFile === undefined ) this.mFileInput.notifyRequired();  
+                 
                 console.log(`Add proper data and image file`);
             }
         }
@@ -550,10 +549,11 @@ class ProductView extends WCBase
 
             console.log(`Titles: ${titles}`);
 
-            this.mBrowser.pushDataSet(titles);
+            const model = [ 'name', 'amount', 'unit', 'image' ];
+            this.mBrowser.pushDataSet(list, model);
             window.dispatchEvent(new CustomEvent('product-list', {detail: titles}));
             
-            /*
+            
             for (const item of list)
             {
                 const id = item.id;
@@ -602,7 +602,7 @@ class ProductView extends WCBase
                         ]
                     )
                 );
-            }*/
+            }
         }
     }
 
