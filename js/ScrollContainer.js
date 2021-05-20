@@ -8,13 +8,15 @@ class ScrollContainer extends WCBase
 {
     constructor()
     {
-        // ---------------------------------------------
         super();
          
         // ---------------------------------------------
-        // -
-        // -
+        // - Read attributes
         // ---------------------------------------------
+
+        this.totalHeight  = this.hasAttribute( 'data-height' )
+                      ? this.getAttribute( 'data-height' )
+                      : 100;
 
         this.hasFocus = false;
 
@@ -34,7 +36,9 @@ class ScrollContainer extends WCBase
         /**
          * Row height
          */
-        this.rowHeight = 28;
+        this.rowHeight = 40;
+
+        this.totalHeight = 3 * 40;
 
         this.rowIndex = -1;
          // -----------------------------------------------
@@ -56,17 +60,15 @@ class ScrollContainer extends WCBase
             display: flex;
             flex-direction: column;
             width: 100%;
-            height: 100px;
-            border-radius: 8px;
+            height: ${this.totalHeight}px;
+            border-radius: 6px;
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
             border: 1px solid rgba(0, 0, 0, 0.25);
             box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);    
             background-color: #fff;
             overflow-y: scroll;
          }
-         .component.container:hover {
-            border: 1px solid rgba(0, 0, 0, 0.25);
-            background-color: #eee;
-        }
         .component.container:focus {
             outline: 2px solid #222;
         }
@@ -134,13 +136,8 @@ class ScrollContainer extends WCBase
      */
     addElement(element)
     {
-        if(element instanceof ContentHeader)
-        {
-            this.mContainer.appendChild(element);
-            return true;
-        }
-
-        return false;
+        this.mContainer.appendChild(element);
+        return true;
     }
 
     /**
@@ -151,6 +148,18 @@ class ScrollContainer extends WCBase
     {
         this.clear();
 
+        let height = 0;
+
+        try {
+            height = list[0].offsetHeight;
+        } catch (error) {}
+
+        if (height > 20)
+        {
+            this.rowHeight = height;
+            this.totalHeight = 3 * height;
+            this.mContainer.style.height = `${this.totalHeight}px`;
+        } 
         for (const element of list)
         {
             this.addElement(element);
