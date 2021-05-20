@@ -88,7 +88,9 @@ class EntryHeader extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component__row'>
-              <h4 class='component__title'>${this.mTitle}</h4>
+              <img src='' class='thumbnail'/>
+              <h4 class='component__title'>${this.mTitle}
+              </h4>
               ${fields}
               <button class='action remove'></button>
             </div>
@@ -118,13 +120,21 @@ class EntryHeader extends WCBase
         .action.remove {
             background-image: url('assets/icon_delete_perm.svg');
          }
+        .thumbnail {
+            border-radius: 4px;
+            border: 1px solid #fff;
+            object-fit: cover;
+            object-position: center;
+            width: 48px;
+            height: 48px;
+            padding: 4px;
+        }
         .component__row {
             height: 48px;
         }
         .component__title {
             font-size: 14px;
             color: #444;
-            min-width: 100%;
             text-align: middle;
         }
         .component__field {
@@ -163,20 +173,13 @@ class EntryHeader extends WCBase
          */
          this.mRowElement = this.shadowRoot.querySelector('.component__row');
 
+         const imgElem = this.shadowRoot.querySelector('.thumbnail');
          const label = this.shadowRoot.querySelector('.component__title');
 
-         /** Set thumbnail as background */
-
-         if (thumbnail)
-         {
-            //const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onloadend = (pe) =>
-            {
-                label.style.backgroundImage = `url('${reader.result}')`;
-                label.style.backgroundSize = `100%`;
-            }
-            reader.readAsDataURL(thumbnail);
+        /** Set thumbnail as background */
+        if (thumbnail)
+        {
+            imgElem.src = thumbnail;
         }
 
         /*
