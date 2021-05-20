@@ -231,7 +231,7 @@ class EntryBrowser extends WCBase
                 }
                 case this.ENTER :
                 {
-                    this.emitContent();   
+                    //this.emitContent();   
                     break;
                 }
             }
@@ -318,25 +318,7 @@ class EntryBrowser extends WCBase
     {
         const value = this.mScrollContainer.valueAtIndex;
 
-        console.log(`ContentBrowser::emitContent value: ${value}`);
-
-        if ( ! value ) return;
-
-        console.log(`ContentBrowser: emitting product-select with: ${value}`);
-        this.addToList(value);
-        
-        try {
-         
-            if (this.dataset.hasOwnProperty('connect') && this.dataset.connect === 'host')
-            {
-                this.parentElement.connectFromHost(value);
-            }
-        } catch (error) {
-
-            console.log(`ContentBrowser::emitListed(${value}): ${error}`);
-
-        }
-
+       
     }
 
     createListItem(title, options = {})
@@ -384,14 +366,16 @@ class EntryBrowser extends WCBase
 
     getOptions(item)
     {
-        const model = this.mModel;
-        const title = item[model.titlekey];
+        const model  = this.mModel;
+        const title  = item[model.titlekey];
         const fields = [];
+        const key    = model.titlekey;
 
+        fields.push( {[key]: title} );
         for (const fieldKey of model.fields)
         {
-            const value = item[fieldKey];
-            fields.push(value);
+            const obj = {[fieldKey]: item[fieldKey]};
+            fields.push( obj );
         }
 
         let thumbnail = undefined;
@@ -401,7 +385,7 @@ class EntryBrowser extends WCBase
         }
         catch (error) {}
 
-        return { title, fields, thumbnail };
+        return { key, title, fields, thumbnail };
     }
 
     addToList(item)
@@ -503,17 +487,14 @@ class EntryBrowser extends WCBase
     connectedCallback()
     {
         console.log("<entry-browser> connected");
-        this.shadowRoot.addEventListener('content-header-click', e =>
+        this.shadowRoot.addEventListener('entry-header-click', e =>
         {
             const title = e.detail.title;
 
             e.preventDefault();
             e.stopPropagation();
          
-            if (typeof title === 'string' && title.length)
-            {
-                this.emitListed(title);
-            }
+            console.log(`Header set title: ${title}`);
             
         }, true);
     }
