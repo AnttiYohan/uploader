@@ -108,6 +108,8 @@ class BinarySwitch extends WCBase
 
     get state() 
     {
+        if (this.mFill) return false;
+        
         return this.mState;
     }
 
