@@ -362,7 +362,7 @@ class ProductRow extends WCBase
      */
     get value()
     {
-        const  result = this.fields();
+        const  result = this.fields;
 
         return result.length ? result : undefined;
     }
