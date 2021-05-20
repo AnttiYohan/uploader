@@ -1,6 +1,7 @@
 import { WCBase, props } from './WCBase.js';
 import { ScrollContainer } from './ScrollContainer.js';
 import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML, newTagClassAttrs } from './util/elemfactory.js';
+import { EntryHeader } from './EntryHeader.js';
 
 /**
  * Product and Recipe entry container,
@@ -197,7 +198,9 @@ class EntryBrowser extends WCBase
 
             if (matches.length)
             {
-                this.mScrollContainer.pushContentAsStrings(matches, actions);
+                const entryList = this.createEntryHeaders(matches);
+                this.mScrollContainer.pushContent(entryList);
+                //this.mScrollContainer.pushContentAsStrings(matches, actions);
                 this.mScrollContainer.blur();
             }
             else
@@ -280,6 +283,19 @@ class EntryBrowser extends WCBase
         return this.mScrollContainer.count();
     }
 
+    createEntryHeaders(list)
+    {
+        const result = [];
+
+        for (const item of list)
+        {
+            const options = this.getOptions(item);
+            result.push( new EntryHeader(options) );
+        }
+
+        return result;
+    }
+
     emitListed(title)
     {
         if (typeof title !== 'string' || title.length === 0) return;
@@ -325,6 +341,7 @@ class EntryBrowser extends WCBase
 
     createListItem(title, options = {})
     {
+        const item = new EntryHeader()
         const fields = [
             newTagClassHTML
             (
@@ -365,27 +382,32 @@ class EntryBrowser extends WCBase
         return headingRow;
     }
 
-    addToList(item)
+    getOptions(item)
     {
-        this.mContentList.appendChild(this.createListItem(item));
+        const model = this.mModel;
+        const title = item[model.titlekey];
+        const fields = [];
+
+        for (const fieldKey of model.fields)
+        {
+            const value = item[fieldKey];
+            fields.push(value);
+        }
+
+        let thumbnail = undefined;
+
+        try {
+            thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
+        }
+        catch (error) {}
+
+        return { title, fields, thumbnail };
     }
 
-    populateContentList(list)
+    addToList(item)
     {
-        let len = list.length;
-        if (len > 5) len = 5;
-
-        deleteChildren(this.mContentList);
-
-        console.log(`ContentBrowser::populateContentList, list len: ${len}`);
-
-        for (let i = 0; i < len; i++)
-        {
-            console.log(`Title: ${list[i]}`);
-
-    
-            this.mContentList.appendChild(headingRow);
-        }
+        const options = this.getOptions(item);
+        this.mContentList.appendChild( new EntryHeader(options) );
     }
 
     /**
@@ -393,30 +415,11 @@ class EntryBrowser extends WCBase
      * ------------------------------------
      * @param {string} dataItem 
      */
-    addItem( dataItem, model = [] )
+    addItem( dataItem )
     {
-        let key = '';
-        let title = '';
-
-        if (typeof dataItem !== 'string')
-        {
-            for (const t_key in dataItem)
-            {
-                console.log(`Content: key ${t_key} : ${dataItem[t_key]}`);
-                title += ` ${dataItem[t_key]}`;
-            }
-        }
-
-        if (model.length) key = model[0];
+        this.mList.push(dataItem);
         
-        //const title = key.length ? dataItem[key] : dataItem;
-
-        if ( typeof(title) === 'string' )
-        {
-            this.mList.push(dataItem['name']);
-        }
-
-        if (this.mContentList.children.length < 5) this.addToList(title);
+        if (this.mContentList.children.length < 5) this.addToList( dataItem );
     }
 
     /**
@@ -428,10 +431,12 @@ class EntryBrowser extends WCBase
     pushDataSet(dataSet, model = [])
     {
         this.mList = [];
+        this.mModel = model;
+        this.mTitleKey = model.titlekey;
 
         for (const dataItem of dataSet )
         {
-            this.addItem( dataItem, model );
+            this.addItem( dataItem );
         }
     }
 
@@ -447,11 +452,8 @@ class EntryBrowser extends WCBase
      */
     findMatches(needle)
     {
-        return this.mList.filter(
-
-            entry => entry.toLowerCase().startsWith(needle)
-        
-        );
+        const key = this.mTitleKey;
+        return this.mList.filter( entry => entry[key].toLowerCase().startsWith(needle) );
     }
 
     createTestSet()
@@ -491,46 +493,23 @@ class EntryBrowser extends WCBase
             'xylitol'
         ];
 
-        //this.populateContentList(testSet);
-
         this.pushDataSet(testSet);
 
-        console.log(`ContentBrowser: Used ${testSet.length} strings to create a test dataset. Dataset size: ${this.size} entries`);
-
-        const needles = ['ban', 'cr', 'pe'];
-        console.log(`Let's test match finding. We'll use three different strings to match entries with: ${needles.join(', ')}`);
-
-        for (const needle of needles)
-        {
-            console.log(`ContentBrowser::test - matching entries with "${needle}"...`);
-
-            const matches = this.findMatches(needle);
-
-            if (matches.length) console.log(`"${needle}" matched with [ ${matches.join(', ')} ]`);
-            else console.log(`"${needle}" did not create a single match`);
-        }
-
-        console.log(`ContentBrowser: dataset test done: creation, measuring, matching.`);
-
     }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
-
     connectedCallback()
     {
-        console.log("<content-browser> connected");
-        // this.createTestSet();
-        //const result = this.mScrollContainer.createTestContent();
-        //console.log(`ContentBrowser: scroll container test populating result: ${result}`);
+        console.log("<entry-browser> connected");
         this.shadowRoot.addEventListener('content-header-click', e =>
         {
             const title = e.detail.title;
 
             e.preventDefault();
             e.stopPropagation();
-            console.log(`ContentBrowser: ${title} item click received`);
-
+         
             if (typeof title === 'string' && title.length)
             {
                 this.emitListed(title);
@@ -541,11 +520,11 @@ class EntryBrowser extends WCBase
 
     disconnectedCallback()
     {
-        console.log("<content-browser> disconnected");
+        console.log("<entry-browser> disconnected");
     }
 }
  
 
-window.customElements.define('content-browser', ContentBrowser );
+window.customElements.define('entry-browser', EntryBrowser );
 
-export { ContentBrowser };
+export { EntryBrowser };
