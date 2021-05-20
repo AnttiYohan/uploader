@@ -156,7 +156,7 @@ class SelectBase extends WCBase
 
          if ( this.mMultiSelect )
          {
-            return this.stateList();
+            return this.stateList;
          }
 
          // ----------------------
@@ -218,11 +218,11 @@ class SelectBase extends WCBase
      */
     reset()
     {
+        this.empty();
     }
 
     fill()
     {
-
         if (this.mMultiSelect)
         {
             console.log(`Turn on elems`);
