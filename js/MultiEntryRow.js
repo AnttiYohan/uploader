@@ -135,7 +135,7 @@ class MultiEntryRow extends WCBase
         for (const row of this.mStore.children)
         {
             const field = row.querySelector('.store__field');
-            result.push(field.textContent);
+            result.push(field.textContent);    
         }
 
         return result;
@@ -143,7 +143,7 @@ class MultiEntryRow extends WCBase
 
     get value()
     {
-        return this.fields();
+        return this.count ? this.fields : undefined;
     }
 
     get count()
@@ -169,12 +169,9 @@ class MultiEntryRow extends WCBase
             return undefined;
         }
 
-        if ( ! this.value.length )
-        {
-            return undefined;
-        }
+        const  result = this.value;
 
-        return {[this.mKey]: this.value};
+        return result ? {[this.mKey]: result} : result;
     }
 
     /**
