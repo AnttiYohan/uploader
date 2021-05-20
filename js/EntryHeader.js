@@ -19,6 +19,9 @@ class EntryHeader extends WCBase
     {
         super();
 
+        this.mKey = options.hasOwnProperty('key')
+                  ? options.key
+                  : 'unique';
         /**
          * The title of the content
          * ---------
@@ -53,32 +56,16 @@ class EntryHeader extends WCBase
                     ? options.thumbnail
                     : undefined;
 
+     
         /**
          * Build the button set
          */
-        let fields = '';
+        
 
-        for (const field of this.mFields)
-        {
-            fields += `<p class='component__field'>${field}</p>`;
-        }
-
-        /**
-         * Build the button set
-         */
-        let html = '';
-        let index = 1;
-
-        for (const obj of this.mActions)
-        {
-            const iconUrl = obj.iconUrl;
-            
-            html += `<button class='action n${index}' style='background-image:url("${iconUrl}");'></button>
-            `;
-
-            index++;
-        }
-
+        const html = this.mKey === 'title'
+                   ? `<button class='action edit'></button>`
+                   : '';
+   
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -88,63 +75,80 @@ class EntryHeader extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component__row'>
-              <img src='' class='thumbnail'/>
-              <h4 class='component__title'>${this.mTitle}
-              </h4>
-              ${fields}
-              <button class='action remove'></button>
+              <div class='frame'>
+                <img src='' class='thumbnail'/>
+                <h4 class='component__title'>${this.mTitle}</h4>
+              </div>
+              <div class='frame'>
+                ${html}
+                <button class='action remove'></button>
+              </div>
             </div>
         `);
         
         this.setupStyle
-         (`.action {
-            width: 28px;
-            height: 28px;
+         (`.frame { display: flex; align-items: center; }
+         .action {
+            cursor: pointer;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            padding: 2px;
             background-repeat: no-repeat;
             background-size: cover;
             border: 2px solid transparent;
+            transition: border-color .3s;
          }
         .action:hover {
-            width: 24px;
-            height: 24px;
-            border: 4px solid transparent;
+            border-color: rgba(0,0,0,.25);
         }
         .action:focus {
-            border: 2px solid rgba(255,80,80,0.5);
+            border-color: rgba(255,80,80,0.5);
             outline: none;
         }
         .action:active {
             outline: none;
-            border: 2px solid rgba(0, 0, 0, 0.5);
+            border-color: rgba(0, 0, 0, 0.5);
+        }
+        .action.edit {
+            background-image: url('assets/icon_edit.svg');
         }
         .action.remove {
             background-image: url('assets/icon_delete_perm.svg');
-         }
+        }
         .thumbnail {
-            border-radius: 4px;
-            border: 1px solid #fff;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.15);
             object-fit: cover;
             object-position: center;
-            width: 48px;
-            height: 48px;
-            padding: 4px;
+            width: 32px;
+            height: 32px;
+            padding: 3px;
         }
         .component__row {
-            height: 48px;
+            height: 40px;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color .3s;
         }
         .component__title {
+            width: 100%;
             font-size: 14px;
             color: #444;
             text-align: middle;
+            margin-left: 1em;
+            transition: transform .5s ease-in-out;
         }
         .component__field {
             min-width: 48px;
         }
         .component__row.selected {
-            background-color: rgba(0,0,0,0.75);
+            border-color: rgba(0,0,0,0.5);
         }
-        .component__row.selected .title {
-            color: #fff;
+        .component__row.selected .component__title {
+            transform: scale3d(1.05,1.05,1.05);
         }
         `);
 
@@ -172,7 +176,6 @@ class EntryHeader extends WCBase
          * -------
          */
          this.mRowElement = this.shadowRoot.querySelector('.component__row');
-
          const imgElem = this.shadowRoot.querySelector('.thumbnail');
          const label = this.shadowRoot.querySelector('.component__title');
 
@@ -182,24 +185,24 @@ class EntryHeader extends WCBase
             imgElem.src = thumbnail;
         }
 
-        /*
-         label.addEventListener('click', e =>
-         {
+        
+        label.addEventListener('click', e =>
+        {
              //this.emit('content-header-click', 'hardcode' );
              this.shadowRoot.dispatchEvent
              (
-                 new CustomEvent('content-header-click', 
+                 new CustomEvent('entry-header-click', 
                  {
                      bubbles: true,
                      composed: true,
                      detail: 
                      {
-                         "title": this.mTitle,
-                         "other": 'hardcode'
+                         'title': this.mTitle,
+                         'fields': this.mFields
                      }
                  })
              );
-         });*/
+         });
 
         /**
          * Listen for scroll container cursor change events
