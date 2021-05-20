@@ -2,6 +2,7 @@ import { WCBase, props } from './WCBase.js';
 import 
 { 
     newTagClass,
+    newTagClassChildren,
     newTagClassAttrsChildren,
     newTagClassHTML, 
     setImageFileInputThumbnail,
@@ -10,40 +11,6 @@ import
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { NumberInputRow } from './NumberInputRow.js';
- 
-
-const 
-template = document.createElement("template");
-template.innerHTML =
-`<div class='step-editor'>
-    <div class='component__row'>
-        <p class='component__label'>Steps</p>
-    </div>
-
-  <!-- STEP EDITOR -->
-
-  <div class='editor__frame step_editor'>
-   
-
-    <!-- STEP NUMBER INPUT -->
-
-    <!-- number-input-row class='step_number'>Number</number-input-row -->
-
-    <!-- STEP INPUTS -->
-    <div class='editor__rowset'>
-      <image-input-row class='step_image'>Image</image-input-row>
-      <text-input-area class='step_text' rows='6'>Text</text-input-area>
-      <div class='editor__button--plus add_step'></div>
-    </div>
-
-  </div>
-
-  <!-- Display the exsisting steps here -->
-
-  <div class='editor__frame step_list hz-divider'>
-  </div>
-
-</div>`;
 
 /**
  * -------------------------------------
@@ -63,221 +30,275 @@ class StepEditor extends WCBase
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
+        this.setupTemplate
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+        <div class='component'>
+            <div class='component__row'>
+               <p class='component__label'>Steps</p>
+            </div>
+            <div class='component__row'>
+                <div class='frame'>
+                    <image-input-row class='step__image'>Image</image-input-row>
+                    <text-input-area class='step__content' rows='6'>Text</text-input-area>
+                </div>
+                <button class='action add'></button>
+            </div>
+            <div class='component store'>
+            </div>
+        </div>`);
+
         this.setupStyle
         (`
-        :host {
-            margin-top: 16px !important;
-            border: 4px solid rgba(0,0,0,0.25);
-            padding: 8px;
-        }
-        * {
-            font-family: 'Baskerville Normal';
-        }
-        .clickable {
-            cursor: pointer;
-        }
-        .zoomable {
-            transition: transform .15s ease-in-out;
-        }
-        .zoomable:hover {
-            transform: scale3D(1.1, 1.1, 1.1);
-        }
-        .editor__frame {
-            display: flex;
-            flex-direction: column;
-        }
         .component__row {
+            justify-content: space-between;
+        }
+        .store .component__row {
+            min-height: 64px;
+            background-color: #fff;
+            border-radius: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 0 8px -3px rgba(0,0,0,0.25);
+            margin-bottom: .33em;
+        }
+        .frame { 
             display: flex;
+            flex-basis: 100%;
+        }
+        .store__field {
+            min-width: 64px;
+            color: #444;
+            font-size: 12px;
             padding: 4px;
+            margin-bottom: 2px;
         }
-        .component__label {
-            font-size: 14px;
-            color: #222;
-            font-weight: 200;
-            padding: 0;    
-        }
-        .editor__rowset {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            padding: 8px;
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .editor__gridrow {
-            display: grid;
-            grid-template-columns: 48px auto 48px;
-            height: 48px;
-            border-bottom: 1px solid ${props.lightgrey};
-        }
-        .editor__image {
-            width: ${props.thumbnail_side};
-            height: ${props.thumbnail_side};
-            border-radius: 4px;
-            box-shadow: 0 1px 15px 0px rgba(0,0,0,0.25);
-            align-self: center;
-            justify-self: center;
-        }
-        .editor__label {
-            font-size: ${props.text_font_size};
-            font-weight: 200;
-            color: #222;
-            align-self: center;
-            padding-left: 4px;
-        }
-        .editor__input {
-            padding: 4px;
-            color: #222;
-            font-size: ${props.small_font_size};
-            font-weight: 300;
-            background-color: transparent;
-            outline: none;
-            border-bottom: 2px solid ${props.grey};
-            height: ${props.lineHeight};
-        }
-        .editor__button--plus {
-            cursor: pointer;
-            margin-top: 16px;
-            width: 32px;
-            height: 32px;
-            background-image: url('assets/icon_plus.svg');
+        .store__field.image {
+            background-size: cover;
             background-repeat: no-repeat;
-            background-size: 32px;
+            width: 64px;
+            height: 64px;
+            border: 1px solid rgba(0,0,0,0.25);
+            border-radius: 5px;
         }
-        .editor__button {
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 2px solid ${props.darkgrey};
-            color: #fff;
-            background-color: ${props.green};
-            background-image: url('assets/icon_update.svg');
+        .store__field.content {
+            width: 100%;
+            height: 64px;
         }
-        .editor__button--new {
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 2px solid ${props.darkgrey};
-            background-color: ${props.blue};
-            background-image: url('assets/icon_add_circle.svg');
-        }
-        .editor__button--save {
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 2px solid ${props.darkgrey};
-            color: #fff;
-            background-color: ${props.red};
-            background-image: url('assets/icon_save.svg');
-        }
-        .editor__button--delete {
-            cursor: pointer;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 2px solid ${props.darkgrey};
-            color: #fff;
-            background-color: ${props.red};
-            background-image: url('assets/icon_cancel.svg');
-            align-self: center;
-            justify-self: center;
-        }
-        .editor__subheader {
-            font-size: ${props.header_font_size};
-            font-weight: 500;
-            align-self: center;
-        }
-        .uploader__fileframe {
-            position: relative;
-        }
-        .uploader__file {
-            position: absolute;
-            appereance: none;
-            z-index: -1;
-            opacity: 0;
-        }
-        .uploader__filelabel {
-            display: inline-block;
-            cursor: pointer;
-            border-radius: 4px;
-            background-color: ${props.green};
-            background-image: url( 'assets/icon_publish.svg' );
-            background-repeat: no-repeat;
-            background-position-x: right;
-            padding: 5px 0 0 0;
-            border: 2px solid rgba(0, 0, 0, 0.33);
-            width: 153px;
-            height: 32px;
-            color: #fff;
-            font-size: ${props.header_font_size};
-            font-weight: 500;
-            text-align: center;
-            text-shadow: 0 0 2px #000;
-            box-shadow: 0 1px 7px 1px rgba(0,0,0,0.25);
-        }
-        .hz-divider {
-            border-top: 1px solid ${props.darkgrey};
-        }
-        `);
-
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-        // ---------------------------
-        // - Get the key
-        // ---------------------------
-
-        this.mKey = 'stepBySteps';
+        .action {
+           cursor: pointer;
+           width: 30px;
+           height: 30px;
+           align-self: center;
+           border: 1px solid transparent;
+           border-radius: 16px;
+           background-color: transparent;
+           background-repeat: no-repeat;
+           background-position-x: -1px;
+           background-size: cover;
+       }
+       .action:focus,
+       .action:active {
+           outline: none;
+           background-color: #ffffffc0;
+           border: 1px solid rgba(50, 0, 88, 0.53);
+           box-shadow: 0 0 12px 0px rgba(0, 0, 40, 0.35);
+       }
+       .action.add {
+           background-image: url('assets/icon_plus.svg');
+       }
+       .action.remove {
+           background-image: url('assets/icon_delete_perm.svg');
+       }
+       `);
 
         // ---------------------------
         // - Save element references
         // ---------------------------
 
-        const stepTextInput   = this.shadowRoot.querySelector('.step_text');
-        const stepImageInput  = this.shadowRoot.querySelector('.step_image');
+        const imageInput    = this.shadowRoot.querySelector('.step__image');
+        const contentInput  = this.shadowRoot.querySelector('.step__content');
 
-        // ---------------------------
-        // - Define an step buffer
-        // ---------------------------
+        this.mImageInput = imageInput;
+        this.mContentInput = contentInput;
+        this.mStore = this.shadowRoot.querySelector('.store');
+        this.mTitle = 'Steps';
+        this.mKey   = this.hasAttribute('data-input')
+                   ? this.getAttribute('data-input')
+                   : this.mTitle;
 
-        this.mBuffer = [];
+       /**
+        * Add button focus
+        */
+       let addFocus = false;
 
-        this.mStepList      = this.shadowRoot.querySelector('.editor__frame.step_list');
-        this.mAddStepButton = this.shadowRoot.querySelector('.add_step');
-        this.mAddStepButton.addEventListener('click', e => 
-        {
-            // ----------------------------------
-            // - Grab the values from the inputs
-            // - And validate them
-            // ----------------------------------
+       /**
+        * Create the add button listeners
+        */
+       const addButton = this.shadowRoot.querySelector('.action.add');
+       addButton.addEventListener('click', e => 
+       {
+           const image   = imageInput.value;
+           const content = contentInput.value;
 
-            const text   = stepTextInput.value;
-            const image  = stepImageInput.value;
-
-            if (! text.length || ! image)
+            if ( this.addField( image, content ) )
             {
-                console.log(`All step data, text, number and image, has to be set`);
-                return;
+                imageInput.reset();
+                contentInput.reset();
             }
-
-            // ------------------------------
-            // - Add the new step
-            // ------------------------------
-
-            this.addStep(text, image);
-
-            // ------------------------------
-            // - Lastly, Reset the inputs
-            // ------------------------------
-
-            stepTextInput.reset();
-            stepImageInput.reset();
-
-        });
-
+       });
+       addButton.addEventListener('focus', e =>
+       {
+           addFocus = true;
+       });
+       addButton.addEventListener('blur', e =>
+       {
+           addFocus = false;
+       });
+       /**
+        * Create top level keyboard listener 
+        */
+       this.shadowRoot.addEventListener('keydown', e => 
+       {
+           if (addFocus && e.keyCode === this.ENTER)
+           {
+                const image   = imageInput.value;
+                const content = contentInput.value;
+ 
+                if ( this.addField( image, content ) )  
+                {
+                    imageInput.reset();
+                    contentInput.reset();
+                }
+           }
+       });
+        
     }
 
+    /**
+     * Returns a list generated from mBuffer map
+     * -----------------------------------------
+     * @return {Array}
+     */
+    getStepList()
+    {
+          const list = [];
+          let index = 1;
+  
+          for (const elem of this.mBuffer)
+          {
+              const text       = elem.text;
+              const stepNumber = index;
+              const image      = elem.file;
+  
+              list.push({ text, stepNumber, image });
+  
+              index++;
+          }
+  
+          return list;
+      }
+
+    get fields()
+    {
+        const result = [];
+
+        for (const row of this.mStore.children)
+        {
+            const image   = row.querySelector('.image');
+            const content = row.querySelector('.content');
+
+            result.push({image, content});
+        }
+
+        return result;
+    }  
+  
+    get value()
+    {
+        return this.count ? this.fields : undefined;
+    }
+
+    object()
+    {
+        const  result = this.value;
+
+        return result ? {[this.mKey]: result} : result;
+    }
+  
+    /**
+     * Return required status
+     * ---------------
+     * @return {boolean}
+     */
+    get required()
+    {
+        return false;
+    }
+
+    reset()
+    {
+        this.mImageInput.reset();
+        this.mContentInput.reset();
+        deleteChildren( this.mStore );
+    }
+
+    /**
+     * method stub
+     */
+    notifyRequired(ensure = true) 
+    {
+        return '';
+    }  
+
+    /**
+     * Adds a new field row under the store
+     * ---------------------
+     * @param {File}   image
+     * @param {string} content 
+     */
+    addField(image, content)
+    {
+        if ( ! image || ! content ) return false;
+
+        const index  = this.count + 1;
+       
+        const imageField = newTagClass('div', 'store__field image');
+        const contentField = newTagClass('p', 'store__field content');
+
+        // - Setup the thumbnail
+        const reader = new FileReader();
+        reader.onloadend = (pe) =>
+        {
+            imageField.style.backgroundImage = `url('${reader.result}')`;
+            imageField.style.backgroundSize = `cover`;
+        }
+        reader.readAsDataURL(image);
+ 
+        // - Setup the content
+        contentField.textContent = content;
+       
+        const button = newTagClass('button', 'action');
+        button.classList.add('remove');
+
+        const row = newTagClassChildren
+        ('div', 
+            'component__row', 
+            [ 
+                newTagClassChildren('div', 'frame', [ imageField, contentField ]),
+                button 
+            ]
+        );
+
+        button.dataset.row = `${index}`;
+        button.addEventListener('click', e =>
+        {
+            row.remove();
+        });
+  
+        this.mStore.appendChild( row );
+        
+        return true;
+    }
+  
     /**
      * Adds a new step into the step editor
      * ------------------------------------
@@ -336,59 +357,7 @@ class StepEditor extends WCBase
         //this.mFileList.push({id:number, file});
     }
 
-    /**
-     * Returns a list generated from mBuffer map
-     * -----------------------------------------
-     * @return {Array}
-     */
-    getStepList()
-    {
-        const list = [];
-        let index = 1;
-
-        for (const elem of this.mBuffer)
-        {
-            const text       = elem.text;
-            const stepNumber = index;
-            const image      = elem.file;
-
-            list.push({ text, stepNumber, image });
-
-            index++;
-        }
-
-        return list;
-    }
-
-    get value()
-    {
-        const result = this.getStepList();
-
-        if ( ! result || ! result.length )
-        {
-            return undefined;
-        }
-
-        return result;
-    }
-
-    object()
-    {
-        const  result = this.value;
-
-        return result ? {[this.mKey]: result} : result;
-    }
-
-    /**
-     * Return required status
-     * ---------------
-     * @return {boolean}
-     */
-    get required()
-    {
-        return false;
-    }
-
+   
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -396,7 +365,6 @@ class StepEditor extends WCBase
     connectedCallback()
     {
         console.log("StepEditor::callback connected");
-        this.dispatchEvent(new CustomEvent("stepeditorconnected", { bubbles: true }));
     }
 
     disconnectedCallback()
