@@ -272,9 +272,8 @@ class IngredientMenu extends WCBase
 
     }
 
-    emitClicked()
+    emitClicked(title)
     {
-        const title = this.mScrollContainer.valueAtIndex;
         const obj = this.createEmission(title);
       
         try {
@@ -378,18 +377,11 @@ class IngredientMenu extends WCBase
         this.shadowRoot.addEventListener('content-header-click', e =>
         {
             const title = e.detail.title;
-
+       
             e.preventDefault();
             e.stopPropagation();
       
             this.emitClicked(title);
-            /*
-            if (typeof title === 'string' && title.length)
-            {
-                console.log(`IngredientMenu( ${title} )`);
-                const key = 'name';
-                this.emitClicked(title);
-            }*/
             
         }, true);
     }
