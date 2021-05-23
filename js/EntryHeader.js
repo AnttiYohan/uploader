@@ -94,6 +94,7 @@ class EntryHeader extends WCBase
             width: 32px;
             height: 32px;
             padding: 2px;
+            margin-left: 4px;
             background-repeat: no-repeat;
             background-size: cover;
             border: 2px solid transparent;
