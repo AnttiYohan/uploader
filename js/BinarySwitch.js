@@ -26,6 +26,7 @@ class BinarySwitch extends WCBase
         this.mState = state;
 
 
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
