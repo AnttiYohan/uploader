@@ -2,14 +2,15 @@ import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_EN
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
 import { ProductRow } from './ProductRow.js';
-import { ProductList } from './ProductList.js';
 import { EventBouncer } from './EventBouncer.js';
+import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { TextInputArea } from './TextInputArea.js';
 import { InputOperator } from './util/InputOperator.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { MultiEntryRow } from './MultiEntryRow.js';
 import { NumberInputRow } from './NumberInputRow.js'
+import { IngredientMenu } from './IngredientMenu.js';
 import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import 
@@ -39,43 +40,33 @@ template.innerHTML =
   <!-- Wrapper for the whole recipe view, display set to none while in editor -->
   <div class='uploader view_node'>
 
-  <!-- New Recipe Frame -->
   <div class='uploader__frame' data-input-frame>
 
-    <!-- REFRESH ROW -->
-
     <button class='button--refresh'>Refresh</button>
-
-    <!-- Input's begin -->
-
-    <text-input-row  class='title_input' data-input='title' required>Title</text-input-row
-    <image-input-row class='image_input' data-input='image'>Recipe Image</image-input-row>
-    <text-input-row  class='link_input'  data-input='originalRecipeLink' required>Recipe Link</text-input-row> 
-    <text-input-row  class='youtube_input' data-input='youtubeVideoLink'>Video Link</text-input-row>
-    <number-input-row class='age_input' data-input='monthsOld' unit='Months' required>Age</number-input-row>
+    <text-input-row   class='title_input'     data-input='title' required>Title</text-input-row>
+    <image-input-row  class='image_input'     data-input='image' required>Recipe Image</image-input-row>
+    <text-input-row   class='link_input'      data-input='originalRecipeLink' required>Recipe Link</text-input-row> 
+    <text-input-row   class='youtube_input'   data-input='youtubeVideoLink'>Video Link</text-input-row>
+    <number-input-row class='age_input'       data-input='monthsOld' unit='Months' required>Age</number-input-row>
     <number-input-row class='prep_time_input' data-input='prepareTimeInMinutes' unit='Min' required>Preparation time</number-input-row>
     <number-input-row class='cook_time_input' data-input='cookTimeInMinutes' unit='Min' required>Cook time</number-input-row>
 
     <!-- Product add input -->
     <event-bouncer data-emitters='["product-select"]'>
-        <content-browser data-connect='host' class='product-input' 
-                         data-input='productsMenu'
+        <ingredient-menu data-connect='host' class='product_menu'
                          data-emit='product-select'
-        >Products:</content-browser>
+        >Product menu:</ingredient-menu>
         <product-row data-connect='slave' data-input='products' data-collect='product-select'></product-row>
     </event-bouncer>
     
     <text-input-area class='instructions_input' data-input='instructions' required>Instructions</text-input-area>
     <text-input-area class='storage_input' data-input='storageInfo' required>Storage</text-input-area>
-
-    <!-- RECIPE SEASON RADIO SELECTION -->
-
-    <binary-switch-group class='season_input' data-input='season' data-null='no' group='[
+    <binary-switch-group class='season_input' data-input='season' data-null group='[
         { "title": "Winter", "value": "WINTER" }, 
         { "title": "Spring", "value": "SPRING" },
         { "title": "Summer", "value": "SUMMER" },
         { "title": "Autumn", "value": "AUTUMN" },
-        { "title": "All", "value": "ALL", "rule": "fill" }
+        { "title": "All", "value": "ALL", "fill": true }
     ]'>Season</binary-switch-group>
 
     <binary-button-row class='fingerfood_input'  data-input='fingerFood'>Fingerfood</binary-button-row>
@@ -99,30 +90,20 @@ template.innerHTML =
         { "title": "Soup", "value": "SOUP" },
         { "title": "Smoothie", "value": "SMOOTHIE" },
         { "title": "Beverages", "value": "BEVERAGES" }
-    ]'>Meal Types</binary-switch-group>
-     
+    ]'>Meal Types</binary-switch-group>     
     <step-editor class='step_editor' data-input='stepBySteps'></step-editor>
-
-    <!-- NON MANDATORY INPUT SET -->
 
     <multi-entry-row  data-input='tips'>Tips</multi-entry-row>
     <number-input-row data-input='nutritionValue'>Nutrition kcal</number-input-row>
     <text-input-row   data-input='interestingInfo'>Interesting Info</text-input-row>
 
-    <!-- SAVE BUTTON -->
-
-    <div class='uploader__row--last'>
-    </div>
-
+    <div class='uploader__row--last'></div>
     <button class='button--save save_recipe'>Save</button>
-    
   </div>
 
-
   <!-- Existing recipe list wrapper -->
-
     <div class='uploader__frame recipe_list'>
-      <content-browser data-input='browser' class='browser'>Recipes</content-browser>
+      <entry-browser data-browser='recipe_browser' class='browser'>Recipes</entry-browser>
     </div>
   
   </div> <!-- End of recipe view wrapper -->
@@ -259,28 +240,16 @@ class RecipeView extends WCBase
         this.mViewNode       = this.shadowRoot.querySelector('.view_node');
         this.mEditorNode     = this.shadowRoot.querySelector('.uploader__frame.editor_node');
         this.mSaveButton     = this.shadowRoot.querySelector('.save_recipe');
-        this.mRecipeList     = this.shadowRoot.querySelector('.uploader__frame.recipe_list');
-        this.mStepEditor     = this.shadowRoot.querySelector('.step_editor');
-        this.mIngredientList = this.shadowRoot.querySelector('.ingredient_list');
+    
+        this.mProductMenu    = this.shadowRoot.querySelector('.product_menu');
+        this.mBrowser        = this.shadowRoot.querySelector('[data-browser="recipe_browser"]');
 
         const refreshButton  = this.shadowRoot.querySelector('.button--refresh');
-
         const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
         const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
 
-        this.mInputOperator = new InputOperator('recipes', inputArray);
+        this.mInputOperator = new InputOperator('recipe', inputArray);
         console.log(`RecipeView: InputArray lenght: ${inputArray.length}`);
-
-
-        // ---------------------------
-        // - Listen to the step editor
-        // - Connected callback
-        // ---------------------------
-
-        this.addEventListener("stepeditorconnected", e => 
-        {
-            console.log(`step editor connected callback catched`);
-        }, true);
 
         // ------------------
         // - Input references
@@ -314,6 +283,39 @@ class RecipeView extends WCBase
         this.mInfoInput         = this.shadowRoot.querySelector('.info_input');
 
         // ------------------------------
+
+        this.shadowRoot.addEventListener('allergens-added', e =>
+        {
+            console.log(`Allergens added caught, target: ${e.target.localName}`);
+            console.log(`Detail: ${e.detail.product}`);
+            const product = e.detail.product;
+
+            if ( product && product.hasOwnProperty('hasAllergens'))
+            {
+                //const hasAllergens = product.hasAllergens;
+                //const hasNuts = product.hasNuts;
+                //const hasEggs = product.hasEggs;
+                const { 
+                    hasAllergens,
+                    hasEggs,
+                    hasNuts,
+                    hasGluten,
+                    hasLactose
+                } = product;
+
+                console.log(`RecipeView event: allergens-added hasAllergens: ${hasAllergens}`);
+
+                // --------------------------------------
+                // - Apply properties only when set
+                // --------------------------------------
+
+                if ( hasAllergens ) this.mAllergensInput.turnOn();
+                if ( hasEggs )      this.mEggsInput.turnOn();
+                if ( hasNuts )      this.mNutsInput.turnOn();
+                if ( hasGluten )    this.mGlutenInput.turnOn();
+                if ( hasLactose )   this.mLactoseInput.turnOn();
+            }
+        }, true);
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
@@ -329,12 +331,15 @@ class RecipeView extends WCBase
                 // - To the server
                 // --------------------------------------
 
-                const dto       = this.compileDto();
-                const imageFile = this.mFileInput.value;
+                const hasSteps = this.mInputOperator.getValue('stepBySteps');
+                let embed = undefined;
+                if (hasSteps) embed = { hasStepByStep: true };
+                const dto = this.mInputOperator.processInputs( false, embed );
+                const imageFile = this.mInputOperator.imageFile();
 
-                console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
-                console.log(`Imagefile: ${imageFile}`);
-                console.log(`dto.data.hasStepByStep? ${dto.data.hasStepByStep}`);
+               // console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
+               // console.log(`Imagefile: ${imageFile}`);
+               // console.log(`dto.data.hasStepByStep? ${dto.data.hasStepByStep}`);
 
                 if ( dto && imageFile )
                 {
@@ -346,7 +351,6 @@ class RecipeView extends WCBase
                     if ( dto.data.hasStepByStep )
                     {
                         
-
                         // ---------------------------------
                         // - Compile step by step json array
                         // ---------------------------------
@@ -399,7 +403,7 @@ class RecipeView extends WCBase
                     }
                     else
                     {
-                        dto.data.stepBySteps = null;
+                        /*dto.data.stepBySteps = null;*/
 
                         const finalDto = 
                         { 
@@ -452,16 +456,13 @@ class RecipeView extends WCBase
 
             if (list && Array.isArray(list))
             {
-                const menu = this.mInputOperator.getInput('productsMenu');
-
-                console.log(`RecipeView, init product-menu: ${menu.dataset.input} with ${list}`);
                 
                 try  {
                 
-                    menu.pushDataSet(list);
+                    this.mProductMenu.pushDataSet(list);
 
                 } catch (error) {
-                    console.log(`RecipeView product menu init error: ${error}`);
+                    console.log(`RecipeView ProductMenu init error: ${error}`);
                 }
             }
         }, true);
@@ -579,26 +580,17 @@ class RecipeView extends WCBase
     {
         console.log(`RecipeView::loadProducts()`);
 
-        this
-            .getProducts()
-            .then(data => {
-
-                console.log(`Product response: ${data}`);
-                
+        this.getProducts()
+            .then(data => 
+            {console.log(`Product response: ${data}`);    
                 try {
-                
                     const list = JSON.parse(data);
-
-                    console.log(`PArsed data: ${list}`);
-
                     if ( list ) this.generateList(list);
-
                 } catch (error) {}
             })
-            .catch(error => {
-
+            .catch(error => 
+            {
                 console.log(`Could not read products: ${error}`);
-
             });
     }
 
@@ -697,9 +689,24 @@ class RecipeView extends WCBase
     {
         console.log(`RecipeView::generateList() -- Recipe amount: ${list.length}`);
 
-        deleteChildren(this.mRecipeList);
-        this.mRecipeObjects = [];
+        //deleteChildren(this.mRecipeList);
+        //this.mRecipeObjects = [];
 
+        const model = {
+            titlekey: 'title',
+            fields: [
+                'monthsOld',
+                'preparationTimeInMinutes',
+                'cookTimeInMinutes',
+                'instructions',
+                'storageInfo',
+                'originalRecipeLink'
+            ]
+        };
+      
+        this.mBrowser.pushDataSet(list, model);
+
+        /*
         for (const recipe of list)
         {
             const id    = recipe.id;
@@ -777,7 +784,7 @@ class RecipeView extends WCBase
                     ]
                 )
             );
-        }
+        }*/
 
         console.log(`RecipeView()Items in list ready`);
     }
