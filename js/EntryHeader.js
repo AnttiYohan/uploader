@@ -170,7 +170,7 @@ class EntryHeader extends WCBase
                 'index' : this.mRowIndex
             };
 
-            this.emit('header-removed', msg);
+            this.emit('header-remove', msg);
 
             /* Self destruct */
             //this.remove();
@@ -194,8 +194,7 @@ class EntryHeader extends WCBase
         
         imgElem.addEventListener('click', e =>
         {
-             //this.emit('content-header-click', 'hardcode' );
-             this.shadowRoot.dispatchEvent
+            this.shadowRoot.dispatchEvent
              (
                  new CustomEvent('entry-header-click', 
                  {
@@ -203,8 +202,7 @@ class EntryHeader extends WCBase
                      composed: true,
                      detail: 
                      {
-                         'title': this.mTitle,
-                         'fields': this.mFields
+                        'title': this.mTitle
                      }
                  })
              );
@@ -228,6 +226,26 @@ class EntryHeader extends WCBase
             
         }, true);
 
+        /**
+         * Create the edit button listener
+         * With the recipe entries
+         */
+        if ( this.mKey === 'title')
+        {
+            const editButton = this.shadowRoot.querySelector('.action.edit');
+
+            editButton.addEventListener('click', e => 
+            {
+                const msg =
+                {
+                    'title' : this.mTitle
+                };
+    
+                this.emit('header-edit', msg);
+    
+            });
+        }
+         
     }
 
     // ----------------------------------------------
