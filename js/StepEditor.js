@@ -71,8 +71,21 @@ class StepEditor extends WCBase
             padding: 4px;
             margin-bottom: 2px;
         }
+        .store__field.number {
+            font-size: 14px;
+            background-color: #efefdf;
+            min-width: auto;
+            width: 23px;
+            height: 25px;
+            border-radius: 16px;
+            border-bottom: 2px solid rgba(0,0,0,0.25);
+            text-align: center;
+            margin-left: 4px;
+            margin-right: 4px;
+        }
         .store__field.image {
-            background-size: cover;
+            background-size: contain;
+            background-position: center center;
             background-repeat: no-repeat;
             width: 64px;
             height: 64px;
@@ -197,16 +210,36 @@ class StepEditor extends WCBase
           return list;
       }
 
+    /**
+     * Iterates though the stored fields and
+     * Sets the field number to match current row
+     */
+    enumerate()
+    {
+        let index = 1;
+
+        for (const row of this.mStore.children)
+        {
+            const number  = row.querySelector('.number');
+            number.textContent = `${index}`;
+
+            index++;
+        }        
+    }
+    
     get fields()
     {
         const result = [];
+        let   stepNumber = 1;
 
         for (const row of this.mStore.children)
         {
             const image   = row.querySelector('.image');
-            const content = row.querySelector('.content');
+            const text    = row.querySelector('.content');
 
-            result.push({image, content});
+            result.push({text, stepNumber, image});
+
+            stepNumber++;
         }
 
         return result;
@@ -266,7 +299,7 @@ class StepEditor extends WCBase
 
         const index  = this.count + 1;
        
-        const numberField = newTagClass('p', 'store__field content');
+        const numberField = newTagClass('p',  'store__field number');
         const imageField = newTagClass('div', 'store__field image');
         const contentField = newTagClass('p', 'store__field content');
 
@@ -275,7 +308,6 @@ class StepEditor extends WCBase
         reader.onloadend = (pe) =>
         {
             imageField.style.backgroundImage = `url('${reader.result}')`;
-            imageField.style.backgroundSize = `cover`;
         }
         reader.readAsDataURL(image);
  
@@ -299,10 +331,12 @@ class StepEditor extends WCBase
         button.addEventListener('click', e =>
         {
             row.remove();
+            this.enumerate();
         });
   
         this.mStore.appendChild( row );
-        
+        this.enumerate();
+
         return true;
     }
   
