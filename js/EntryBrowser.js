@@ -176,6 +176,7 @@ class EntryBrowser extends WCBase
         
         this.mPopupElement = this.shadowRoot.querySelector('.component__popup');
         this.hasPopup = false;
+        this.lastPopup = '';
         /**
          * The Content list
          * @member {HTMLDivElement} mContentList
@@ -213,13 +214,13 @@ class EntryBrowser extends WCBase
             else
             {
                 this.mScrollContainer.blur();
+                this.closePopup();
             }
 
             if (matches.length)
             {
                 const entryList = this.createEntryHeaders(matches);
                 this.mScrollContainer.pushContent(entryList);
-                //this.mScrollContainer.pushContentAsStrings(matches, actions);
                 this.mScrollContainer.blur();
             }
             else
@@ -227,6 +228,7 @@ class EntryBrowser extends WCBase
                 this.mScrollContainer.clear();
             }
 
+            this.closePopup();
         }, true);
 
         /**
@@ -241,16 +243,18 @@ class EntryBrowser extends WCBase
                 case this.KEYDOWN :
                 {
                     this.mScrollContainer.down();
+                    this.emitContent(false);
                     break;
                 }
                 case this.KEYUP :
                 {
                     this.mScrollContainer.up();
+                    this.emitContent(false);
                     break;
                 }
                 case this.ENTER :
                 {
-                    //this.emitContent();   
+                    this.emitContent();   
                     break;
                 }
             }
@@ -261,7 +265,7 @@ class EntryBrowser extends WCBase
             const target = e.target;
             console.log(`Focus event from ${target.localName}.${target.className}`);
             e.stopPropagation();
-
+            this.closePopup();
             componentFrame.classList.add('active');
         }, true);
 
@@ -272,18 +276,10 @@ class EntryBrowser extends WCBase
             e.stopPropagation();
 
             componentFrame.classList.remove('active');
-            this.closePopup();
+            //this.closePopup();
             
         }, true);
 
-        componentFrame.addEventListener('click', e => 
-        {
-            console.log(`Component frame click`);
-            if (this.hasPopup)
-            {
-
-            }
-        });
     }
 
     // ----------------------------------------------
@@ -343,11 +339,23 @@ class EntryBrowser extends WCBase
         }
     }
 
-    emitContent()
+    emitContent(open = true)
     {
-        const value = this.mScrollContainer.valueAtIndex;
+        if ( ! open && ! this.hasPopup ) return;
 
-       
+        const title = this.mScrollContainer.valueAtIndex;
+        const titleKey = this.mTitleKey;
+        const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+
+        console.log(`Match: ${entry[titleKey]}`);
+
+        if ( title === this.lastPopup)
+        {
+            this.closePopup();
+            return;
+        }
+
+        if ( entry ) this.openPopup(entry);       
     }
 
     createListItem(title, options = {})
@@ -519,8 +527,10 @@ class EntryBrowser extends WCBase
 
         this.mPopupElement.style.display = 'none';
 
-        this.hasPopup = false;
+        this.hasPopup  = false;
+        this.lastPopup = '';
     }
+
     openPopup(entry)
     {
         // -------------------------------
@@ -528,6 +538,7 @@ class EntryBrowser extends WCBase
         // -------------------------------
         deleteChildren(this.mPopupElement);
 
+        console.log(`EntryBrowser::openPopup(entry)`);
         // -------------------------------
         // - Create the content
         // -------------------------------
@@ -548,8 +559,11 @@ class EntryBrowser extends WCBase
         // - Turn the popup display on
         // --------------------------------
 
+        const key = this.mTitleKey;
+
         this.mPopupElement.style.display = 'block';
         this.hasPopup = true;
+        this.lastPopup = entry[key];
 
         // --------------------------------
         // - Add click to turn it off
@@ -566,27 +580,41 @@ class EntryBrowser extends WCBase
     connectedCallback()
     {
         console.log("<entry-browser> connected");
+
+        // ------------------------------------------
+        // - Listens to header click
+        // ------------------------------------------
         this.shadowRoot.addEventListener('entry-header-click', e =>
         {
             const title = e.detail.title;
 
             e.preventDefault();
             e.stopPropagation();
-         
+
+            if ( title === this.lastPopup)
+            {
+                this.closePopup();
+                return;
+            }
+            
             const titleKey = this.mTitleKey;
             const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+    
+            if ( entry ) this.openPopup(entry);
+        }, true);
 
-            if ( entry )
-            {
-                console.log(`Header ${title} key found...`);
-                this.openPopup(entry);
-                for (const key in entry)
-                {
-                    console.log(`Key ${key}: ${entry[key]}`);
-                }
-            }else console.log(`Header ${title}, no key found`);
-            console.log(`Header set title: ${title}`);
-            
+
+        // ------------------------------------------
+        // - Listens to header-remove
+        // ------------------------------------------
+        this.shadowRoot.addEventListener('header-remove', e =>
+        {
+            const title = e.detail.title;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log(`EntryBrowser: header-remove ${title}`);
         }, true);
     }
 
