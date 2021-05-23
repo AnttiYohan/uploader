@@ -14,18 +14,29 @@ class BinarySwitchGroup extends SelectBase
         // - Add the group list items as binary switches
         // ------------------------------------------------------
 
+        this.mNull = this.hasAttribute('data-null')
+                   ? true
+                   : false;
+
+        
+        let index = 1;
         if (this.mGroupList.length)
         {
             for (const item of this.mGroupList)
             {
+                let state = false;
+                /*if (index === 1 && ! this.mNull)
+                {
+                    state = true;
+                }*/
+
                 if (item.hasOwnProperty('fill'))
                 {
                     console.log(`Fill: ${item.rule}`);
                 }
-                this.mContainerElement.appendChild
-                (
-                    new BinarySwitch(item, false)
-                );
+                this.mContainerElement.appendChild(new BinarySwitch(item, state));
+
+                index++;
             }
 
             // -------------------------
@@ -33,6 +44,9 @@ class BinarySwitchGroup extends SelectBase
             // -------------------------
 
             this.mSwitchArray = Array.from(this.mContainerElement.children);
+
+            console.log(`BinarySwitchGroup is null ${this.mNull}`);
+            if ( ! this.mNull) this.mSwitchArray[0].turnOn();
         }
     }
 
