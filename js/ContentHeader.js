@@ -55,45 +55,7 @@ class ContentHeader extends WCBase
         `);
         
         this.setupStyle
-        (`.frame { display: flex; align-items: center; }
-        .action {
-           cursor: pointer;
-           border-radius: 8px;
-           width: 32px;
-           height: 32px;
-           padding: 2px;
-           background-repeat: no-repeat;
-           background-size: cover;
-           border: 2px solid transparent;
-           transition: border-color .3s;
-        }
-       .action:hover {
-           border-color: rgba(0,0,0,.25);
-       }
-       .action:focus {
-           border-color: rgba(255,80,80,0.5);
-           outline: none;
-       }
-       .action:active {
-           outline: none;
-           border-color: rgba(0, 0, 0, 0.5);
-       }
-       .action.edit {
-           background-image: url('assets/icon_edit.svg');
-       }
-       .action.remove {
-           background-image: url('assets/icon_delete_perm.svg');
-       }
-       .thumbnail {
-           border-radius: 8px;
-           border: 1px solid rgba(0,0,0,0.15);
-           object-fit: cover;
-           object-position: center;
-           width: 32px;
-           height: 32px;
-           padding: 3px;
-       }
-       .component__row {
+        (`.component__row {
            cursor: pointer;
            background-color: transparent;
            height: 40px;
@@ -133,6 +95,7 @@ class ContentHeader extends WCBase
          this.mRowElement = this.shadowRoot.querySelector('.component__row');
          this.mRowElement.addEventListener('click', e =>
          {
+             //console.log(`ContentHeader() title: ${options.title} ${this.mTitle}`);
              //this.emit('content-header-click', 'hardcode' );
              this.shadowRoot.dispatchEvent
              (
@@ -142,8 +105,7 @@ class ContentHeader extends WCBase
                      composed: true,
                      detail: 
                      {
-                         "title": this.mTitle,
-                         "other": 'hardcode'
+                         'title': this.mTitle,
                      }
                  })
              );
