@@ -117,13 +117,18 @@ class EntryHeader extends WCBase
             background-image: url('assets/icon_delete_perm.svg');
         }
         .thumbnail {
+            cursor: pointer;
             border-radius: 8px;
-            border: 1px solid rgba(0,0,0,0.15);
+            border: 2px solid rgba(0,0,0,0.15);
             object-fit: cover;
             object-position: center;
             width: 32px;
             height: 32px;
             padding: 3px;
+            transition: border-color .3s;
+        }
+        .thumbnail:hover {
+            border-color: rgba(128,0,0,0.5);
         }
         .component__row {
             height: 40px;
@@ -186,7 +191,7 @@ class EntryHeader extends WCBase
         }
 
         
-        label.addEventListener('click', e =>
+        imgElem.addEventListener('click', e =>
         {
              //this.emit('content-header-click', 'hardcode' );
              this.shadowRoot.dispatchEvent
