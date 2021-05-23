@@ -15,8 +15,8 @@ class ScrollContainer extends WCBase
         // ---------------------------------------------
 
         this.totalHeight  = this.hasAttribute( 'data-height' )
-                      ? this.getAttribute( 'data-height' )
-                      : 100;
+                      ? Number( this.getAttribute( 'data-height' ) )
+                      : 120;
 
         this.hasFocus = false;
 
@@ -37,8 +37,7 @@ class ScrollContainer extends WCBase
          * Row height
          */
         this.rowHeight = 40;
-
-        this.totalHeight = 3 * 40;
+        this.totalHeight += 8 * 2 + 2;
 
         this.rowIndex = -1;
          // -----------------------------------------------
@@ -76,7 +75,6 @@ class ScrollContainer extends WCBase
             padding-top: calc(var(--component-pad, 8px) - 1);
             padding-bottom: calc(var(--component-pad, 8px) - 1);
             border: 2px solid rgba(0, 0, 0, 0.5);
-            min-height: 22px;
         }`);
 
          this.mContainer = this.shadowRoot.querySelector('.container');
@@ -148,7 +146,7 @@ class ScrollContainer extends WCBase
     {
         this.clear();
 
-        let height = 0;
+        /*let height = 0;
 
         try {
             height = list[0].offsetHeight;
@@ -159,7 +157,7 @@ class ScrollContainer extends WCBase
             this.rowHeight = height;
             this.totalHeight = 3 * height;
             this.mContainer.style.height = `${this.totalHeight}px`;
-        } 
+        } */
         for (const element of list)
         {
             this.addElement(element);
