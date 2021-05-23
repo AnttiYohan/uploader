@@ -241,6 +241,11 @@ class StepEditor extends WCBase
         deleteChildren( this.mStore );
     }
 
+    get count()
+    {
+        return this.mStore.children.length;
+    }
+
     /**
      * method stub
      */
@@ -261,6 +266,7 @@ class StepEditor extends WCBase
 
         const index  = this.count + 1;
        
+        const numberField = newTagClass('p', 'store__field content');
         const imageField = newTagClass('div', 'store__field image');
         const contentField = newTagClass('p', 'store__field content');
 
@@ -275,7 +281,8 @@ class StepEditor extends WCBase
  
         // - Setup the content
         contentField.textContent = content;
-       
+        numberField.textContent = `${index}`;
+
         const button = newTagClass('button', 'action');
         button.classList.add('remove');
 
@@ -283,7 +290,7 @@ class StepEditor extends WCBase
         ('div', 
             'component__row', 
             [ 
-                newTagClassChildren('div', 'frame', [ imageField, contentField ]),
+                newTagClassChildren('div', 'frame', [ numberField, imageField, contentField ]),
                 button 
             ]
         );
