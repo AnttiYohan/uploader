@@ -1,6 +1,7 @@
 import { WCBase, props } from './WCBase.js';
 import { ScrollContainer } from './ScrollContainer.js';
 import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML, newTagClassAttrs } from './util/elemfactory.js';
+import { ContentHeader } from './ContentHeader.js';
 
 /**
  * Creates ingredient from system products
@@ -45,7 +46,7 @@ class IngredientMenu extends WCBase
               <p class='component__label'><slot></p>
               <div class='content__list'></div>
               <input class='search__input' type='text'>
-              <scroll-container class='container'></scroll-container>
+              <scroll-container class='container' data-height='120'></scroll-container>
             </div>
         `);
         
@@ -55,16 +56,12 @@ class IngredientMenu extends WCBase
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-height: 200px;
             border-radius: 8px;
             border: 2px solid transparent;
             box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);    
             background-color: #fff;
+            padding-top: 4px;
          }
-        ::host {
-            border-radius: 4px;
-            border: 2px solid transparent;
-        }
         .component:focus {
             outline: 2px solid #222;
         }
@@ -73,10 +70,9 @@ class IngredientMenu extends WCBase
         }
         .content__list {
             position: relative;
-            display: flex;
+            display: none;
             flex-direction: column;
             width: 100%;
-            min-height: 100px;
             border-radius: 8px;
             border: 1px solid rgba(0, 0, 0, 0.25);
             box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);    
@@ -98,7 +94,9 @@ class IngredientMenu extends WCBase
             padding: 6px;
         }
         .search__input {
-            border-radius: 12px;
+            border-radius: 6px;
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
             background-color: #fff;
             background-repeat: no-repeat;
             background-size: 20px;
@@ -125,7 +123,7 @@ class IngredientMenu extends WCBase
 
         const componentFrame = this.shadowRoot.querySelector('.component');
         
- /**
+        /**
          * The Content list
          * @member {HTMLDivElement} mContentList
          * -------
@@ -166,7 +164,8 @@ class IngredientMenu extends WCBase
 
             if (matches.length)
             {
-                this.mScrollContainer.pushContentAsStrings(matches, actions);
+                const content = this.createContent( matches );
+                this.mScrollContainer.pushContent( content );
                 this.mScrollContainer.blur();
             }
             else
@@ -247,103 +246,84 @@ class IngredientMenu extends WCBase
         return this.mScrollContainer.count();
     }
 
-    emitListed(title)
+    createContent(list)
     {
-        console.log(`IngredientMenu: emit listed ${title}`);
+        const result = [];
 
-        if (typeof title !== 'string' || title.length === 0) return;
-
-        try {
-         
-            console.log(`IngredientMenu: emitting list product with: ${title}`);
-
-            this.parentElement.connectFromHost(title);
-            
-        } catch (error) {
-
-            console.log(`ContentBrowser::emitListed(${title}): ${error}`);
-
+        for (const item of list)
+        {
+            const key = 'name';
+            const title = item[key];
+            result.push( new ContentHeader( {title} ) );
         }
+
+        return result;
     }
 
     emitContent()
     {
-        const value = this.mScrollContainer.valueAtIndex;
-
-        console.log(`IngredientMenu::emitContent value: ${value}`);
-
-        if ( ! value ) return;
-
-        console.log(`IngredientMenu: emitting product-select with: ${value}`);
-        this.addToList(value);
-        
+        const title = this.mScrollContainer.valueAtIndex;
+        const obj = this.createEmission(title);
         try {
-                this.parentElement.connectFromHost(value);
+            if (obj) this.parentElement.connectFromHost( obj );
         } catch (error) {
-            console.log(`IngredientMenu::emitListed(${value}): ${error}`);
+            console.log(`IngredientMenu::emitListed(${title}): ${error}`);
         }
 
     }
 
-    createListItem(title, options = {})
+    emitClicked()
     {
-        const fields = [
-            newTagClassHTML
-            (
-                'p',
-                'component__label',
-                title
-            )
-        ];
+        const title = this.mScrollContainer.valueAtIndex;
+        const obj = this.createEmission(title);
+      
+        try {
+            if (obj) this.parentElement.connectFromHost( obj );
+        } catch (error) {
+            console.log(`IngredientMenu::emitClicked(): ${error}`);
+        }
+    }
 
-        if (this.mTag)
+    createEmission(title)
+    {
+        console.log(`IngredientMenu::createEmission title: ${title}`);
+        const titleKey = 'name';
+       
+        const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+
+        if ( entry )
         {
-            fields.push(
+            const hasAllergens  = entry.hasOwnProperty('hasAllergens')
+                                ? entry.hasAllergens
+                                : false;
 
-                newTagClassAttrs(
-                    'input',
-                    'tag',
-                    {
-                        type: 'checkbox'
-                    }
-                )
+            const hasEggs  = entry.hasOwnProperty('hasEggs')
+                                ? entry.hasEggs
+                                : false;
 
-            );
+            const hasNuts  = entry.hasOwnProperty('hasNuts')
+                                ? entry.hasNuts
+                                : false;
+
+            const hasGluten  = entry.hasOwnProperty('hasGluten')
+                                ? entry.hasGluen
+                                : false;
+
+            const hasLactose  = entry.hasOwnProperty('hasLactose')
+                                ? entry.hasLactose
+                                : false;
+
+            return {
+                name: entry[titleKey],
+                hasAllergens,
+                hasEggs,
+                hasNuts,
+                hasGluten,
+                hasLactose                
+            };
         }
 
-        const headingRow = newTagClassAttrsChildren
-        (
-            'div',
-            'component__row listed',
-            { 'data-title': title },
-            fields
-        );
-
-        headingRow.addEventListener('click', e => 
-        {
-            this.emitListed(title);
-            console.log(`IngredientMenu listed: ${e.target.dataset}, ${title}`);
-        });
-
-        return headingRow;
-    }
-
-    addToList(item)
-    {
-        this.mContentList.appendChild(this.createListItem(item));
-    }
-
-    populateContentList(list)
-    {
-        let len = list.length;
-        if (len > 5) len = 5;
-
-        deleteChildren(this.mContentList);
-
-        for (let i = 0; i < len; i++)
-        {    
-            this.mContentList.appendChild(headingRow);
-        }
+        return undefined;
     }
 
     /**
@@ -353,15 +333,7 @@ class IngredientMenu extends WCBase
      */
     addItem( dataItem )
     {
-        if ( typeof(  dataItem) === 'string' )
-        {
-            this.mList.push( dataItem );
-
-            if (this.mContentList.children.length < 5) 
-            {
-                this.addToList( dataItem );
-            }
-        }
+        this.mList.push( dataItem );
     }
 
     /**
@@ -392,72 +364,10 @@ class IngredientMenu extends WCBase
      */
     findMatches(needle)
     {
-        return this.mList.filter(
-
-            entry => entry.toLowerCase().startsWith(needle)
-        
-        );
+        const key = 'name';
+        return this.mList.filter( entry => entry[key].toLowerCase().startsWith(needle) );
     }
 
-    createTestSet()
-    {
-
-        const testSet =
-        [
-            'avocado',
-            'banana',
-            'blackpepper',
-            'cashew nuts',
-            'cinnamon (East Indian)',
-            'cocoa powder (organic)',
-            'coconut oil',
-            'corn flour',
-            'cream',
-            'durum wheat',
-            'ghee',
-            'honey (organic)',
-            'lard',
-            'milk',
-            'mint (dried)',
-            'mustard (hot)',
-            'peas',
-            'peas (dried)',
-            'pepper',
-            'pork ribs',
-            'pork loins',
-            'rice (jasmin organic)',
-            'rice (organic)',
-            'salt',
-            'taco bread',
-            'tomato',
-            'tuna',
-            'wheat flour',
-            'whitepepper',
-            'xylitol'
-        ];
-
-        //this.populateContentList(testSet);
-
-        this.pushDataSet(testSet);
-
-        console.log(`ContentBrowser: Used ${testSet.length} strings to create a test dataset. Dataset size: ${this.size} entries`);
-
-        const needles = ['ban', 'cr', 'pe'];
-        console.log(`Let's test match finding. We'll use three different strings to match entries with: ${needles.join(', ')}`);
-
-        for (const needle of needles)
-        {
-            console.log(`ContentBrowser::test - matching entries with "${needle}"...`);
-
-            const matches = this.findMatches(needle);
-
-            if (matches.length) console.log(`"${needle}" matched with [ ${matches.join(', ')} ]`);
-            else console.log(`"${needle}" did not create a single match`);
-        }
-
-        console.log(`ContentBrowser: dataset test done: creation, measuring, matching.`);
-
-    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -471,12 +381,15 @@ class IngredientMenu extends WCBase
 
             e.preventDefault();
             e.stopPropagation();
-            console.log(`ContentBrowser: ${title} item click received`);
-
+      
+            this.emitClicked(title);
+            /*
             if (typeof title === 'string' && title.length)
             {
-                this.emitListed(title);
-            }
+                console.log(`IngredientMenu( ${title} )`);
+                const key = 'name';
+                this.emitClicked(title);
+            }*/
             
         }, true);
     }
