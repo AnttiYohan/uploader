@@ -17,6 +17,13 @@ class ProductRow extends WCBase
 
         this.mKey  = 'products';
         this.mName = name ? name : 'Placeholder';
+        
+        /**
+         * @property currentProduct
+         * ---------
+         * a plaeholder for product object
+         */
+        this.mCurrentProduct = undefined;
 
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
@@ -36,12 +43,21 @@ class ProductRow extends WCBase
                 <div class='select__toggler unit' tabindex='0'>
                     <p class='title'>liter</p>
                     <div class='frame'>
-                       <div class='unit__item active'>liter</div>
-                       <div class='unit__item'>gram</div>
+                       <div class='unit__item active'>ml</div>
+                       <div class='unit__item'>liter</div>
+                       <div class='unit__item'>gr</div>
+                       <div class='unit__item'>pieces</div>
                        <div class='unit__item'>cup</div>
                        <div class='unit__item'>cups</div>
+                       <div class='unit__item'>tsp</div>
+                       <div class='unit__item'>tbsp</div>
+                       <div class='unit__item'>clove</div>
+                       <div class='unit__item'>can</div>
+                       <div class='unit__item'>cans</div>
                        <div class='unit__item'>slice</div>
-                       <div class='unit__item'>pinch</div>
+                       <div class='unit__item'>slices</div>
+                       <div class='unit__item'>a pinch of</div>
+                       <div class='unit__item'>none</div>
                     </div>
                 </div>
                 <button class='action add'></button>
@@ -49,7 +65,6 @@ class ProductRow extends WCBase
             <div class='store'>
             </div>
          </div>`);
-
         
         this.setupStyle
          (`
@@ -89,7 +104,7 @@ class ProductRow extends WCBase
             opacity: .5;
          }
          .select__toggler .frame {
-             top: -50%;
+             top: -100px;
              left: 0;
              display: none; 
              position: absolute;
@@ -104,7 +119,7 @@ class ProductRow extends WCBase
          .select__toggler .unit__item {
             cursor: pointer;
             min-width: 80px;
-            height: 32px;
+            height: 24px;
             padding: 4px;
          }
          .select__toggler .unit__item.active {
@@ -169,12 +184,21 @@ class ProductRow extends WCBase
         const addButton = this.shadowRoot.querySelector('.action.add');
         
         const unitList = [
+            'ml',
             'liter',
-            'gram',
+            'gr',
+            'pieces',
             'cup',
             'cups',
+            'tsp',
+            'tbsp',
+            'clove',
+            'can',
+            'cans',
             'slice',
-            'pinch'
+            'slices',
+            'a pinch of',
+            'none'
         ];
 
         this.mUnitIndex = 0;
@@ -187,7 +211,7 @@ class ProductRow extends WCBase
             return {
                 name:   this.mNameLabel.textContent,
                 amount: this.mAmountInput.value,
-                unit:   this.mUnitTitle.textContent
+                unit:   this.mUnitTitle.textContent.replaceAll(' ', '_').toUpperCase()
             };
         };
 
@@ -433,6 +457,22 @@ class ProductRow extends WCBase
         this.clear();
         this.checkAsterisk();
         this.mFrame.classList.remove('notify-required');
+
+        // ----------------------------------------
+        // - Send the allergens for the recipe view
+        this.shadowRoot.dispatchEvent
+        (
+            new CustomEvent('allergens-added', 
+            {
+                bubbles: true,
+                composed: true,
+                detail: 
+                {
+                    'product': this.mCurrentProduct
+                }
+            })
+        );
+        //this.emit('allergens-added', this.mCurrentProduct );
     }
 
     reset()
@@ -442,14 +482,27 @@ class ProductRow extends WCBase
         this.checkAsterisk();
     }
     
-    applyConnection(name)
+    applyConnection( product )
     {
-        if (!name.length) return;
+        //if (!name.length) return;
+        const key = 'name';
+
+        if ( ! product.hasOwnProperty(key))
+        {
+            console.log(`ProductRow::applyConnection() product ${product} has no key`);
+            return;
+        }
+
+        const title = product[key];
 
         this.mAmountInput.disabled = false;
         this.mUnitInput.setAttribute('tabindex', '0');
-        this.mNameLabel.textContent = name;
+        this.mNameLabel.textContent = title;
         this.mUnitTitle.textContent = 'liter';
+
+        console.log(`ProductRow::applyConnection() Emit product ${title} from connection`);
+
+        this.mCurrentProduct = product;
     }
 
     clear()
@@ -507,6 +560,10 @@ class ProductRow extends WCBase
         if ( this.value === undefined) { notify(); }
     }
 
+    parseAllergens(product)
+    {
+    
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -523,8 +580,14 @@ class ProductRow extends WCBase
         {
             e.stopPropagation();
 
-            const product = e.detail;
-            console.log(`ProductRow: product-select event catched, details: ${product}`);
+            const titleKEy = 'name';
+
+            const obj = e.detail;
+            const title = obj[titleKey];
+
+            console.log(`ProductRow: product-select event catched, details: ${title}m emit allergens`);
+
+            // - Emit allergens
 
         }, true);
     }
