@@ -48,6 +48,15 @@ class InputOperator
         return this.mStore.find(elem => elem.dataset.input === name);
     }
 
+    getValue(name)
+    {
+        const input = this.getInput(name);
+        
+        if (input) return input.value;
+
+        return undefined;
+    }
+
 
     load(array)
     {
@@ -130,12 +139,18 @@ class InputOperator
         return undefined;
     }
 
-    processInputs()
+    processInputs(stringify = true, embed = undefined)
     {
-        const dataObject = [];
+        const obj = {};
         let   success = true;
 
         console.log(`InputOperator::processInputs()`);
+
+        if ( embed && typeof(embed) === 'object')
+        {
+            const key = Object.keys(embed)[0];
+            obj[key] = embed[key];
+        }
 
         this.mStore.forEach(element => 
         {
@@ -156,11 +171,12 @@ class InputOperator
             else
             {
                 console.log(`${element.mKey} result: ${result}`);
-                dataObject.push(result);
+                const entry = Object.entries(result)[0];
+                obj[entry[0]] = entry[1];
             }
         });
 
-        console.log(`Results read from ${dataObject.length} element`);
+        console.log(`Success ${success}, read image element`);
 
         const image = this.imageFile();
 
@@ -171,9 +187,19 @@ class InputOperator
             success = false;
         }
 
-        if ( success && dataObject.length )
+        console.log(`Success after image elem: ${sucess}`);
+
+        if ( success )
         {
-            return { title: this.mKey, data: JSON.stringify(dataObject) };
+            if (stringify)
+            {
+                const data = JSON.stringify(obj);
+                console.log(`data: ${data}`);
+                return { title: this.mKey, data };
+            }
+
+            console.log(`data: ${JSON.stringify(obj)}`);
+            return { title: this.mKey, data: obj };
         }
         
         return undefined;
@@ -205,7 +231,6 @@ class InputOperator
         this.mImage.notifyRequired();
         this.mStore.forEach(element =>
             {
-                //if (element.)
                 element.notifyRequired()
             });
     }
