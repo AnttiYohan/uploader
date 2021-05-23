@@ -30,7 +30,7 @@ class ContentHeader extends WCBase
          * ---------
          * @property {number} mRowIndex
          */
-         this.mRowIndex = options.hasOwnProperty('rowIndex') ? options.rowIndex : -1;
+        this.mRowIndex = options.hasOwnProperty('rowIndex') ? options.rowIndex : -1;
 
         /**
          * Actions for the header, action object includes:
@@ -41,22 +41,6 @@ class ContentHeader extends WCBase
          */
         this.mActions = options.hasOwnProperty('actions') ? options.actions : [];
 
-        /**
-         * Build the button set
-         */
-        let html = '';
-        let index = 1;
-
-        for (const obj of this.mActions)
-        {
-            const iconUrl = obj.iconUrl;
-            
-            html += `<button class='action n${index}' style='background-image:url("${iconUrl}");'></button>
-            `;
-
-            index++;
-        }
-
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -66,83 +50,80 @@ class ContentHeader extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component__row'>
-              <p class='title'>${this.mTitle}</p>
-              ${html}
-              <button class='action remove'></button>
+              <p class='component__title'>${this.mTitle}</p>
             </div>
         `);
         
         this.setupStyle
-         (`.action {
-            width: 28px;
-            height: 28px;
-            background-repeat: no-repeat;
-            background-size: cover;
-            border: 2px solid transparent;
-         }
-        .action:hover {
-            width: 24px;
-            height: 24px;
-            border: 4px solid transparent;
+        (`.frame { display: flex; align-items: center; }
+        .action {
+           cursor: pointer;
+           border-radius: 8px;
+           width: 32px;
+           height: 32px;
+           padding: 2px;
+           background-repeat: no-repeat;
+           background-size: cover;
+           border: 2px solid transparent;
+           transition: border-color .3s;
         }
-        .action:focus {
-            border: 2px solid rgba(255,80,80,0.5);
-            outline: none;
-        }
-        .action:active {
-            outline: none;
-            border: 2px solid rgba(0, 0, 0, 0.5);
-        }
-        .action.remove {
-            background-image: url('assets/icon_delete_perm.svg');
-         }
-        .title {
-            font-size: 14px;
-            color: #444;
-            min-width: 100%;
-            text-align: middle;
-        }
-        .component__row.selected {
-            background-color: rgba(0,0,0,0.75);
-        }
-        .component__row.selected .title {
-            color: #fff;
-        }
-        `);
-
-        /**
-         * Create the action button listeners 
-         */
-        index = 0;
-        const buttons = this.shadowRoot.querySelectorAll('.component__row .action:not(.remove)');
-        for (const button of buttons)
-        {
-            button.addEventListener('click', e => 
-            {
-                const action = this.mActions[index];
-                this.emit(action.type, action.detail);
-            });
-
-            index++;
-        }
-
-        /**
-         * Create the remove button listener
-         */
-        const removeButton = this.shadowRoot.querySelector('.action.remove');
-        removeButton.addEventListener('click', e =>
-        {
-            const msg =
-            {
-                'title' : this.mTitle,
-                'index' : this.mRowIndex
-            };
-
-            this.emit('header-removed', msg);
-
-            /* Self destruct */
-            this.remove();
-        });
+       .action:hover {
+           border-color: rgba(0,0,0,.25);
+       }
+       .action:focus {
+           border-color: rgba(255,80,80,0.5);
+           outline: none;
+       }
+       .action:active {
+           outline: none;
+           border-color: rgba(0, 0, 0, 0.5);
+       }
+       .action.edit {
+           background-image: url('assets/icon_edit.svg');
+       }
+       .action.remove {
+           background-image: url('assets/icon_delete_perm.svg');
+       }
+       .thumbnail {
+           border-radius: 8px;
+           border: 1px solid rgba(0,0,0,0.15);
+           object-fit: cover;
+           object-position: center;
+           width: 32px;
+           height: 32px;
+           padding: 3px;
+       }
+       .component__row {
+           cursor: pointer;
+           background-color: transparent;
+           height: 40px;
+           border: 2px solid transparent;
+           border-radius: 6px;
+           justify-content: space-between;
+           align-items: center;
+           transition: border-color .3s, background-color .3s;
+       }
+       .component__title {
+           width: 100%;
+           font-size: 14px;
+           color: #444;
+           text-align: middle;
+           margin-left: 1em;
+           transform: scale3d(1,1,1);
+           transition: transform .5s ease-in-out;
+       }
+       .component__field {
+           min-width: 48px;
+       }
+       .component__row:hover {
+           background-color: rgba(0,0,0,0.1);
+       }
+       .component__row.selected {
+           border-color: rgba(0,0,0,0.5);
+       }
+       .component__row.selected .component__title {
+           transform: scale3d(1.05,1.05,1.05);
+       }`);
 
         /**
          * The Content Header wrapper element
@@ -150,9 +131,7 @@ class ContentHeader extends WCBase
          * -------
          */
          this.mRowElement = this.shadowRoot.querySelector('.component__row');
-
-         const label = this.shadowRoot.querySelector('.title');
-         label.addEventListener('click', e =>
+         this.mRowElement.addEventListener('click', e =>
          {
              //this.emit('content-header-click', 'hardcode' );
              this.shadowRoot.dispatchEvent
