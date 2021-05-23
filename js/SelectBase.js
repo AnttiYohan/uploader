@@ -103,18 +103,14 @@ class SelectBase extends WCBase
             console.log(`attribute group not found`);
         }
 
-        console.log(`GridPrefix: ${gridPrefix}`);
-
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
 
-
-        this.setAttribute('tabIndex', '-1');
+        //this.setAttribute('tabIndex', '-1');
         this.attachShadow({mode : "open"});
         
-
         this.setupTemplate
         (
         `<link rel='stylesheet' href='assets/css/components.css'>
@@ -156,7 +152,9 @@ class SelectBase extends WCBase
 
          if ( this.mMultiSelect )
          {
-            return this.stateList;
+            const list = this.stateList;
+
+            return list.length ? list : undefined;
          }
 
          // ----------------------
@@ -210,7 +208,8 @@ class SelectBase extends WCBase
 
     object()
     {
-        return {[this.mKey]: this.value};
+        const  result = this.value;
+        return result ? {[this.mKey]: result} : result;
     }
 
     /**
@@ -233,6 +232,8 @@ class SelectBase extends WCBase
     empty()
     {
         this.mSwitchArray.forEach(elem => elem.turnOff());
+
+        if ( ! this.mNull) this.mSwitchArray[0].turnOn();
     }
     /**
      * Initializes the element
