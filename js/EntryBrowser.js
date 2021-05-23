@@ -73,6 +73,7 @@ class EntryBrowser extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component'>
+              <div class='component__popup'></div>
               <p class='component__label'><slot></p>
               <div class='content__list'></div>
               <input class='search__input' type='text'>
@@ -101,6 +102,23 @@ class EntryBrowser extends WCBase
         }
         .component.active {
             border: 2px solid rgba(0, 0, 0, 0.5);
+        }
+        .component__popup {
+            display: none;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            z-index: 30;
+            background-color: #fff;
+            border-radius: 4px;
+            border: 2px solid rgba(0,128,0,0.75);
+            padding: 8px;
+            width: 50%;
+        }
+        .component__popup .popup__item {
+            padding: 4px;
+            min-height: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.25);
         }
         .content__list {
             position: relative;
@@ -156,7 +174,8 @@ class EntryBrowser extends WCBase
 
         const componentFrame = this.shadowRoot.querySelector('.component');
         
-
+        this.mPopupElement = this.shadowRoot.querySelector('.component__popup');
+        this.hasPopup = false;
         /**
          * The Content list
          * @member {HTMLDivElement} mContentList
@@ -237,10 +256,10 @@ class EntryBrowser extends WCBase
             }
          });
 
-        this.addEventListener('focus', e => 
+        this.shadowRoot.addEventListener('focus', e => 
         {
             const target = e.target;
-            console.log(`Focus event from ${target}, ${target.localName}.${target.className}`);
+            console.log(`Focus event from ${target.localName}.${target.className}`);
             e.stopPropagation();
 
             componentFrame.classList.add('active');
@@ -249,12 +268,22 @@ class EntryBrowser extends WCBase
         this.shadowRoot.addEventListener('blur', e =>
         {
             const target = e.target;
-            console.log(`Blur event from ${target}, ${target.localName}.${target.className}`);
+            console.log(`Blur event from ${target.localName}.${target.className}`);
             e.stopPropagation();
 
             componentFrame.classList.remove('active');
+            this.closePopup();
             
         }, true);
+
+        componentFrame.addEventListener('click', e => 
+        {
+            console.log(`Component frame click`);
+            if (this.hasPopup)
+            {
+
+            }
+        });
     }
 
     // ----------------------------------------------
@@ -481,6 +510,56 @@ class EntryBrowser extends WCBase
 
     }
 
+    closePopup()
+    {
+        // -------------------------------
+        // - Empty the popup
+        // -------------------------------
+        deleteChildren(this.mPopupElement);
+
+        this.mPopupElement.style.display = 'none';
+
+        this.hasPopup = false;
+    }
+    openPopup(entry)
+    {
+        // -------------------------------
+        // - Empty the popup
+        // -------------------------------
+        deleteChildren(this.mPopupElement);
+
+        // -------------------------------
+        // - Create the content
+        // -------------------------------
+        
+        for (const key in entry)
+        {
+            const popupItem = newTagClassHTML
+            (
+                'p',
+                'popup__item',
+                `${key}: ${entry[key]}`
+            );
+
+            this.mPopupElement.appendChild( popupItem );
+        }
+
+        // --------------------------------
+        // - Turn the popup display on
+        // --------------------------------
+
+        this.mPopupElement.style.display = 'block';
+        this.hasPopup = true;
+
+        // --------------------------------
+        // - Add click to turn it off
+        // --------------------------------
+
+        this.mPopupElement.addEventListener('click', e =>
+        {
+            return this.closePopup();
+        });
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -494,6 +573,18 @@ class EntryBrowser extends WCBase
             e.preventDefault();
             e.stopPropagation();
          
+            const titleKey = this.mTitleKey;
+            const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+
+            if ( entry )
+            {
+                console.log(`Header ${title} key found...`);
+                this.openPopup(entry);
+                for (const key in entry)
+                {
+                    console.log(`Key ${key}: ${entry[key]}`);
+                }
+            }else console.log(`Header ${title}, no key found`);
             console.log(`Header set title: ${title}`);
             
         }, true);
