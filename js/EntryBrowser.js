@@ -321,24 +321,6 @@ class EntryBrowser extends WCBase
         return result;
     }
 
-    emitListed(title)
-    {
-        if (typeof title !== 'string' || title.length === 0) return;
-
-        try {
-         
-            if (this.dataset.hasOwnProperty('connect') && this.dataset.connect === 'host')
-            {
-                this.parentElement.connectFromHost(title);
-            }
-            
-        } catch (error) {
-
-            console.log(`ContentBrowser::emitListed(${title}): ${error}`);
-
-        }
-    }
-
     emitContent(open = true)
     {
         if ( ! open && ! this.hasPopup ) return;
@@ -358,49 +340,6 @@ class EntryBrowser extends WCBase
         if ( entry ) this.openPopup(entry);       
     }
 
-    createListItem(title, options = {})
-    {
-        const item = new EntryHeader()
-        const fields = [
-            newTagClassHTML
-            (
-                'p',
-                'component__label',
-                title
-            )
-        ];
-
-        if (this.mTag)
-        {
-            fields.push(
-
-                newTagClassAttrs(
-                    'input',
-                    'tag',
-                    {
-                        type: 'checkbox'
-                    }
-                )
-
-            );
-        }
-
-        const headingRow = newTagClassAttrsChildren
-        (
-            'div',
-            'component__row listed',
-            { 'data-title': title },
-            fields
-        );
-
-        headingRow.addEventListener('click', e => 
-        {
-            console.log(`ContentBrowser listed: ${e.target.dataset}, ${title}`);
-        });
-
-        return headingRow;
-    }
-
     getOptions(item)
     {
         const model  = this.mModel;
@@ -418,7 +357,10 @@ class EntryBrowser extends WCBase
         let thumbnail = undefined;
 
         try {
-            thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
+            if (item.hasOwnProperty('image'))
+            {
+                thumbnail = `data:${item.image.fileType};base64,${item.image.data}`;
+            }else thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
         }
         catch (error) {}
 
@@ -520,13 +462,9 @@ class EntryBrowser extends WCBase
 
     closePopup()
     {
-        // -------------------------------
-        // - Empty the popup
-        // -------------------------------
         deleteChildren(this.mPopupElement);
 
         this.mPopupElement.style.display = 'none';
-
         this.hasPopup  = false;
         this.lastPopup = '';
     }
@@ -574,6 +512,7 @@ class EntryBrowser extends WCBase
             return this.closePopup();
         });
     }
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -615,6 +554,27 @@ class EntryBrowser extends WCBase
             e.stopPropagation();
 
             console.log(`EntryBrowser: header-remove ${title}`);
+
+            const titleKey = this.mTitleKey;
+            const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+    
+            if ( entry && entry.hasOwnProperty('id') )
+            {
+                this.shadowRoot.dispatchEvent
+                (
+                    new CustomEvent('remove-by-id', 
+                    {
+                        bubbles: true,
+                        composed: true,
+                        detail: 
+                        {
+                        'id': entry.id
+                        }
+                    })
+                );
+
+                this.mScrollContainer.clear();
+            }
         }, true);
     }
 
