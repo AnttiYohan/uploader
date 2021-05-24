@@ -80,6 +80,11 @@ class BinarySwitch extends WCBase
             button.classList.toggle('active');
             this.mState = ! this.mState;
 
+            if (this.mState === false)
+            {
+                this.emit(`switch-off`);
+            }
+            
             if (this.mFill)
             {
                 const fillState = this.mState ? 'on' : 'off';
