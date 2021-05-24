@@ -67,6 +67,22 @@ class BinarySwitchGroup extends SelectBase
             console.log(`BinarySwitchGroup: fill off received`);
             this.empty();
         });
+        if ( ! this.mNull) 
+        {
+            this.shadowRoot.addEventListener('switch-off', e => 
+            {
+                let count = 0;
+                for (const elem of this.mSwitchArray)
+                {
+                    if (elem.state) count++;
+                }
+
+                if (count === 0)
+                {
+                    e.target.turnOn();
+                }
+            })
+        }
     }
 
     disconnectedCallback()
