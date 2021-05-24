@@ -17,7 +17,7 @@ class ProductRow extends WCBase
 
         this.mKey  = 'products';
         this.mName = name ? name : 'Placeholder';
-        
+        this.mProductMap = {};
         /**
          * @property currentProduct
          * ---------
@@ -139,6 +139,9 @@ class ProductRow extends WCBase
          }
          .store__field.name {
             flex-basis: 40%;
+         }
+         .store__field.category {
+             width: 0;
          }
          .store__field.amount {
             flex-basis: 20%;
@@ -369,11 +372,12 @@ class ProductRow extends WCBase
 
         for (const row of this.mStore.children)
         {
-            const name   = row.querySelector('.name').textContent;
-            const amount = row.querySelector('.amount').textContent;
-            const unit   = row.querySelector('.unit').textContent.toUpperCase();
-
-            result.push({name, amount, unit});
+            const name            = row.querySelector('.name').textContent;
+            const amount          = row.querySelector('.amount').textContent;
+            const measureUnit     = row.querySelector('.unit').textContent.toUpperCase();
+            const productCategory = row.dataset.category;
+            const userId = 1;
+            result.push({name, productCategory, amount, measureUnit, userId});
         }
 
         return result;
@@ -423,15 +427,16 @@ class ProductRow extends WCBase
         const name = product.name;
         const amount = product.amount;
         const unit = product.unit;
-
+        const category = this.mCurrentProduct.productCategory;
         /**
          * Validation guard
          */
         if ( ! name.length || amount <= 0.0 || ! unit.length ) return;
 
-        const nameField   = newTagClassHTML('p', 'store__field name',   name);
-        const amountField = newTagClassHTML('p', 'store__field amount', amount);
-        const unitField   = newTagClassHTML('p', 'store__field unit',   unit);
+        const nameField     = newTagClassHTML('p', 'store__field name',   name);
+        //const categoryField = newTagClassHTML('p', 'store__field category', category);
+        const amountField   = newTagClassHTML('p', 'store__field amount', amount);
+        const unitField     = newTagClassHTML('p', 'store__field unit',   unit);
         
         const button = newTagClass('button', 'action');
         button.classList.add('remove');
@@ -446,7 +451,15 @@ class ProductRow extends WCBase
             button 
           ]
         );
+        
+        /**
+         * Add product category data into the row
+         */
+        row.setAttribute('data-category', category);
 
+        /**
+         * Create a remove button click listener
+         */
         button.addEventListener('click', e =>
         {
             row.remove();
@@ -460,6 +473,8 @@ class ProductRow extends WCBase
 
         // ----------------------------------------
         // - Send the allergens for the recipe view
+        // ----------------------------------------
+
         this.shadowRoot.dispatchEvent
         (
             new CustomEvent('allergens-added', 
@@ -472,6 +487,8 @@ class ProductRow extends WCBase
                 }
             })
         );
+
+
         //this.emit('allergens-added', this.mCurrentProduct );
     }
 
@@ -493,14 +510,15 @@ class ProductRow extends WCBase
             return;
         }
 
-        const title = product[key];
-
+        const name = product.name;
+        const productCategory = product.productCategory;
+        
         this.mAmountInput.disabled = false;
         this.mUnitInput.setAttribute('tabindex', '0');
-        this.mNameLabel.textContent = title;
+        this.mNameLabel.textContent = name;
         this.mUnitTitle.textContent = 'liter';
 
-        console.log(`ProductRow::applyConnection() Emit product ${title} from connection`);
+        console.log(`ProductRow::applyConnection() Emit product ${name} ${productCategory} from connection`);
 
         this.mCurrentProduct = product;
     }
@@ -580,7 +598,7 @@ class ProductRow extends WCBase
         {
             e.stopPropagation();
 
-            const titleKEy = 'name';
+            const titleKey = 'name';
 
             const obj = e.detail;
             const title = obj[titleKey];
