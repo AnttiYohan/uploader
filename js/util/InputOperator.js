@@ -187,7 +187,7 @@ class InputOperator
             success = false;
         }
 
-        console.log(`Success after image elem: ${sucess}`);
+        console.log(`Success after image elem: ${success}`);
 
         if ( success )
         {
