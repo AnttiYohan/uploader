@@ -267,7 +267,7 @@ class IngredientMenu extends WCBase
         try {
             if (obj) this.parentElement.connectFromHost( obj );
         } catch (error) {
-            console.log(`IngredientMenu::emitListed(${title}): ${error}`);
+            console.log(`IngredientMenu::emitContent(${title}): ${error}`);
         }
 
     }
@@ -285,13 +285,21 @@ class IngredientMenu extends WCBase
 
     createEmission(title)
     {
-        console.log(`IngredientMenu::createEmission title: ${title}`);
+        const comparison = title.toLowerCase();
+        console.log(`IngredientMenu::createEmission title: ${comparison}`);
         const titleKey = 'name';
        
-        const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+        const entry = this.mList.find(item => item['name'].toLowerCase() === comparison);
+
+        console.log(`Entry is: ${entry.name}`);
+        return entry;
 
         if ( entry )
         {
+            const productCategory = entry.hasOwnProperty('productCategory')
+                                ? entry.productCategory
+                                : '';
+
             const hasAllergens  = entry.hasOwnProperty('hasAllergens')
                                 ? entry.hasAllergens
                                 : false;
@@ -314,6 +322,7 @@ class IngredientMenu extends WCBase
 
             return {
                 name: entry[titleKey],
+                productCategory,
                 hasAllergens,
                 hasEggs,
                 hasNuts,
