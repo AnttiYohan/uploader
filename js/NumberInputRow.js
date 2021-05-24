@@ -1,4 +1,4 @@
-import { InputBase } from './InputBase';
+import { InputBase } from './InputBase.js';
 
 /**
  * NumberInputRow
