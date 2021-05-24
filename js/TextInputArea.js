@@ -25,8 +25,7 @@ class TextInputArea extends InputBase
                 <p class='component__label'><slot></p>
             </div>
             <div class='component__row'>
-                <textarea rows='${rows}' class='component__input'>
-                </textarea>
+                <textarea rows='${rows}' class='component__input'></textarea>
             </div>
           </div>`);
 
