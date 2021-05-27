@@ -152,22 +152,26 @@ class ProductView extends WCBase
             if ( ! dto ) return;
 
             const imageFile = this.mInputOperator.imageFile();
-
-            //this.mInputOperator.reset();
             
             if ( dto && imageFile )
             {
                 this.addProduct(dto, imageFile)
                     .then(response => 
                     {
-                        console.log(`addProduct response ok: ${response}`);
+                        const ok     = response.ok;
+                        const status = response.status;
+                        console.log(`addProduct response status ${status} : ok? ${ok}`);
 
-                        // --------------------------
-                        // - Cache cleared, 
-                        // - Read all from server
-                        // --------------------------
-
-                        this.loadProducts();
+                        if (ok)
+                        {
+                            console.log(`Product added succesfully ${response.text}`);
+                            this.loadProducts();
+                            this.mInputOperator.reset();
+                        }
+                        else
+                        {
+                            console.log(`Product could not be added to the server, code ${status}`)
+                        }
                     })
                     .catch(error => { console.log(`addProduct response fail: ${error}`); });
 
@@ -175,14 +179,12 @@ class ProductView extends WCBase
             }
             else
             {
-                //this.mInputOperator.notifyRequired();
-                 
                 console.log(`Add proper data and image file`);
             }
         }
         );
 
-        this.loadProducts();
+        //this.loadProducts();
     }
 
     /**
@@ -190,12 +192,10 @@ class ProductView extends WCBase
      */
     loadProducts()
     {
-        this.getProducts().then
-        (data => {try 
-            {
-                const list = JSON.parse(data);
-                if ( list ) this.generateList(list);
-            } 
+        this.getProducts()
+        .then(response => 
+        { 
+            try { this.generateList( JSON.parse(response.text)); } 
             catch (error) { throw new Error(`Product parse failed: ${error}`); }
         })
         .catch(error => { console.log(`Could not read products: ${error}`); });
@@ -209,7 +209,7 @@ class ProductView extends WCBase
      */
     generateList(list)
     {
-        if ( Array.isArray(list) )
+        if ( Array.isArray( list ) )
         { 
             const model = {
                 titlekey: 'name',
@@ -222,8 +222,13 @@ class ProductView extends WCBase
                     'hasGluten'
                 ]
             };
+
             this.mBrowser.pushDataSet(list, model);
-            window.dispatchEvent(new CustomEvent('product-list', {detail: list}));
+            //this.emit('product-list', {list});
+            window.dispatchEvent
+            (
+                new CustomEvent('product-list', { bubbles: true, composed: true, detail: list})
+            );
             
         }
     }
@@ -239,9 +244,14 @@ class ProductView extends WCBase
 
     /**
      * Builds and executes the addProduct HTTP Request
-     * 
-     * @param {ProductDto} dto 
-     * @param {File}       imageFile 
+     * Returns the response from server with properties:
+     * - {boolean} ok
+     * - {number}  status
+     * - {string}  text
+     * ------------------------
+     * @param  {ProductDto} dto 
+     * @param  {File}       imageFile
+     * @return {boolean, number, string}
      */
     addProduct(dto, imageFile)
     {
@@ -261,9 +271,18 @@ class ProductView extends WCBase
         FileCache
             .delete(PRODUCT_URL, id)
             .then(response => {
-                console.log(`Remove prodcut response: ${response}`);
 
-                this.loadProducts();
+                console.log(`Remove product response status: ${response.status} - ${response.text}`);
+
+                if (response.ok)
+                {
+                    console.log(`Product succesfully removed from the server`);
+                    this.loadProducts();
+                }
+                else
+                {
+                    console.log(`Server was unable to remove the product`);
+                }
             })
             .catch(error => {
                 console.log(`Remove product exception catched: ${error}`);
@@ -292,6 +311,9 @@ class ProductView extends WCBase
             this.removeProduct(id);
 
         }, true);
+
+        this.loadProducts();
+
     }
 
     disconnectedCallback()

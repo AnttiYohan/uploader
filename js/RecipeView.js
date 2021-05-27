@@ -15,15 +15,7 @@ import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import 
 { 
-    newTagClass, 
-    newTagClassChildren, 
-    newTagClassHTML, 
-    deleteChildren, 
-    newTagClassAttrs, 
-    numberInputClass,
-    selectValue,
-    selectClassIdOptionList,
-    setImageFileInputThumbnail
+    deleteChildren
 } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -135,7 +127,7 @@ class RecipeView extends WCBase
         // - from template 
         // -----------------------------------------------
 
-        this.attachShadow({mode : "open"});
+        this.attachShadow({mode : 'open'});
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         // ---------------------------
@@ -153,10 +145,8 @@ class RecipeView extends WCBase
         const refreshButton  = this.shadowRoot.querySelector('.button--refresh');
         const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
         const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
-
         this.mInputOperator = new InputOperator('recipe', inputArray);
-        console.log(`RecipeView: InputArray lenght: ${inputArray.length}`);
-
+     
         // ------------------------------
         // - Allergen inputs
         // ------------------------------
@@ -169,6 +159,9 @@ class RecipeView extends WCBase
    
         // ------------------------------
 
+        /**
+         * @listens allergens-added
+         */
         this.shadowRoot.addEventListener('allergens-added', e =>
         {
             const product = e.detail.product;
@@ -197,13 +190,10 @@ class RecipeView extends WCBase
             }
         }, true );
 
-        // ------------------------------
-        // - Setup button click listeners
-        // ------------------------------
-
-        this.mSaveButton.addEventListener
-        (
-            'click',
+        /**
+         * @listens click
+         */
+        this.mSaveButton.addEventListener('click',
             e =>
             {
                 // --------------------------------------
@@ -235,8 +225,8 @@ class RecipeView extends WCBase
                         // ---------------------------------
                         // - Compile step by step json array
                         // ---------------------------------
-                        const stepDto = { title: 'steps', data: []};
-                        const stepImage = { title: 'stepImages', images: []};
+                        const stepDto   = { title: 'steps',      data: [] };
+                        const stepImage = { title: 'stepImages', images: [] };
 
                         for (const step of dto.data.stepBySteps)
                         {
@@ -253,11 +243,7 @@ class RecipeView extends WCBase
 
                         dto.data.stepBySteps = null;
 
-                        const finalDto = 
-                        { 
-                            title: dto.title, 
-                            data: JSON.stringify(dto.data)
-                        };
+                        const finalDto = { title: dto.title, data: JSON.stringify(dto.data) };
 
                         // -----------------------------------------
                         // - Construct also a data stringified final
@@ -273,8 +259,16 @@ class RecipeView extends WCBase
                         this.addRecipeWithSteps(finalDto, imageFile, finalStepDto, stepImage)
                             .then(response =>
                             {
-                                console.log(`addRecipeWithSteps response: ${response}`);
-                                this.loadRecipes();
+                                if (response.ok)
+                                {
+                                    console.log(`addRecipeWithSteps response: ${response}`);
+                                    this.loadRecipes();
+                                    this.mInputOperator.reset();
+                                }
+                                else
+                                {
+                                    console.log(`addRecipe failed, response ${response.status}`)
+                                }
                             })
                             .catch(error =>
                             {
@@ -284,8 +278,6 @@ class RecipeView extends WCBase
                     }
                     else
                     {
-                        /*dto.data.stepBySteps = null;*/
-
                         const finalDto = 
                         { 
                             title: dto.title, 
@@ -295,8 +287,16 @@ class RecipeView extends WCBase
                         this.addRecipe(finalDto, imageFile)
                             .then(response => 
                             {
-                                console.log(`addRecipe response ok: ${response}`);
-                                this.loadRecipes();
+                                if (response.ok)
+                                {
+                                    console.log(`addRecipe response ${response.status}: ${response.text}`);
+                                    this.loadRecipes();
+                                    this.mInputOperator.reset();
+                                }
+                                else
+                                {
+                                    console.log(`addRecipe failed, response ${response.status}`)
+                                }
                             })
                             .catch(error => 
                             {
@@ -311,6 +311,9 @@ class RecipeView extends WCBase
             }
         );
 
+        /**
+         * @listens click
+         */
         refreshButton.addEventListener('click', e => 
         {
              FileCache.clearCache(RECIPE_URL);
@@ -323,20 +326,17 @@ class RecipeView extends WCBase
         // - Products
         // ----------------------------------------------
 
+        /**
+         * @listens product-list
+         */
         window.addEventListener('product-list', e => 
         {
             const list = e.detail;
 
             if (list && Array.isArray(list))
             {
-                
-                try  {
-                
-                    this.mProductMenu.pushDataSet(list);
-
-                } catch (error) {
-                    console.log(`RecipeView ProductMenu init error: ${error}`);
-                }
+                try  { this.mProductMenu.pushDataSet(list); }
+                catch (error) { console.log(`RecipeView ProductMenu init error: ${error}`); }
             }
         }, true);
 
@@ -349,24 +349,24 @@ class RecipeView extends WCBase
 
     }
 
-   
+   /*
     loadProducts()
     {
         console.log(`RecipeView::loadProducts()`);
 
         this.getProducts()
-            .then(data => 
-            {console.log(`Product response: ${data}`);    
+            .then(response => 
+            {console.log(`Product response: ${response.text}`);    
                 try {
-                    const list = JSON.parse(data);
-                    if ( list ) this.generateList(list);
+                    //const list = JSON.parse(data);
+                    //if ( list ) this.generateList(list);
                 } catch (error) {}
             })
             .catch(error => 
             {
                 console.log(`Could not read products: ${error}`);
             });
-    }
+    }*/
 
   
     /**
@@ -410,17 +410,12 @@ class RecipeView extends WCBase
     loadRecipes()
     {
         this.getRecipes()
-            .then(data => 
+            .then(response => 
             {    
-                console.log(`LoadRecipes(): ${data}`);
-                try 
-                {
-                    const list = JSON.parse(data);
-                    if ( list ) this.generateList(list);
-                } 
-                catch (error) {}
+                try { this.generateList( JSON.parse( response.text ) ); } 
+                catch (error) { throw new Error(`Could not read recipes: ${error}`); }
             })
-            .catch(error => { console.log(`Could not read recipes: ${error}`); });
+            .catch(error => { console.log(`${error}`); });
     }
     
     /**
@@ -434,10 +429,14 @@ class RecipeView extends WCBase
 
     /**
      * Builds and executes the addRecipe HTTP Request
-     * 
+     * Returns response properties in an object:
+     * - {boolean} ok 
+     * - {number}  status
+     * - {string}  text
+     * -----------------------
      * @param  {RecipetDto} dto 
      * @param  {File}       imageFile
-     * @return {String}
+     * @return {boolean, number, string}
      */
     addRecipe(dto, imageFile)
     {
@@ -446,12 +445,16 @@ class RecipeView extends WCBase
 
     /**
      * Builds and executes API addRecipeWithSteps route
-     * 
+     * Returns response properties in an object:
+     * - {boolean} ok 
+     * - {number}  status
+     * - {string}  text
+     * -----------------------
      * @param  {RecipeDto} dto 
      * @param  {File}      imageFile
      * @param  {Array}     stepDtoList
      * @param  {Array}     stepImageList
-     * @return {String}
+     * @return {boolean, number, string}
      */
     addRecipeWithSteps(dto, imageFile, stepDtoList, stepImageList)
     {
@@ -467,19 +470,31 @@ class RecipeView extends WCBase
 
     /**
      * Executes HTTP DELETE by recipe route / id
-     * 
+     * -----------------------
      * @param  {integer} id
      * @return {Promise} response
      */
     removeRecipe(id)
     {
-        console.log(`Remove product ${id} called`);
+        console.log(`Remove recipe ${id} called`);
         FileCache
             .delete(RECIPE_URL, id)
             .then(response => {
-                console.log(`Remove recipe response: ${response}`);
 
-                this.loadRecipes();
+                const ok     = response.ok;
+                const status = response.status;
+
+                console.log(`Remove recipe response ok ${ok} status ${status}`);
+
+                if (ok)
+                {
+                    console.log(`Recipe removed succesfully`);
+                    this.loadRecipes();
+                }
+                else
+                {
+                    console.log(`The server could not remove the recipe`);
+                }
             })
             .catch(error => {
                 console.log(`Remove recipe exception catched: ${error}`);
@@ -495,18 +510,54 @@ class RecipeView extends WCBase
         /**
          * Listen to remove events
          */
-           this.shadowRoot.addEventListener('remove-by-id', e =>
-           {
-               const id = e.detail.id;
-   
-               e.preventDefault();
-               e.stopPropagation();
-   
-               console.log(`RecipeView: remove-by-id ${id}`);
-   
-               this.removeRecipe(id);
-   
-           }, true);
+        this.shadowRoot.addEventListener('remove-by-id', e =>
+        {
+            const id = e.detail.id;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log(`RecipeView: remove-by-id ${id}`);
+
+            this.removeRecipe(id);
+
+        }, true);
+
+        /**
+         * @listens edit-by-id
+         */
+        this.shadowRoot.addEventListener('edit-by-id', e =>
+        {
+             const id = e.detail.id;
+ 
+             e.preventDefault();
+             e.stopPropagation();
+ 
+             console.log(`RecipeView: edit-by-id ${id} event intercepted. Open the editor for the recipe`);
+ 
+            //this.openEditor(id);
+ 
+        }, true);
+
+        /**
+         * Listen to product-list events
+         */
+       /* window.addEventListener('product-list', e => 
+        {
+            console.log(`RecipeView:: product-list event read`);
+            const list = e.detail.list;
+
+            if ( list && Array.isArray(list))
+            {     
+                try   { this.mProductMenu.pushDataSet(list); }
+                catch (error) { console.log(`RecipeView product menu population failed ${error}`); }
+            }
+            else console.log(`RecipeView product-list event didn't contain an array`);
+
+        }, true);*/
+
+        //this.emit('product-ready');
+
     }
 
     disconnectedCallback()
