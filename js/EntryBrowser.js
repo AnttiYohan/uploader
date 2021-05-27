@@ -74,7 +74,14 @@ class EntryBrowser extends WCBase
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component'>
               <div class='component__popup'></div>
-              <p class='component__label'><slot></p>
+              <div class='component__row stats'>
+                <p class='component__label'><slot></p>
+                <div class='statsframe'>
+                  <div class='stats__sort'></div>
+                  <p class='stats__count'></p>
+                </div>
+                <div class='component__balancer'></div>
+              </div>
               <div class='content__list'></div>
               <input class='search__input' type='text'>
               <scroll-container class='container'></scroll-container>
@@ -102,6 +109,47 @@ class EntryBrowser extends WCBase
         }
         .component.active {
             border: 2px solid rgba(0, 0, 0, 0.5);
+        }
+        .component__row.stats {
+            width: 100%;
+            justify-content: space-between;
+            padding-bottom: 8px;
+        }
+        .statsframe { 
+            display: flex; 
+            align-items: center;
+            border-radius: 12px;
+            width: 64px;
+            height: 22px;
+            border: 1px solid rgba(0,0,0,0.33);
+            background-color: rgba(0,0,0,0.25);
+            box-shadow: -3px -1px 12px -1px #0000003f;
+         }
+        .statsframe .stats__sort { 
+            cursor: pointer;
+            width: 19px; 
+            height: 14px; 
+            border-radius: 9px;
+            border: 1px solid rgba(0,0,0,0.25);
+            background-color: #f898988f;
+            background-image: url( 'assets/ic_left.svg' );
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            box-shadow: 3px -3px 15px 4px #ffffffa0;
+            margin-left: 4px;
+            transform: scale3d(1,1,1);
+            transition: transform .3s, border-color .5s, box-shadow .3s;
+        }
+        .statsframe .stats__sort:hover {
+            transform: scale3d(1.2,1.2,1.2);
+            box-shadow: -3px -3px 8px 2px #ffffffc8;
+            border-color: rgba(0,0,0,0.67);
+        }
+        .statsframe .stats__count {
+            width: 100%;
+            color: #fff;
+            text-align: center;
         }
         .component__popup {
             display: none;
@@ -174,9 +222,31 @@ class EntryBrowser extends WCBase
 
         const componentFrame = this.shadowRoot.querySelector('.component');
         
+        /**
+         * 
+         */
         this.mPopupElement = this.shadowRoot.querySelector('.component__popup');
         this.hasPopup = false;
         this.lastPopup = '';
+
+        /**
+         * @member {HTMLDivElement} mSortElement
+         */
+        this.mSortElement = this.shadowRoot.querySelector('.stats__sort');
+        this.mSortLatest = true;
+
+        this.mSortElement.addEventListener('click', e => 
+        {
+            this.mSortLatest = ! this.mSortLatest;
+            console.log(`SortLatest: ${this.mSortLatest}`);
+            this.populateContentList( this.mSortLatest );
+        });
+
+        /**
+         * @member {HTMLParagraphElement} mCountElement
+         */
+        this.mCountElement = this.shadowRoot.querySelector('.stats__count');
+
         /**
          * The Content list
          * @member {HTMLDivElement} mContentList
@@ -236,9 +306,7 @@ class EntryBrowser extends WCBase
          */
          this.shadowRoot.addEventListener('keydown', e => 
          {
-            const key = e.keyCode;
-
-            switch( key )
+            switch( e.keyCode )
             {
                 case this.KEYDOWN :
                 {
@@ -263,7 +331,7 @@ class EntryBrowser extends WCBase
         this.shadowRoot.addEventListener('focus', e => 
         {
             const target = e.target;
-            console.log(`Focus event from ${target.localName}.${target.className}`);
+            //console.log(`Focus event from ${target.localName}.${target.className}`);
             e.stopPropagation();
             this.closePopup();
             componentFrame.classList.add('active');
@@ -272,12 +340,9 @@ class EntryBrowser extends WCBase
         this.shadowRoot.addEventListener('blur', e =>
         {
             const target = e.target;
-            console.log(`Blur event from ${target.localName}.${target.className}`);
+            //console.log(`Blur event from ${target.localName}.${target.className}`);
             e.stopPropagation();
-
             componentFrame.classList.remove('active');
-            //this.closePopup();
-            
         }, true);
 
     }
@@ -308,6 +373,17 @@ class EntryBrowser extends WCBase
         return this.mScrollContainer.count();
     }
 
+    renderStats()
+    {
+        this.mCountElement.textContent = `${this.mList.length}`;
+    }
+
+    /**
+     * Creates entry headers from the matched entries
+     * ----------------
+     * @param  {object} list 
+     * @return {Array<EntryHeader>} 
+     */
     createEntryHeaders(list)
     {
         const result = [];
@@ -326,10 +402,8 @@ class EntryBrowser extends WCBase
         if ( ! open && ! this.hasPopup ) return;
 
         const title = this.mScrollContainer.valueAtIndex;
-        const titleKey = this.mTitleKey;
-        const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
-
-        console.log(`Match: ${entry[titleKey]}`);
+        const key   = this.mTitleKey;
+        const entry = this.mList.find(entry => entry[key].toLowerCase() === title.toLowerCase());
 
         if ( title === this.lastPopup)
         {
@@ -340,6 +414,12 @@ class EntryBrowser extends WCBase
         if ( entry ) this.openPopup(entry);       
     }
 
+    /**
+     * Parses a certain set of data using the model
+     * That was passed along the dataset
+     * @param {object} item 
+     * @return {string,string,array,image} 
+     */
     getOptions(item)
     {
         const model  = this.mModel;
@@ -348,19 +428,18 @@ class EntryBrowser extends WCBase
         const key    = model.titlekey;
 
         fields.push( {[key]: title} );
+
         for (const fieldKey of model.fields)
         {
-            const obj = {[fieldKey]: item[fieldKey]};
-            fields.push( obj );
+            fields.push( {[fieldKey]: item[fieldKey]} );
         }
 
         let thumbnail = undefined;
 
         try {
-            if (item.hasOwnProperty('image'))
-            {
-                thumbnail = `data:${item.image.fileType};base64,${item.image.data}`;
-            }else thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
+            item.hasOwnProperty('image')
+                ? thumbnail = `data:${item.image.fileType};base64,${item.image.data}`
+                : thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
         }
         catch (error) {}
 
@@ -373,6 +452,22 @@ class EntryBrowser extends WCBase
         this.mContentList.appendChild( new EntryHeader(options) );
     }
 
+    populateContentList(latest = true)
+    {
+        deleteChildren(this.mContentList);
+    
+        if ( ! this.mList.length ) return;
+
+        const amount = this.mList.length > 5 ? 5 : this.mList.length;
+        const size = this.mList.length - 1;
+        let   i;
+
+        for ( i = 0; i < amount; i++ ) 
+        {
+            this.addToList( this.mList[ latest ? size - i : i ] );
+        } 
+    }
+
     /**
      * Adds a string into the content array
      * ------------------------------------
@@ -380,27 +475,28 @@ class EntryBrowser extends WCBase
      */
     addItem( dataItem )
     {
-        this.mList.push(dataItem);
-        
-        if (this.mContentList.children.length < 5) this.addToList( dataItem );
+        this.mList.push(dataItem);      
     }
 
     /**
      * Loads an array of strings as content
      * for the browser
      * ---------------
-     * @param {Array<string>} dataSet 
+     * @param {Array<object>} dataSet 
      */
     pushDataSet(dataSet, model = [])
     {
-        this.mList = [];
-        this.mModel = model;
+        this.mList     = [];
+        this.mModel    = model;
         this.mTitleKey = model.titlekey;
 
-        for (const dataItem of dataSet )
+        for ( const dataItem of dataSet )
         {
-            this.addItem( dataItem );
+            this.mList.push( dataItem );
         }
+
+        this.populateContentList();
+        this.renderStats();
     }
 
     /**
@@ -415,49 +511,9 @@ class EntryBrowser extends WCBase
      */
     findMatches(needle)
     {
-        const key = this.mTitleKey;
-        return this.mList.filter( entry => entry[key].toLowerCase().startsWith(needle) );
-    }
-
-    createTestSet()
-    {
-
-        const testSet =
-        [
-            'avocado',
-            'banana',
-            'blackpepper',
-            'cashew nuts',
-            'cinnamon (East Indian)',
-            'cocoa powder (organic)',
-            'coconut oil',
-            'corn flour',
-            'cream',
-            'durum wheat',
-            'ghee',
-            'honey (organic)',
-            'lard',
-            'milk',
-            'mint (dried)',
-            'mustard (hot)',
-            'peas',
-            'peas (dried)',
-            'pepper',
-            'pork ribs',
-            'pork loins',
-            'rice (jasmin organic)',
-            'rice (organic)',
-            'salt',
-            'taco bread',
-            'tomato',
-            'tuna',
-            'wheat flour',
-            'whitepepper',
-            'xylitol'
-        ];
-
-        this.pushDataSet(testSet);
-
+        const  key = this.mTitleKey;
+        return this.mList
+            .filter( entry => entry[key].toLowerCase().startsWith( needle.toLowerCase() ) );
     }
 
     closePopup()
@@ -471,42 +527,33 @@ class EntryBrowser extends WCBase
 
     openPopup(entry)
     {
-        // -------------------------------
-        // - Empty the popup
-        // -------------------------------
         deleteChildren(this.mPopupElement);
 
-        console.log(`EntryBrowser::openPopup(entry)`);
-        // -------------------------------
-        // - Create the content
-        // -------------------------------
-        
+        /**
+         * Create the content
+         */
         for (const key in entry)
         {
             const popupItem = newTagClassHTML
             (
-                'p',
-                'popup__item',
-                `${key}: ${entry[key]}`
+                'p', 'popup__item', `${key}: ${entry[key]}`
             );
 
             this.mPopupElement.appendChild( popupItem );
         }
 
-        // --------------------------------
-        // - Turn the popup display on
-        // --------------------------------
-
+        /**
+         * Set the display on
+         */
         const key = this.mTitleKey;
 
         this.mPopupElement.style.display = 'block';
-        this.hasPopup = true;
+        this.hasPopup  = true;
         this.lastPopup = entry[key];
 
-        // --------------------------------
-        // - Add click to turn it off
-        // --------------------------------
-
+        /**
+         * Create a closing system
+         */
         this.mPopupElement.addEventListener('click', e =>
         {
             return this.closePopup();
@@ -518,11 +565,9 @@ class EntryBrowser extends WCBase
     // ----------------------------------------------
     connectedCallback()
     {
-        console.log("<entry-browser> connected");
-
-        // ------------------------------------------
-        // - Listens to header click
-        // ------------------------------------------
+        /**
+         * @listens entry-header-click
+         */
         this.shadowRoot.addEventListener('entry-header-click', e =>
         {
             const title = e.detail.title;
@@ -530,52 +575,74 @@ class EntryBrowser extends WCBase
             e.preventDefault();
             e.stopPropagation();
 
-            if ( title === this.lastPopup)
+            if ( title === this.lastPopup )
             {
                 this.closePopup();
                 return;
             }
             
-            const titleKey = this.mTitleKey;
-            const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
+            const key = this.mTitleKey;
+            const entry = this.mList.find(entry => entry[key].toLowerCase() === title.toLowerCase());
     
             if ( entry ) this.openPopup(entry);
         }, true);
 
-
-        // ------------------------------------------
-        // - Listens to header-remove
-        // ------------------------------------------
-        this.shadowRoot.addEventListener('header-remove', e =>
-        {
+        /**
+         * Common function that parses the custom event detail
+         * And emits another custom event, using the event detail
+         * To search for an id, that is emitted
+         * @param {Event}  e 
+         * @param {string} emitter 
+         */
+        const transmit = (e, emitter) =>
+        {   
             const title = e.detail.title;
 
             e.preventDefault();
             e.stopPropagation();
 
-            console.log(`EntryBrowser: header-remove ${title}`);
+            console.log(`EntryBrowser: header ${title}`);
 
-            const titleKey = this.mTitleKey;
-            const entry = this.mList.find(entry => entry[titleKey].toLowerCase() === title.toLowerCase());
-    
+            const key   = this.mTitleKey;
+            const entry = 
+            this.mList.find(entry => entry[key].toLowerCase() === title.toLowerCase());
+
             if ( entry && entry.hasOwnProperty('id') )
             {
                 this.shadowRoot.dispatchEvent
                 (
-                    new CustomEvent('remove-by-id', 
+                    new CustomEvent( emitter, 
                     {
                         bubbles: true,
                         composed: true,
-                        detail: 
-                        {
-                        'id': entry.id
-                        }
+                        detail: { 'id': entry.id }
                     })
                 );
-
-                this.mScrollContainer.clear();
             }
-        }, true);
+        }
+
+        /**
+         * @listens header-remove
+         * @emits   remove-by-id
+         */
+        this.shadowRoot.addEventListener
+        (
+            'header-remove', 
+            e => transmit( e, 'remove-by-id' ), 
+            true
+        );
+
+        /**
+         * @listens header-edit
+         * @emits   edit-by-id
+         */
+        this.shadowRoot.addEventListener
+        (
+            'header-edit', 
+            e => transmit( e, 'edit-by-id' ),
+            true
+        );
+
     }
 
     disconnectedCallback()
