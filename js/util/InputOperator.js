@@ -50,19 +50,14 @@ class InputOperator
 
     getValue(name)
     {
-        const input = this.getInput(name);
-        
-        if (input) return input.value;
-
-        return undefined;
+        const  input = this.getInput(name);
+        return input ? input.value : undefined;
     }
-
 
     load(array)
     {
         for (const element of array)
         {
- 
             if (element.localName === 'image-input-row')
             {
                 this.setImageInput(element);
@@ -211,10 +206,7 @@ class InputOperator
      */
     imageFile()
     {
-        try
-        {
-            return this.mImage.value;
-        }
+        try   { return this.mImage.value; }
         catch (error) {}
 
         return undefined;
@@ -223,7 +215,12 @@ class InputOperator
     reset()
     {
         this.mImage.reset();
-        this.mStore.forEach(element => element.reset());
+        console.log(`Image inpu reset, iterate others`);
+        this.mStore.forEach(element => 
+            {
+                console.log(`IO: element ${element.localName}`);
+                element.reset();
+            });
     }
 
     notifyRequired()
