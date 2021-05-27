@@ -135,6 +135,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+     
         const text = await response.text();
 
         // -----------------------------------
@@ -150,8 +154,7 @@ class FileCache
             } catch (error){}
         }
 
-        return text;
-
+        return { ok, status, text };
     }
 
     /**
@@ -180,8 +183,11 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
         const text = await response.text();
-
+        
         // -----------------------------------
         // - Write cache
         // -----------------------------------
@@ -191,14 +197,12 @@ class FileCache
             try {
 
                 localStorage.setItem(route, text);
-                console.log(`Cache written - route ${route}, cahce: ${text}`);
+                console.log(`Cache written - route ${route}, cache: ${text}`);
 
             } catch (error){}
         }
 
-
-
-        return text;
+        return { ok, status, text };
     }
 
         /**
@@ -236,6 +240,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+
         const text = await response.text();
 
         // -----------------------------------
@@ -252,7 +260,7 @@ class FileCache
             } catch (error){}
         }
 
-        return text;
+        return { ok, status, text };
     }
 
     // ------------------------------------------------
@@ -299,6 +307,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+     
         const text = await response.text();
 
         // -----------------------------------
@@ -307,7 +319,7 @@ class FileCache
 
         FileCache.clearCache(route);
 
-        return text;
+        return { ok, status, text };
     }
 
   /**
@@ -372,6 +384,10 @@ class FileCache
            }
        );
 
+       const status = response.status;
+       const ok = response.ok;
+       console.log(`FileCache::response ok ${ok} status ${status}`);
+    
        const text = await response.text();
 
        // -----------------------------------
@@ -380,7 +396,7 @@ class FileCache
 
        FileCache.clearCache(route);
 
-       return text;
+       return { ok, status, text };
    }
 
 
@@ -434,6 +450,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+     
         const text = await response.text();
 
         // -----------------------------------
@@ -442,7 +462,7 @@ class FileCache
 
         FileCache.clearCache(route);
 
-        return text;
+        return { ok, status, text };
     }
 
     /**
@@ -487,6 +507,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+     
         const text = await response.text();
 
         // -----------------------------------
@@ -495,7 +519,7 @@ class FileCache
 
         FileCache.clearCache(route);
 
-        return text;
+        return { ok, staus, text };
     }
 
 
@@ -732,6 +756,10 @@ class FileCache
             }
         );
 
+        const status = response.status;
+        const ok = response.ok;
+        console.log(`FileCache::response ok ${ok} status ${status}`);
+     
         const text = await response.text();
 
         // -----------------------------------
@@ -740,7 +768,7 @@ class FileCache
 
         FileCache.clearCache(route);
 
-        return text;
+        return { ok, status, text };
     }
 
 }
