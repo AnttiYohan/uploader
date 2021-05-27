@@ -4,9 +4,9 @@ import
     newTagClass,
     newTagClassChildren,
     newTagClassAttrsChildren,
-    newTagClassHTML, 
-    setImageFileInputThumbnail,
-    setImageThumbnail
+    newTagClassHTML,
+    setImageThumbnail,
+    deleteChildren
 } from './util/elemfactory.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
@@ -123,6 +123,12 @@ class StepEditor extends WCBase
        }
        `);
 
+       /**
+        * @member mImageStore
+        * A map of image files
+        */
+        this.mImageStore = {};
+
         // ---------------------------
         // - Save element references
         // ---------------------------
@@ -234,8 +240,14 @@ class StepEditor extends WCBase
 
         for (const row of this.mStore.children)
         {
-            const image   = row.querySelector('.image');
-            const text    = row.querySelector('.content');
+            const text    = row.querySelector('.content').textContent;
+            
+            /**
+             * Use the row dataset image reference
+             * to get the correct image from the map
+             */
+            const reference = row.dataset.imageref;
+            const image = this.mImageStore[reference];
 
             result.push({text, stepNumber, image});
 
@@ -271,6 +283,7 @@ class StepEditor extends WCBase
     {
         this.mImageInput.reset();
         this.mContentInput.reset();
+        this.mImageStore = {};
         deleteChildren( this.mStore );
     }
 
@@ -302,7 +315,7 @@ class StepEditor extends WCBase
         const numberField = newTagClass('p',  'store__field number');
         const imageField = newTagClass('div', 'store__field image');
         const contentField = newTagClass('p', 'store__field content');
-
+     
         // - Setup the thumbnail
         const reader = new FileReader();
         reader.onloadend = (pe) =>
@@ -327,14 +340,24 @@ class StepEditor extends WCBase
             ]
         );
 
+        /**
+         * Add image name as a reference in the row
+         * in order to associate it with the correct step
+         */
+        row.dataset.imageref = image.name;
         button.dataset.row = `${index}`;
         button.addEventListener('click', e =>
         {
             row.remove();
+            console.log(`StepEditor::addField() delete ${image.name}`);
+            delete this.mImageStore[image.name];
             this.enumerate();
         });
   
         this.mStore.appendChild( row );
+
+        console.log(`StepEditor::addField() store ${image.name}`);
+        this.mImageStore[image.name] = image;
         this.enumerate();
 
         return true;
