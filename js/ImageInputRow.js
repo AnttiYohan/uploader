@@ -111,6 +111,7 @@ class ImageInputRow extends WCBase
         // - Grab the input
         // ---------------------------
         const asterisk = this.shadowRoot.querySelector('.component__img--required');
+        this.mAsterisk = asterisk;
         this.mArea  = this.shadowRoot.querySelector('.image__area');
         this.mInput = this.shadowRoot.querySelector('.image__file');
 
@@ -196,6 +197,7 @@ class ImageInputRow extends WCBase
         this.mArea.classList.remove('notify-required');
         this.mArea.style.backgroundImage = `url('assets/icon_image_input.svg')`;
         this.mArea.style.backgroundSize = `50%`;
+        this.mAsterisk.style.display = 'block';
     }
 
     /**
@@ -207,11 +209,7 @@ class ImageInputRow extends WCBase
      */
     notifyRequired(ensure = true)
     {
-        const notify = () => { this.mArea.classList.add('notify-required'); }
-        
-        if ( ensure === false ) { notify(); }
-        else 
-        if ( this.value === undefined) { notify(); }
+        if ( ! ensure || ! this.value ) this.mNotifier.classList.add('notify-required');
     }
 
     // ----------------------------------------------
@@ -221,7 +219,6 @@ class ImageInputRow extends WCBase
     connectedCallback()
     {
         console.log("<image-input-row> connected");
-        
     }
 
     disconnectedCallback()

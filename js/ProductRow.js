@@ -1,5 +1,5 @@
 import { WCBase } from './WCBase.js';
-import { newTagClass, newTagClassHTML, newTagClassChildren } from './util/elemfactory.js';
+import { newTagClass, newTagClassHTML, newTagClassChildren, deleteChildren } from './util/elemfactory.js';
 
 /**
  * Row with ingredient value set,
@@ -221,18 +221,10 @@ class ProductRow extends WCBase
         const setActiveUnit = () =>
         {
             let index = 0;
-
             for (const elem of unitFrame.children)
             {
-                if (index === this.mUnitIndex)
-                {
-                    elem.classList.add('active');
-                }
-                else
-                {
-                    elem.classList.remove('active');
-                }
-
+                const clist = elem.classList;
+                index === this.mUnitIndex ? clist.add('active') : clist.remove('active'); 
                 index++;
             }
         };
@@ -254,6 +246,7 @@ class ProductRow extends WCBase
                         this.mUnitTitle.textContent = text;
                         unitFrame.classList.remove('visible');
                         e.stopPropagation();
+                        break;
                     }
                     elemIndex++;
                 }
@@ -319,11 +312,15 @@ class ProductRow extends WCBase
                         {
                             e.preventDefault();
                             e.stopPropagation();
-                            this.mUnitIndex--;
+                            this.mUnitIndex > 0 
+                                    ? this.mUnitIndex-- 
+                                    : this.mUnitIndex = unitAmount - 1;
+
+                            /*this.mUnitIndex--;
                             if (this.mUnitIndex < 0)
                             {
                                 this.mUnitIndex = unitAmount - 1;
-                            }
+                            }*/
                             setActiveUnit();
                             break;
                         }
@@ -331,31 +328,27 @@ class ProductRow extends WCBase
                         {
                             e.preventDefault();
                             e.stopPropagation();
-                            this.mUnitIndex++;
+                            this.mUnitIndex < unitAmount - 1
+                                    ? this.mUnitIndex++
+                                    : this.mUnitIndex = 0;
+                            /*        
                             if (this.mUnitIndex >= unitAmount)
                             {
                                 this.mUnitIndex = 0;
-                            }
+                            }*/
                             setActiveUnit();
                             break;
                         }
                     }
                 }
-                else
+                else if (e.keyCode === this.ENTER)
                 {
-                    if (e.keyCode === this.ENTER)
-                    {
-                        unitFrame.classList.add('visible');
-                    }
-                }   
-            }
-            else
-            if (addFocus)
-            {
-                if (e.keyCode === this.ENTER)
-                {
-                    this.addField(productAttributes());
+                    unitFrame.classList.add('visible');
                 }
+            }
+            else if (addFocus && e.keyCode === this.ENTER)
+            {
+                this.addField(productAttributes());
             }
         });
 
@@ -424,32 +417,30 @@ class ProductRow extends WCBase
      */
     addField(product)
     {
-        const name = product.name;
-        const amount = product.amount;
-        const unit = product.unit;
+        const name     = product.name;
+        const amount   = product.amount;
+        const unit     = product.unit;
         const category = this.mCurrentProduct.productCategory;
+
         /**
          * Validation guard
          */
         if ( ! name.length || amount <= 0.0 || ! unit.length ) return;
 
         const nameField     = newTagClassHTML('p', 'store__field name',   name);
-        //const categoryField = newTagClassHTML('p', 'store__field category', category);
         const amountField   = newTagClassHTML('p', 'store__field amount', amount);
         const unitField     = newTagClassHTML('p', 'store__field unit',   unit);
-        
-        const button = newTagClass('button', 'action');
-        button.classList.add('remove');
+        const button        = newTagClass('button', 'action remove');
 
         const row = newTagClassChildren
         ('div', 
          'component__row', 
-          [ 
-            nameField,
-            amountField,
-            unitField, 
-            button 
-          ]
+            [ 
+                nameField,
+                amountField,
+                unitField, 
+                button 
+            ]
         );
         
         /**
@@ -468,7 +459,6 @@ class ProductRow extends WCBase
 
         this.mStore.appendChild( row );
         this.clear();
-        this.checkAsterisk();
         this.mFrame.classList.remove('notify-required');
 
         // ----------------------------------------
@@ -494,14 +484,12 @@ class ProductRow extends WCBase
 
     reset()
     {
-        this.clear();
         deleteChildren( this.mStore );
-        this.checkAsterisk();
+        this.clear();
     }
     
     applyConnection( product )
     {
-        //if (!name.length) return;
         const key = 'name';
 
         if ( ! product.hasOwnProperty(key))
@@ -510,58 +498,47 @@ class ProductRow extends WCBase
             return;
         }
 
-        const name = product.name;
-        const productCategory = product.productCategory;
-        
         this.mAmountInput.disabled = false;
         this.mUnitInput.setAttribute('tabindex', '0');
-        this.mNameLabel.textContent = name;
+        this.mNameLabel.textContent = product.name;
         this.mUnitTitle.textContent = 'liter';
-
-        console.log(`ProductRow::applyConnection() Emit product ${name} ${productCategory} from connection`);
 
         this.mCurrentProduct = product;
     }
 
+    /**
+     * Clears all inputs and defocuses the element
+     */
     clear()
     {
         this.mNameLabel.textContent = '';
         this.mAmountInput.value = '';
-        this.mUnitTitle.textContent = '';
-
-        // - Disable
         this.mAmountInput.disabled = true;
+        this.mUnitTitle.textContent = '';
         this.mUnitInput.setAttribute('tabindex', '-1');
-
         this.mUnitIndex = 0;
-
         let index = 0;
 
         for (const elem of this.mUnitFrame.children)
         {
-            if (index === this.mUnitIndex)
-            {
-                elem.classList.add('active');
-            }
-            else
-            {
-                elem.classList.remove('active');
-            }
-
+            const clist = elem.classList;
+            ! index ? clist.add('active') : clist.remove('active');
             index++;
         }
+
+        this.checkAsterisk();
     }
 
+    /**
+     * Ensures that the asterisk of requirement
+     * is properly set
+     */
     checkAsterisk()
     {
-        if (this.count)
-        {
-            this.mAsteriskLabel.classList.add('off');
-            return;    
-        }
-        
-        this.mAsteriskLabel.classList.remove('off');
+        const clist = this.mAsteriskLabel.classList;
+        this.count ? clist.add('off') : clist.remove('off');
     }
+
     /**
      * Adds a class into the image area element, to display
      * a red border -- when ensure is set,
@@ -571,17 +548,9 @@ class ProductRow extends WCBase
      */
     notifyRequired(ensure = true)
     {
-        const notify = () => { this.mFrame.classList.add('notify-required'); }
-        
-        if ( ensure === false ) { notify(); }
-        else 
-        if ( this.value === undefined) { notify(); }
+        if ( ! ensure || ! this.value ) this.mFrame.classList.add('notify-required');
     }
 
-    parseAllergens(product)
-    {
-    
-    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------

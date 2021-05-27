@@ -116,10 +116,8 @@ class InputBase extends WCBase
      */
     reset()
     {
-        if (this.mType === 'number')
-            this.mInput.value = 0;
-        else
-            this.mInput.value = '';
+        this.mInput.value = '';
+        if (this.required) this.mLabel.classList.add('required');
     }
 
     /**
@@ -181,11 +179,13 @@ class InputBase extends WCBase
     {
         if ( ! this.required ) return;
 
-        const notify = () => { this.mNotifier.classList.add('notify-required'); }
+        if ( ! ensure || this.value === undefined ) this.mNotifier.classList.add('notify-required');
+
+        /*const notify = () => { this.mNotifier.classList.add('notify-required'); }
         
         if ( ensure === false ) { notify(); }
         else 
-        if ( this.value === undefined) { notify(); }
+        if ( this.value === undefined) { notify(); }*/
     }
 
     // ----------------------------------------------
