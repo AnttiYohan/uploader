@@ -82,7 +82,11 @@ class EntryBrowser extends WCBase
                 </div>
                 <div class='component__balancer'></div>
               </div>
-              <div class='content__list'></div>
+              <div class='content__list'>
+                <div class='progress__frame'>
+                    <div class='loader'></div>
+                </div>
+              </div>
               <input class='search__input' type='text'>
               <scroll-container class='container'></scroll-container>
             </div>
@@ -99,6 +103,32 @@ class EntryBrowser extends WCBase
             border: 2px solid transparent;
             box-shadow: 0 0 12px -5px rgba(0, 0, 0, 0.25);    
             background-color: #fff;
+         }
+         @keyframes spinner {
+             0% {
+                 transform: translate3d(-50%,-50%, 0) rotate(0deg);
+             }
+             100% {
+                transform: translate3d(-50%,-50%, 0) rotate(360deg);
+            }
+         }
+         .progress__frame {
+             display: flex;
+             justify-content: center;
+             align-items: center;
+             width: 100%;
+             height: 100%;
+             position: absolute;
+             background-color: rgba(255,255,255,.9);
+         }
+         .loader {
+             border: 16px solid #0042a4;
+             border-radius: 50%;
+             border-top: 16px solid #3775cf;
+             border-bottom: 16px solid #005588;
+             width: 50px;
+             height: 50px;
+             animation: 1.5s linear infinite spinner;
          }
         ::host {
             border-radius: 4px;
@@ -222,6 +252,11 @@ class EntryBrowser extends WCBase
 
         const componentFrame = this.shadowRoot.querySelector('.component');
         
+        /**
+         * Progress frame
+         */
+        this.mProgressFrame = this.shadowRoot.querySelector('.progress__frame');
+
         /**
          * 
          */
@@ -486,6 +521,8 @@ class EntryBrowser extends WCBase
      */
     pushDataSet(dataSet, model = [])
     {
+        this.startProgress();
+
         this.mList     = [];
         this.mModel    = model;
         this.mTitleKey = model.titlekey;
@@ -497,8 +534,19 @@ class EntryBrowser extends WCBase
 
         this.populateContentList();
         this.renderStats();
+
+        this.stopProgress();
     }
 
+    stopProgress()
+    {
+        this.mProgressFrame.style.display = 'none';
+    }
+
+    startProgress()
+    {
+        this.mProgressFrame.style.display = 'flex';
+    }
     /**
      * Compares the param string with every entry in
      * the dataset, match is considered valid, when
@@ -615,7 +663,7 @@ class EntryBrowser extends WCBase
                     {
                         bubbles: true,
                         composed: true,
-                        detail: { 'id': entry.id }
+                        detail: { 'entry': entry }
                     })
                 );
             }
