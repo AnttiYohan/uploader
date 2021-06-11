@@ -369,8 +369,9 @@ class ProductRow extends WCBase
             const amount          = row.querySelector('.amount').textContent;
             const measureUnit     = row.querySelector('.unit').textContent.toUpperCase();
             const productCategory = row.dataset.category;
+            const systemProductId = row.dataset.systemId;
             const userId = 1;
-            result.push({name, productCategory, amount, measureUnit, userId});
+            result.push({name, productCategory, amount, measureUnit, systemProductId, userId});
         }
 
         return result;
@@ -415,12 +416,21 @@ class ProductRow extends WCBase
      * ---------------------
      * @param {object} product 
      */
-    addField(product)
+    addField(product, external = false)
     {
         const name     = product.name;
         const amount   = product.amount;
-        const unit     = product.unit;
-        const category = this.mCurrentProduct.productCategory;
+        const unit     = external
+                       ? product.measureUnit
+                       : product.unit;
+                       
+        const category = external
+                       ? product.productCategory
+                       : this.mCurrentProduct.productCategory;
+
+        const systemId = external
+                       ? product.systemProductId
+                       : this.mCurrentProduct.id;
 
         /**
          * Validation guard
@@ -444,9 +454,10 @@ class ProductRow extends WCBase
         );
         
         /**
-         * Add product category data into the row
+         * Add product category and system product id data into the row
          */
         row.setAttribute('data-category', category);
+        row.setAttribute('data-system-id', systemId);
 
         /**
          * Create a remove button click listener
@@ -558,8 +569,9 @@ class ProductRow extends WCBase
     connectedCallback()
     {
         console.log("<product-row> connected");
-
         this.clear();
+        this.emit('product-row-connected');
+
         /**
          * Listen for product-select
          */
