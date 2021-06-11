@@ -22,6 +22,16 @@ class BinaryButtonRow extends BinaryBase
 
         if (this.hasAttribute('blocked')) this.mIsBlocked = true;
 
+        const yesWord = this.dataset.yes
+                      ? this.dataset.yes
+                      : 'Yes';
+
+        const noWord  = this.dataset.no
+                      ? this.dataset.no
+                      : 'No';
+
+                                    
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -58,8 +68,8 @@ class BinaryButtonRow extends BinaryBase
           <div class='component'>
             <div class='component__label'><slot></div>
             <div class='component__row'>
-              <div class='binary__button yes ${state ? "active" : ""}'>Yes</div>
-              <div class='binary__button no ${state ? "" : "active"}'>No</div>
+              <div class='binary__button yes ${state ? "active" : ""}'>${yesWord}</div>
+              <div class='binary__button no ${state ? "" : "active"}'>${noWord}</div>
             </div>
           </div>`);
 
