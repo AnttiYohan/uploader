@@ -50,6 +50,39 @@ class BinarySwitchGroup extends SelectBase
         }
     }
 
+    get count()
+    {
+        let result = 0;
+
+        for (const elem of this.mSwitchArray)
+        {
+            if ( elem.state ) result++;
+        }
+
+        return result;
+    }
+
+    pushDataSet( list )
+    {
+        let wasFirstApplied = false;
+        for ( const item of list )
+        {
+            const value = item.name;
+
+            const matchingSwitch = this.mSwitchArray.find( elem => elem.value === value);
+
+            if ( matchingSwitch )
+            {
+                matchingSwitch.turnOn();
+                wasFirstApplied = this.mSwitchArray[0].value === value; 
+            }
+        }
+
+        if ( ! this.mNull && ! wasFirstApplied )
+        {
+            if ( this.count > 1 ) this.mSwitchArray[0].turnOff();
+        }
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -57,6 +90,8 @@ class BinarySwitchGroup extends SelectBase
     connectedCallback()
     {
         console.log("<binary-switch-group> connected");
+        this.emit( 'binary-switch-group-connected' );
+
         this.shadowRoot.addEventListener('switch-fill-on', e =>
         {
             console.log(`BinarySwitchGroup: fill on received`);
