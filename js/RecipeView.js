@@ -1,4 +1,4 @@
-import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM } from './WCBase.js';
+import { WCBase, props, RECIPE_URL, PRODUCT_URL, MEALTYPES_ENUM, MEASURE_UNIT_ENUM, RECIPE_WITH_THUMBNAILS_URL } from './WCBase.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { StepEditor } from './StepEditor.js';
 import { ProductRow } from './ProductRow.js';
@@ -25,12 +25,10 @@ template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
  <!--div-->
   <!-- The editor is connected here when utilized -->
-
-  <div class='popup__connector'>
-  </div>
+<div class='popup__connector'></div>
   
-  <!-- Wrapper for the whole recipe view, display set to none while in editor -->
-  <div class='uploader view_node'>
+<!-- Wrapper for the whole recipe view, display set to none while in editor -->
+<div class='uploader view_node'>
 
   <div class='uploader__frame' data-input-frame>
 
@@ -93,12 +91,12 @@ template.innerHTML =
     <button class='button--save save_recipe'>Save</button>
   </div>
 
-  <!-- Existing recipe list wrapper -->
+    <!-- Existing recipe list wrapper -->
     <div class='uploader__frame recipe_list'>
       <entry-browser data-browser='recipe_browser' class='browser'>Recipes</entry-browser>
     </div>
   
-  </div> <!-- End of recipe view wrapper -->
+</div> <!-- End of view node -->
 
 <!--/div-->`;
 
@@ -136,9 +134,8 @@ class RecipeView extends WCBase
 
         this.mRootElement    = this.shadowRoot.querySelector('.uploader');
         this.mViewNode       = this.shadowRoot.querySelector('.view_node');
-        this.mEditorNode     = this.shadowRoot.querySelector('.uploader__frame.editor_node');
+        this.mEditorNode     = this.shadowRoot.querySelector('.popup__connector');
         this.mSaveButton     = this.shadowRoot.querySelector('.save_recipe');
-    
         this.mProductMenu    = this.shadowRoot.querySelector('.product_menu');
         this.mBrowser        = this.shadowRoot.querySelector('[data-browser="recipe_browser"]');
 
@@ -261,7 +258,7 @@ class RecipeView extends WCBase
                             {
                                 if (response.ok)
                                 {
-                                    console.log(`addRecipeWithSteps response: ${response}`);
+                                    console.log(`addRecipeWithSteps response: ${response.status}`);
                                     this.loadRecipes();
                                     this.mInputOperator.reset();
                                 }
@@ -316,8 +313,7 @@ class RecipeView extends WCBase
          */
         refreshButton.addEventListener('click', e => 
         {
-             FileCache.clearCache(RECIPE_URL);
-             this.loadRecipes(); 
+            this.reload();
         });
 
         // ---------------------------------------------
@@ -335,6 +331,7 @@ class RecipeView extends WCBase
 
             if (list && Array.isArray(list))
             {
+                this.mAvailableProducts = list;
                 try  { this.mProductMenu.pushDataSet(list); }
                 catch (error) { console.log(`RecipeView ProductMenu init error: ${error}`); }
             }
@@ -349,6 +346,25 @@ class RecipeView extends WCBase
 
     }
 
+    reload()
+    {
+        FileCache.clearCache(RECIPE_URL);
+        this.loadRecipes(); 
+    }
+
+    openEditor(entry)
+    {
+        this.mEditorNode.appendChild
+        (
+            new RecipeEditor
+            (
+                entry, 
+                this, 
+                this.mViewNode,
+                this.mAvailableProducts
+            )
+        );
+    }
    /*
     loadProducts()
     {
@@ -411,9 +427,17 @@ class RecipeView extends WCBase
     {
         this.getRecipes()
             .then(response => 
-            {    
-                try { this.generateList( JSON.parse( response.text ) ); } 
-                catch (error) { throw new Error(`Could not read recipes: ${error}`); }
+            {   
+                console.log(`GET /recipes response status: ${response.status}`);
+
+                if (response.ok)
+                {
+                    console.log(`Response ok, parse the recipes`);
+                    try { this.generateList( JSON.parse(response.text)); } 
+                    catch (error) { throw new Error(`Recipe parse failed: ${error}`); }
+                }
+                else throw new Error(`Server responded with: ${response.text}`);
+     
             })
             .catch(error => { console.log(`${error}`); });
     }
@@ -528,17 +552,22 @@ class RecipeView extends WCBase
          */
         this.shadowRoot.addEventListener('edit-by-id', e =>
         {
-             const id = e.detail.id;
+             const entry = e.detail.entry;
  
              e.preventDefault();
              e.stopPropagation();
  
-             console.log(`RecipeView: edit-by-id ${id} event intercepted. Open the editor for the recipe`);
+             console.log(`RecipeView: edit-by-id ${entry.id} event intercepted. Open the editor for the recipe`);
  
+            this.openEditor(entry);
             //this.openEditor(id);
  
         }, true);
 
+        this.shadowRoot.addEventListener('recipe-edit-ok', e => 
+        {
+            this.reload();
+        }, true);
         /**
          * Listen to product-list events
          */
