@@ -406,7 +406,214 @@ class FileCache
     // -
     // ------------------------------------------------
 
+    /**
+     * Performs a HTTP PUT Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  dto
+     * @return {Promise} response
+     */
+    static async putDto(route, dto)
+        {
+            const bearer = `Bearer ${FileCache.getToken()}`;
+    
+            console.log(`HTTP PUT Authorization: ${bearer}`);
+    
+            // ------------------------------------
+            // - No need for multipart
+            // ------------------------------------
+            
+            const response = await fetch
+            (
+                route,
+                {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: 
+                    {
+                        'Authorization' : bearer,
+                        'Content-Type': 'application/json'
+                    },
+                    body: dto
+                }
+            );
+    
+            const status = response.status;
+            const ok     = response.ok;
+            const text   = await response.text();
+    
+            // -----------------------------------
+            // - Clear route cache
+            // -----------------------------------
+    
+            FileCache.clearCache(route);
+    
+            return { ok, status, text };
+        }
+    
+    /**
+     * Performs a HTTP PUT Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {object}  dto
+     * @param  {File}    imageFile 
+     * @return {Promise} response
+     */
+    static async putDtoAndImage(route, dto, imageFile)
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
 
+        console.log(`HTTP PUT Authorization: ${bearer}`);
+
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+
+        const 
+        formData = new FormData();
+        formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+        formData.append('image', imageFile);
+
+        const response = await fetch
+        (
+            route,
+            {
+                method: 'PUT',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+
+        const status = response.status;
+        const ok     = response.ok;
+        const text   = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return { ok, status, text };
+    }
+
+    /**
+     * Performs a HTTP PUT Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}         route
+     * @param  {object}         dto
+     * @param  {Array<File>}    images 
+     * @return {Promise} response
+     */
+    static async putDtoAndImageList(route, dto, images)
+    {
+     const bearer = `Bearer ${FileCache.getToken()}`;
+
+     console.log(`HTTP PUT Authorization: ${bearer}`);
+
+     // ------------------------------------
+     // - Generate multipart payload
+     // ------------------------------------
+
+     const 
+     formData = new FormData();
+     formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+    
+    // ---------------------------------------
+    // - Parse the image list
+    // ---------------------------------------
+
+    const imageTitle = images.title;
+
+    for (const image of images.data)
+    {
+        formData.append( imageTitle, image);
+    }
+
+     const response = await fetch
+     (
+         route,
+         {
+             method: 'PUT',
+             credentials: 'include',
+             headers: 
+             {
+                 'Authorization' : bearer
+             },
+             body: formData
+         }
+     );
+
+     const status = response.status;
+     const ok     = response.ok;
+     const text   = await response.text();
+
+     // -----------------------------------
+     // - Clear route cache
+     // -----------------------------------
+
+     FileCache.clearCache(route);
+
+     return { ok, status, text };
+ }
+
+
+    /**
+     * Performs a HTTP PUT Request, includes an 
+     * Authorization header with bearer and token from storage
+     * 
+     * @param  {string}  route
+     * @param  {string}  dto
+     * @return {Promise} response
+     */
+ static async patchDto(route, dtoKey, dto, idKey, idValue)
+ {
+     const bearer = `Bearer ${FileCache.getToken()}`;
+
+     console.log(`HTTP PATCH Authorization: ${bearer}`);
+
+     // ------------------------------------
+     // - No need for multipart
+     // ------------------------------------
+
+     const 
+     formData = new FormData();
+     formData.append( dtoKey, new Blob([dto],{type:'application/json'}) );
+     formData.append( idKey, `${idValue}`);
+     
+     const response = await fetch
+     (
+         route,
+         {
+             method: 'PATCH',
+             credentials: 'include',
+             headers: 
+             {
+                 'Authorization' : bearer
+             },
+             body: formData
+         }
+     );
+
+     const status = response.status;
+     const ok     = response.ok;
+     const text   = await response.text();
+
+     // -----------------------------------
+     // - Clear route cache
+     // -----------------------------------
+
+     FileCache.clearCache(route);
+
+     return { ok, status, text };
+ }
 
     /**
      * Performs an HTTP PATCH Request, 
