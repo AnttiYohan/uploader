@@ -429,6 +429,7 @@ class StepEditor extends WCBase
     connectedCallback()
     {
         console.log("StepEditor::callback connected");
+        this.emit('step-editor-conntected');
     }
 
     disconnectedCallback()
