@@ -178,6 +178,13 @@ class ImageInputRow extends WCBase
         return undefined; 
     }
 
+    object()
+    {
+        const  result = this.value;
+        return result ? {[this.mKey]: result} : result;
+    }
+
+
     /**
      * Return required status
      * ---------------
