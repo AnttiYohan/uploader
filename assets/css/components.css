@@ -11,7 +11,11 @@
     --red:    #F00D0D;
     --white:  #FFFFFF;
     --red-tint: #FF6868;
-
+    --blue-tint: #6898ff;
+    --green-tint: #48ff98;
+    --editor-bg: #c8e8fa;
+    --editor-field-bg: #e9eefd;
+    --editor-border-color: #9298b2;
     --line-height: 48px;
     --image-area-side: 96px;
     --vt-pad: 8px;
@@ -92,6 +96,91 @@
     outline: none;
     border-color: rgba(0,0,0,0.5);
 }
+
+/** Common styles for 
+ *  panels, backgrounds, elements 
+ *  and buttons.
+ *  This style set is used in recipe editor
+ **/
+.button {
+    cursor: pointer;
+    color: #fff;
+    background-color: #008800;
+    width: 128px;
+    height: 32px;
+    margin: 0 auto;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    text-align: center;
+}
+.button.update {
+    background-color: #6898ff; /*var(--blue-tint);*/
+}
+.buttor.exit {
+    background-color: #FF6868; /*var(--red-tint);*/
+}
+.editor {
+    border-radius: 8px;
+    padding: 16px;
+    min-width: 300px;
+    width: 80vw;
+    max-width: 1000px;
+    /** Recipe editor color theme **/
+    background-color: #c8d8f8;
+    border: 1px solid#6878a8;
+}
+
+.editor__component {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px 8px 8px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    width: 100%;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px -8px rgba(0,0,0,0.25);
+}
+
+.editor__component.products,
+.editor__component.steps,
+.editor__component.tips {
+    flex-direction: column;
+    justify-content: center;
+}
+
+.current {
+    min-width: 192px;
+    max-width: 288px;
+    width: 100%;
+}
+
+.current .component__value {
+    width: 100%;
+    min-height: 24px;
+    padding: 4px;
+    background-color: #d8e8ff;
+    border: 1px solid #6878a8;
+    border-radius: 6px;
+}
+
+.current .component__label {
+    position: absolute;
+    transform: translate3d(0, -20px, 0);
+}
+
+@media screen and (max-width:640px) {
+    .editor__component {
+        flex-direction: column;
+    }
+    .current {
+        max-width: 620px;
+    }
+    .current .component__value {
+        width: 100%;
+        min-width: 320px;
+    }
+}
+
 
 .uploader {
     display: flex;
