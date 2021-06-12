@@ -29,7 +29,7 @@ class InputOperator
         /**
          * Centralized storage for input element references
          * -------------
-         * @type {array}
+         * @type {Array}
          */
         this.mStore = [];
 
@@ -39,6 +39,32 @@ class InputOperator
          * @type {File}
          */
         this.mImage = undefined;
+
+        /**
+         * The root of editor components
+         * ---------
+         * @type {HTMLElement}
+         */
+        this.mComponentFrame = undefined;
+
+        /**
+         * Holds all editor components
+         * ---------
+         * @type {Array}
+         */
+        this.mComponentStore = [];
+        this.mComponentMap = {};
+
+        /**
+         * Holds the dto for editor
+         */
+        this.mComponentValueMap = {};
+
+        /**
+         * Holds the available product list
+         * @type {Array}
+         */
+        this.mAvailableProducts = [];
 
         if (Array.isArray(inputArray)) this.load(inputArray);
     }
@@ -232,6 +258,364 @@ class InputOperator
             });
     }
 
+    setComponentFrame( frame )
+    {
+        this.mComponentFrame = frame;
+        this.mComponentFrame.addEventListener
+        ('component-connected', e => 
+        {
+            const label = e.detail.label;
+
+            console.log(`InputOperator: component-connect received. Label: ${label}`);
+
+            this.fillComponent( label );
+
+        }, true);
+    }
+
+    loadComponents( components, dto, availableProducts )
+    {
+        if ( ! Array.isArray( components ) ) return;
+
+        this.mRecipeId = dto.id;
+        this.mComponentValueMap = dto;
+        this.mAvailableProducts = availableProducts;
+
+        for( const component of components )
+        {
+            const labelElement = component.querySelector('[data-label]');
+            const label = labelElement.dataset.label;
+
+            if ( label === 'image') console.log(`IMAGE CAUGHT`);
+            if ( label === 'products' )
+            {
+                this.mProductComponent = component;
+            }
+            else
+            if ( label === 'stepBySteps')
+            {
+                this.mStepComponent = component;
+            }
+
+            this.mComponentMap[label] = component;
+            this.mComponentStore.push( component );
+        }
+    }
+
+    loadProductComponent( productComponent )
+    {
+
+    }
+
+    getUpdateImage()
+    {
+        let image;
+
+        const component = this.mComponentMap['image'];
+        const fieldSet = component.querySelector('[data-input]');
+
+        if ( fieldSet )
+        {
+            image = fieldSet.value;
+        }
+
+        return image;
+    }
+
+    getUpdateRecipe(originals = false)
+    {
+        const dto = this.getUpdateRecipeDto(originals);
+        return Object.keys(dto).length > 1
+             ? JSON.stringify(dto)
+             : '';
+    }
+
+    getUpdateRecipeDto(originals = false)
+    {
+        const resultSet = {};
+
+        /**
+         * Add id
+         */
+        resultSet['id'] = this.mRecipeId;
+
+        /**
+         * Add components
+         */
+        for (const key in this.mComponentMap)
+        {
+            if ( key === 'image' || key === 'products' || key === 'stepBySteps') continue;
+
+            const component = this.mComponentMap[key];
+            const editor = component.querySelector('[data-input]');
+
+            if ( editor )
+            {
+                const value = editor.value;
+                if ( value ) resultSet[key] = value;
+                else {
+                    if (originals)
+                    {
+                        const labelElement = component.querySelector('[data-label]');
+                        const labelValue = labelElement.value;
+
+                        resultSet[key] = labelValue;
+                    }
+                }
+                
+            }
+        }
+
+        return resultSet;
+    }
+
+    getUpdateProductListDto()
+    {
+        /**
+         * Add components
+         */
+        const component = this.mProductComponent;
+        const editor = component.querySelector('[data-input]');
+        let products = undefined;
+
+        if ( editor ) 
+        {
+            products = editor.value; 
+        
+            console.log(`Product amount: ${products.length}`);
+            for ( const product of products )
+            {
+                console.log(`Product: ${product}, recipe id: ${product.recipeId}`);
+                product.recipeId = this.mRecipeId;
+            }
+        }
+
+        return products.length 
+             ? JSON.stringify(products)
+             : '';
+    }
+
+    /**
+     * Returns a specifinc dataset for step contents and
+     * a list of associated images
+     * -------
+     * @return {object} dto
+     */
+    getUpdateStepListDto()
+    {
+        /**
+         * Add components
+         */
+        const component = this.mStepComponent;
+        const editor = component.querySelector('[data-input]');
+        let steps = {
+            dto: {
+                title: 'steps',
+                data: ''
+            },
+            images: {
+                title: 'images',
+                data: []
+            }
+        };
+
+        if ( editor ) 
+        {
+            const list = editor.value; 
+            const dtoList = [];
+            console.log(`Step amount: ${list.length}`);
+
+            for ( const step of list )
+            {
+                console.log(`Step: ${step}, recipe id: ${step.text}`);
+                dtoList.push({
+                    text: step.text,
+                    stepNumber: step.stepNumber,
+                    recipeId: this.mRecipeId
+                });
+
+                steps.images.data.push(step.image);
+            }
+
+            steps.dto.data = JSON.stringify(dtoList);
+        }
+
+        return steps;
+    }
+    fillComponent( label )
+    {
+        const component = this.mComponentMap[label];
+        //this.mComponentStore.find( elem => elem.dataset.label === label );
+        const value = this.mComponentValueMap[label];
+
+        if ( label === 'image')
+        {
+            console.log(`IMAGE CAUGHT`);
+        }
+        console.log(`Add ${value} to component ${label}`);
+
+        /**
+         * Check for special cases:
+         * - products
+         * - stepBySteps
+         * - mealTypes
+         * - seasons
+         * - tips
+         */
+         switch (label) 
+         {
+             case 'products':
+                 
+                this.initProductMenu( component, value );
+                break;
+         
+            case 'stepBySteps':
+
+                this.initStepEditor( component, value );
+                break;
+
+            case 'mealTypes':
+
+                this.initBinarySwitchGroup( component, value );
+                break;
+
+            case 'season':
+
+                this.initBinarySwitchGroup( component, value );
+                break;
+
+            default:
+                break;
+         }
+ 
+        if ( component )
+        {
+            const labelElement = component.querySelector('[data-label]');
+
+            console.log(`Label elem: ${labelElement}, value: ${value}`);
+
+            labelElement.addContent( value );
+            //const label = labelElement.dataset.label;
+            //component.addContent( value );
+        }
+    }
+    /**
+     * Fills the editor component collection with values
+     * given in recipe DTO
+     * ------
+     * @param {RecipeDto} dto 
+     */
+    fillEditor( dto )
+    {
+        for ( const component of this.mComponentStore )
+        {
+            /**
+             * Parse the label from the component
+             */
+            const labelElement = component.querySelector('[data-label]');
+            const label = labelElement.dataset.label;
+            console.log(`LabelElement label: ${label}, dto: ${dto[label]}`);
+
+            /**
+             * Set value into the labelElement
+             */
+            labelElement.addContent( dto[label] );
+            //labelElement.value = this.getValue( label );
+        }
+    }
+    
+    initProductMenu( component, products )
+    {
+
+        /**
+         * Listen for ingredient menu connected event,
+         * and pass the availabale products into it
+         */
+         component.addEventListener('product-row-connected', e => 
+         {
+             console.log(`InputOperator::initProductMenu: product-row-connected`);
+      
+            /**
+             * The product row
+             */
+            const row = component.querySelector('product-row');
+
+            if ( row ) for ( const product of products )
+            {
+                row.addField( product, true );
+            }
+
+            const button = component.querySelector('.update--products');
+            button.addEventListener('click', e => 
+            {
+
+            });
+        });
+        /**
+         * Listen for ingredient menu connected event,
+         * and pass the availabale products into it
+         */
+        component.addEventListener('ingredient-menu-connected', e => 
+        {
+            console.log(`InputOperator::initProductMenu: ingredient-menu-connected`);
+
+            /**
+             * Fill the menu with all available products
+             */
+            const menu = component.querySelector('ingredient-menu');
+
+            if ( menu ) menu.pushDataSet( this.mAvailableProducts );
+        
+        });
+
+
+    }
+
+    initStepEditor( component, steps )
+    {
+
+        /**
+         * Listen for ingredient menu connected event,
+         * and pass the availabale products into it
+         */
+         component.addEventListener('step-editor-connected', e => 
+         {
+             console.log(`InputOperator::initProductMenu: step-editor-connected`);
+      
+            /**
+             * The product row
+             */
+            const editor = component.querySelector('step-editor');
+
+            if ( editor ) for ( const step of steps )
+            {
+                editor.addField( step );
+            }
+        });
+    }
+
+    initBinarySwitchGroup( component, binarySwitchList )
+    {
+        /**
+         * Listen for ingredient menu connected event,
+         * and pass the availabale products into it
+         */
+         component.addEventListener('binary-switch-group-connected', e => 
+         {
+             console.log(`InputOperator::initBinarySwitchGroup: binary-switch-group-connected`);
+      
+            /**
+             * The Binary Switch Group
+             */
+            const group = component.querySelector('binary-switch-group');
+
+            if ( group ) //for ( const binarySwitch of binarySwitchList )
+            {
+                group.pushDataSet( binarySwitchList );
+            }
+        });    
+    }
+    
     /**
      * Displays input data
      * in request form
