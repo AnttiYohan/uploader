@@ -40,11 +40,16 @@ import { props } from './WCBase.js';
         this.initValueElement( this.shadowRoot.querySelector('.image__area') ); 
  
      }
- 
+
      // ----------------------------------------------
      // - Methods
      // ----------------------------------------------
 
+    reset()
+    {
+
+    }
+    
     addContent( image )
     {
         this.mImage = image;
