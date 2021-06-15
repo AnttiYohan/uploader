@@ -23,8 +23,10 @@ import { NumberInputRow } from './NumberInputRow.js';
 import { EditorStepList } from './EditorStepList.js';
 import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
+import { EditorBinaryLabel } from './EditorBinaryLabel.js';
 import { EditorSwitchGroup } from './EditorSwitchGroup.js';
 import { EditorProductList } from './EditorProductList.js';
+import { MediaEditor } from './media-components/MediaEditor.js';
 
 /**
  * Recipe Editor View  
@@ -67,9 +69,8 @@ class RecipeEditor extends WCBase
                 <editor-label data-label='title'>Current</editor-label> 
                 <text-input-row data-input='title'>New Title</text-input-row>
             </div>
-            <div class='editor__component'>
-                <editor-image data-label='image'>Current</editor-image>
-                <image-input-row data-input='image'>New Image</image-input-row>
+            <div class='component__frame'>
+                <media-editor data-id=${recipeDto.id}></media-editor>
             </div>
             <div class='editor__component'>
                 <editor-label data-label='originalRecipeLink'>Current Link</editor-label>
@@ -118,11 +119,11 @@ class RecipeEditor extends WCBase
                 ]'>Season</binary-switch-group>
             </div>
             <div class='editor__component'>
-                <editor-button-row data-label='fingerFood'>Current</editor-button-row>
+                <editor-binary-label data-label='fingerFood'>Current</editor-binary-label>
                 <binary-button-row data-input='fingerFood'>Fingerfood</binary-button-row>
             </div>
             <div class='editor__component'>
-                <editor-button-row data-label='hasToCook'>Current</editor-button-row>
+                <editor-binary-label data-label='hasToCook'>Current</editor-binary-label>
                 <binary-button-row data-input='hasToCook'>Has To Cook</binary-button-row>
             </div>
             <binary-button-row data-input='allergens' blocked>Allergens</binary-button-row>
@@ -178,7 +179,7 @@ class RecipeEditor extends WCBase
 
         this.setupStyle
         (`
-        .editor { max-width: 600px; }
+        .editor { max-width: 1200px; margin: 0 auto; }
         .two_column .button { margin: auto; }
         .two_column .column__item { margin-bottom: 16px; }
         `);
@@ -275,23 +276,13 @@ class RecipeEditor extends WCBase
      * Handles the Respone Promise
      * @param {Promise} promise 
      */
-    responseHandler(promise)
+    responseHandler(response)
     {
-        promise
-        .then( response => 
-            {
-                if (response.ok)
-                {
-                    console.log(`Recipe update response: ${response.status}`);
+        console.log(`Recipe update response: ${response.status}`);
                     console.log(`Response: ${response.text}`);
-                    this.closeEditor(response);
-                }
-                else
-                {
-                    console.log(`addRecipe failed, response ${response.status}`)
-                }    
-            })
-        .catch(error => { console.log(`Recipe update error: ${error}`)});
+                    
+                    //this.closeEditor(response);
+        
     }
 
     /**
@@ -299,15 +290,20 @@ class RecipeEditor extends WCBase
      * @param   {object} dto 
      * @return 
      */
-    updateRecipe( dto )
+    async updateRecipe( dto )
     {
-        return this.responseHandler(
-            FileCache.putDto
-            (
-                UPDATE_RECIPE_URL,
-                dto
-            )
+        const response = await FileCache.putDto
+        (
+            UPDATE_RECIPE_URL,
+            dto
         );
+        
+        if ( response.status === 200 )
+        {
+            const recipe = await response.json();
+
+            this.mInputOperator.reloadEditor( recipe );
+        }
     }
 
     updateRecipeImage( stringifiedDto, image )
@@ -325,25 +321,26 @@ class RecipeEditor extends WCBase
         } 
     }
 
-    updateRecipeProducts( serialized, addmode )
+    async updateRecipeProducts( serialized, addmode )
     {
-        if ( addmode ) return this.responseHandler
-        (
-            FileCache.putDto
-            (
-                UPDATE_PRODUCTS_ADD_URL,
-                serialized
-            )
-        );
+        const response = addmode
+                       ? await FileCache.putDto
+                       (
+                           UPDATE_PRODUCTS_ADD_URL,
+                           serialized
+                       )
+                       : await FileCache.putDto
+                       (
+                           UPDATE_PRODUCTS_URL,
+                           serialized
+                       );
+    
+        if ( response.status === 200 )
+        {
+            const products = await response.json();
 
-        return this.responseHandler
-        (
-            FileCache.putDto
-            (
-                UPDATE_PRODUCTS_URL,
-                serialized,
-            )
-        );
+            this.mInputOperator.reloadProductMenu( products );
+        }
     }
 
     updateRecipeSteps( steps, addmode )
