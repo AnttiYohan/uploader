@@ -227,6 +227,92 @@
     flex-direction: row;
     justify-content: flex-start;
 }
+.component__header {
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;    
+}
+.component__tab {
+    min-width: 32px;
+    height: 100%;
+    background-color: #eee;
+    border-bottom: 1px solid rgba(240,255,255,0.5);
+    border-top: 1px solid rgba(0,0,0,0.25);
+    border-radius: 2px;
+    border-right: 1px solid rgba(0,255,255,0.33);
+    color: #555;
+    padding-left: 32px;
+    padding-right: 32px;
+    text-align: center;
+}
+.component__layout {
+    padding: var(--component-pad, 8px) 0;
+    background-color: rgba(240,230,240);
+    border-top: 1px solid rgba(160,160,240,0.5);
+    border-bottom: 3px solid rgba(180,110,110,0.5);
+}
+.component__frame {
+    display: flex;
+    flex-direction: row;
+}
+
+.component__column {
+    display: flex;
+    flex-direction: column;
+}
+.component__fluid--600 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.component__fluid--600 .component__window {
+    display: flex;
+    flex-direction: column;
+}
+.component__fluid--600 .component__window .window__image {
+    min-height: 200px;
+    border-bottom: 1px solid rgba(0,255,255,0.33);
+    display: flex;
+    padding: 4px;
+}
+.component__fluid--600 .component__window .window__controls {
+    min-height: 300px;
+    border-bottom: 3px solid rgba(255,140,105,1.0);
+}
+.window__image .image {
+    min-width: 32px;
+    min-height: 24px; 
+    box-shadow: 0 4px 12px -6px rgba(0,0,0,0.25); 
+}
+.window__image .label--width {
+    position: absolute;
+    /*top: 8px;
+    left: 8px;*/
+    color: rgba(0,0,0,0.5);
+    min-width: 32px;
+    min-height: 24px;
+    font-size: 18px;
+}
+@media screen and (max-width: 600px)
+{
+    .component__fluid--600 {
+        flex-direction: column;
+        width: 100%;
+    } 
+    .component__fluid--600 .component__window {
+        flex-direction: row;
+        min-height: 200px;
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+    }
+    .component__fluid--600 .component__window .window__image {
+        flex-basis: 70%;
+    }
+    .component__fluid--600 .component__window .window__controls {
+        flex-basis: 30%;
+        border-bottom: 3px solid rgba(255,140,105,1.0);
+    }
+}
+
 .component__rowset {
     display: flex;
     flex-direction: row;
