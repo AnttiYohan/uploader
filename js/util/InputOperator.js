@@ -258,6 +258,16 @@ class InputOperator
             });
     }
 
+    /**
+     * Stores the data-input-frame, the parent of
+     * component elements, into a member, and
+     * begin to listen for component-connect events,
+     * in order to know, when the component has
+     * connected to the DOM and to perform further
+     * initialization;
+     * ------
+     * @param {HTMLElement} frame 
+     */
     setComponentFrame( frame )
     {
         this.mComponentFrame = frame;
@@ -273,26 +283,52 @@ class InputOperator
         }, true);
     }
 
+    /**
+     * Push the editor component array, dto and available
+     * products into the inputOperator.
+     * This is done at editor initialization phase
+     * -------
+     * @param  {array}  components 
+     * @param  {object} dto 
+     * @param  {array}  availableProducts 
+     */
     loadComponents( components, dto, availableProducts )
     {
         if ( ! Array.isArray( components ) ) return;
 
+        /**
+         * Store dto, available products into
+         * InputOperator instance memory
+         */
         this.mRecipeId = dto.id;
         this.mComponentValueMap = dto;
         this.mAvailableProducts = availableProducts;
 
+        /**
+         * Iterate though component nodes,
+         * Look for data-label element, and its label value.
+         * Store the component into component map,
+         * using the label value as the key.
+         * -----
+         * In case the label value is
+         * 'products' or 'stepBySteps',
+         * store the component in an exclusive member,
+         * in order to have direct access into those components
+         */
         for( const component of components )
         {
             const labelElement = component.querySelector('[data-label]');
+            if ( ! labelElement ) continue;
+            
             const label = labelElement.dataset.label;
+            if ( ! label ) continue;
 
-            if ( label === 'image') console.log(`IMAGE CAUGHT`);
             if ( label === 'products' )
             {
                 this.mProductComponent = component;
             }
             else
-            if ( label === 'stepBySteps')
+            if ( label === 'stepBySteps' )
             {
                 this.mStepComponent = component;
             }
@@ -442,17 +478,16 @@ class InputOperator
 
         return steps;
     }
+
+    /**
+     * Adds content into the components
+     * ------
+     * @param {string} label 
+     */
     fillComponent( label )
     {
         const component = this.mComponentMap[label];
-        //this.mComponentStore.find( elem => elem.dataset.label === label );
         const value = this.mComponentValueMap[label];
-
-        if ( label === 'image')
-        {
-            console.log(`IMAGE CAUGHT`);
-        }
-        console.log(`Add ${value} to component ${label}`);
 
         /**
          * Check for special cases:
@@ -492,11 +527,40 @@ class InputOperator
         {
             const labelElement = component.querySelector('[data-label]');
 
-            console.log(`Label elem: ${labelElement}, value: ${value}`);
+            if ( labelElement ) {
+                console.log(`Label elem: ${labelElement}, value: ${value}`);
+                labelElement.addContent( value );
+            }
+        }
+    }
 
+    reloadComponent( label, value )
+    {
+        console.log(`Reload component ${label}`);
+
+        /**
+         * Exclude products and steps
+         */
+        if ( label === 'products' || label === 'stepBySteps' ) return;
+
+        const component = this.mComponentMap[label];
+    
+        if ( component )
+        {
+            const labelElement = component.querySelector('[data-label]');
+
+            labelElement.reset();
             labelElement.addContent( value );
             //const label = labelElement.dataset.label;
             //component.addContent( value );
+        }
+    }
+    
+    reloadEditor( recipe )
+    {
+        for ( const key in recipe )
+        {
+            this.reloadComponent( key, recipe[key] );
         }
     }
     /**
@@ -545,11 +609,6 @@ class InputOperator
                 row.addField( product, true );
             }
 
-            const button = component.querySelector('.update--products');
-            button.addEventListener('click', e => 
-            {
-
-            });
         });
         /**
          * Listen for ingredient menu connected event,
@@ -569,6 +628,42 @@ class InputOperator
         });
 
 
+    }
+
+    /**
+     * Resets and loads products into the product menu
+     * 
+     * @param {array} products 
+     */
+    reloadProductMenu( products )
+    {
+        const component = this.mProductComponent;
+
+        /**
+         * Parse the label from the component
+         */
+        const labelElement = component.querySelector('[data-label]');
+        
+        if ( labelElement )
+        {
+            labelElement.reset();
+            labelElement.addContent( products );
+        }
+         
+        /**
+         * The product row
+         */
+        const row = component.querySelector('product-row');
+
+        if ( row ) {
+
+            row.reset();
+
+            for ( const product of products )
+            {
+                row.addField( product, true );
+            } 
+        } 
     }
 
     initStepEditor( component, steps )
