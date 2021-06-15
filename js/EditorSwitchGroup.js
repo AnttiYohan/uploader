@@ -1,5 +1,5 @@
 import { EditorComponent } from './EditorComponent.js';
-import { newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClassHTML } from './util/elemfactory.js';
 import { props } from './WCBase.js';
 
 /**
@@ -79,6 +79,11 @@ import { props } from './WCBase.js';
  
     }
 
+    reset()
+    {
+        deleteChildren( this.mValueElement );
+    }
+    
     addContent( switchGroup )
     {
         for ( const switchItem of switchGroup )

@@ -35,6 +35,11 @@ import { WCBase } from './WCBase.js';
          return this.mValueElement.textContent;
     }
    
+    reset()
+    {
+        this.mValueElement.textContent = '';
+    }
+    
    /**
     * Sets text content into value element 
     * ----

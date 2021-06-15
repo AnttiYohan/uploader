@@ -1,5 +1,5 @@
 import { EditorComponent } from './EditorComponent.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClass, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
 
 /**
  * Displays the static content of a Step Editor
@@ -79,6 +79,11 @@ import { newTagClass, newTagClassChildren, newTagClassHTML } from './util/elemfa
             this.shadowRoot.querySelector('.store')
         );
  
+    }
+
+    reset()
+    {
+        deleteChildren( this.mValueElement );
     }
 
     addContent( stepList )

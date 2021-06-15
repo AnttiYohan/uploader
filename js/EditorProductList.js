@@ -1,5 +1,5 @@
 import { EditorComponent } from './EditorComponent.js';
-import { newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
 
 /**
  * Text Input Row, with old value on the left
@@ -45,6 +45,11 @@ import { newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
  
     }
 
+    reset()
+    {
+        deleteChildren( this.mValueElement );
+    }
+    
     addContent( list )
     {
         for ( const product of list )
