@@ -438,18 +438,14 @@ class FileCache
                     body: dto
                 }
             );
-    
-            const status = response.status;
-            const ok     = response.ok;
-            const text   = await response.text();
-    
+
             // -----------------------------------
             // - Clear route cache
             // -----------------------------------
     
             FileCache.clearCache(route);
     
-            return { ok, status, text };
+            return response;
         }
     
     /**
