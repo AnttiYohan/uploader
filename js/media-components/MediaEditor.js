@@ -72,49 +72,26 @@ class MediaEditor extends WCBase
         this.mLayout = this.shadowRoot.querySelector('.component__layout');
     }
 
-    displayImages()
-    {
-        const len = this.mImageElements.length;
-        let i;
-
-        for (i = 0; i < len; i++)
-        {
-            const image = this.mImageStore[i];
-
-            if ( image )
-            {
-                const s = 1.0;
-                const width = image.width;
-                const height = image.height;
-                console.log(`Image ${i} width: ${width}, height: ${height}`);
-                const src = `data:${image.type};base64,${image.data}`;
-                
-                /**
-                 * Apply width/height
-                 */
-                const imgElem = this.mImageElements[i];
-
-                imgElem.style.width = `${width}px`;
-                imgElem.style.height = `${height}px`;
-
-                this.mImageElements[i].src = src;
-            }
-        }
-    }
-
-    imageSetLayout()
+    imageSetLayout( mainImage, thumbnails )
     {
         deleteChildren( this.mLayout );
-        const s = .5;
+
+        /**
+         * Define thumbnail frame
+         */
         const windows = [];
-        this.mImageElements = []
-        for (const item of this.mScaling)
+        this.mImageElements = [];
+
+        for (const thumbnail of thumbnails)
         {
-            const width = `${item.width}px`;
-            const img = newTagClass( 'img', 'image');
+            const width = `${thumbnail.width}px`;
+            const height = `${thumbnail.height}px`;
+            const img = newTagClass( 'img', 'image' );
             this.mImageElements.push( img );
-            img.style.width = `${item.width*s}px`;
-            img.style.height = `${item.width*s*0.75}px`;
+            img.style.width = `${width}px`;
+            img.style.height = `${height}px`;
+            img.src = `data:${thumbnail.type};base64,${thumbnail.data}`;
+
             const window__image = newTagClassChildren
             (
                 'div',
@@ -174,11 +151,62 @@ class MediaEditor extends WCBase
             );
             windows.push(window);
         }
+
+        /**
+         * Define main image element
+         */
+         const mainImageElement = newTagClass( 'img', 'image--main' );
+         mainImageElement.src = `data:${mainImage.fileType};base64,${mainImage.data}`;
+
+         
+        const data = [
+            newTagClassHTML( 'p', 'component__label', 'Width: '),
+            newTagClassHTML( 'p', 'component__label', 'Height: ')
+        ];
+        const controls = [
+            newTagClassHTML( 'p', 'component__label', 'Add image' ),
+            newTagClassHTML( 'p', 'component__label', 'Create Set' )
+        ];
+
+        
+        const mainImageData = newTagClassChildren(
+            'div',
+            'component__column',
+            data
+        );
+        const mainImageControls = newTagClassChildren( 
+            'div',
+            'component__column',
+            controls
+        );
+        const mainImageNav = newTagClassChildren( 
+            'div',
+            'component__frame',
+            [
+                mainImageData,
+                mainImageControls
+            ]
+        );
+        const mainImageLayout = newTagClassChildren(
+            'div',
+            'component__column',
+            [
+                mainImageElement,
+                mainImageNav
+            ]
+        );
         const layout = newTagClassChildren
         (
             'div',
-            'component__fluid--600',
-            windows
+            'component__column',
+            [
+                mainImageLayout,
+                newTagClassChildren(
+                    'div',
+                    'component__fluid--600',
+                    windows
+                )
+            ]
         );
 
         this.mLayout.appendChild( layout );
@@ -243,16 +271,24 @@ class MediaEditor extends WCBase
      */
     async getRecipeMedia( id )
     {
-        const response = await FileCache.getCached
+        const response = await FileCache.getRequest
         (
-            `${RECIPE_MEDIA_URL}/${id}`
+            `${RECIPE_MEDIA_URL}/${id}`,
+            true,
+            true
         );
         
+        if ( response.status > 200 )
+        {
+            console.log( `get recipe media: Status ${response.status}` );
+        }
+
         if ( typeof response === 'string' )
         {
-            const thumbnails = JSON.parse( response );
-            //const thumbnails = await response.json();
-            
+            const media = JSON.parse( response );
+            const mainImage  = media.image;
+            const thumbnails = media.thumbnails;
+
             this.mImageStore = [];
 
             for (const thumbnail of thumbnails)
@@ -260,14 +296,17 @@ class MediaEditor extends WCBase
                 this.mImageStore.push(thumbnail);
             }
 
-            this.displayImages();
+            this.imageSetLayout( mainImage, thumbnails );
+
+            //this.displayImages();
         }
         else
         if ( response.status === 200 )
         {
-            const thumbnails = JSON.parse( response.text );
-            //const thumbnails = await response.json();
-            
+            const media = JSON.parse( response.text );
+            const mainImage  = media.image;
+            const thumbnails = media.thumbnails;
+
             this.mImageStore = [];
 
             for (const thumbnail of thumbnails)
@@ -275,7 +314,7 @@ class MediaEditor extends WCBase
                 this.mImageStore.push(thumbnail);
             }
 
-            this.displayImages();
+            this.imageSetLayout( mainImage, thumbnails );
         }
     }
 
@@ -292,7 +331,7 @@ class MediaEditor extends WCBase
 
     connectedCallback()
     {
-        this.imageSetLayout();
+        // this.imageSetLayout();
 
         if ( this.mRecipeId ) this.getRecipeMedia( this.mRecipeId );
         /**
