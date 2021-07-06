@@ -1,6 +1,7 @@
 import { WCBase, props } from './WCBase.js';
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
+import { EmulatorView } from './emulator-components/EmulatorView.js';
 import { LoginView } from './LoginView.js';
 import { FileCache } from './util/FileCache.js';
 import { deleteChildren } from './util/elemfactory.js';
@@ -17,16 +18,18 @@ template.innerHTML =
     <div class='nav__limiter'>
       <div class='nav__logo'></div>
       <div class='nav__tablist'>
+        <div class='nav__tab admin'>Admin</div>
         <div class='nav__tab product'>Product</div>
         <div class='nav__tab recipe'>Recipe</div>
-        <div class='nav__tab admin'>Admin</div>
+        <div class='nav__tab emulator'>Emulator</div>
       </div>
       <div class='nav__logout zoomable'></div> 
     </div>
   </header>
   
-  <product-view class='view__product'></product-view>
-  <recipe-view  class='view__recipe'></recipe-view>
+  <product-view  class='view__product'></product-view>
+  <recipe-view   class='view__recipe'></recipe-view>
+  <emulator-view class='view--emulator'></emulator-view>
 
 </div>`;
 
@@ -144,9 +147,12 @@ class UploaderView extends WCBase
         this.mLogoutButton  = this.shadowRoot.querySelector('.nav__logout');
         this.mProductTab    = this.shadowRoot.querySelector('.nav__tab.product');
         this.mRecipeTab     = this.shadowRoot.querySelector('.nav__tab.recipe');
+        this.mAdminTab      = this.shadowRoot.querySelector('.nav__tab.admin');
+        this.mEmulatorTab   = this.shadowRoot.querySelector('.nav__tab.emulator');
 
         this.mProductView   = this.shadowRoot.querySelector('.view__product');
         this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
+        this.mEmulatorView  = this.shadowRoot.querySelector('.view--emulator');
 
         // ----------------------------------------------------------------
         // - Define tab functionalitylpijd
@@ -166,24 +172,27 @@ class UploaderView extends WCBase
             }
         );
 
-        this.mProductTab.addEventListener
-        (
-            "click",
-            e => 
-            {
-                this.openProductView();
-            }
-        );
+        /**
+         * Tab click listeners
+         */
+        this.mProductTab.addEventListener( 'click', e => 
+        {
+            this.openProductView();
+        });
 
-        this.mRecipeTab.addEventListener
-        (
-            "click",
-            e => 
-            {
-                this.openRecipeView();
-            }
-        );
+        this.mRecipeTab.addEventListener( 'click', e => 
+        {
+            this.openRecipeView();
+        });
 
+        this.mEmulatorTab.addEventListener( 'click', e => 
+        {
+            this.openEmulatorView();
+        });
+
+        /**
+         * Initial view opening
+         */
         if (this.mMode === 'recipe')
         {
             this.openRecipeView();
@@ -225,24 +234,54 @@ class UploaderView extends WCBase
     {
         //if ( this.mProductView.style.display === 'none')
         //{
-            this.mProductView.style.display = 'block';
-            this.mRecipeView.style.display  = 'none';
+            this.mProductView.style.display  = 'block';
+            this.mRecipeView.style.display   = 'none';
+            this.mEmulatorView.style.display = 'none';
         //}
 
+        
         this.mProductTab.classList.add('active');
+        this.mEmulatorTab.classList.remove('active');
         this.mRecipeTab.classList.remove('active');
+        this.mAdminTab.classList.remove('active');
     }
 
     openRecipeView()
     {
-        //if ( this.mRecipeView.style.display === 'none')
-        //{
-            this.mRecipeView.style.display  = 'block';
-            this.mProductView.style.display = 'none';
-        //}
+        /**
+         * Adjust views
+         */
+        this.mRecipeView.style.display  = 'block';
+        this.mProductView.style.display = 'none';
+        this.mEmulatorView.style.display = 'none';
 
-        this.mRecipeTab.classList.add('active');
-        this.mProductTab.classList.remove('active');
+        /**
+         * Adjust tabs' classlists
+         */
+         this.mRecipeTab.classList.add('active');
+         this.mProductTab.classList.remove('active');
+         this.mEmulatorTab.classList.remove('active');
+         this.mAdminTab.classList.remove('active');
+ 
+    }
+
+    openEmulatorView()
+    {
+        /**
+         * Adjust views
+         */
+        this.mEmulatorView.style.display = 'block';
+        this.mRecipeView.style.display  = 'none';
+        this.mProductView.style.display = 'none';
+
+        /**
+         * Adjust tabs' classlists
+         */
+         this.mEmulatorTab.classList.add('active');
+         this.mRecipeTab.classList.remove('active');
+         this.mProductTab.classList.remove('active');
+         this.mAdminTab.classList.remove('active');
+ 
     }
     // ---------------------------------------------
     // - HTTP Request methods
