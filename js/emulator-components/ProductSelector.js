@@ -48,8 +48,8 @@ class ProductSelector extends WCBase
               <div class='content__list'></div>
               <input class='search__input' type='text'>
               <scroll-container class='container' data-height='120'></scroll-container>
-              <div class='component__area selection__frame'>
-              </div>
+              <ul class='component__area selection__frame'>
+              </ul>
             </div>
         `);
         
@@ -263,6 +263,19 @@ class ProductSelector extends WCBase
     // - Methods
     // ----------------------------------------------
 
+    get value()
+    {
+        const list = [];
+
+        for ( const item of this.mSelectionArea.children )
+        {
+            const id = item.dataset.id;
+            if ( id ) list.push( id );
+        }
+
+        return list.length ? list : undefined;
+    }
+
     /**
      * Returns the current dataSet size
      * as amount of entries (entry contains one string)
@@ -299,34 +312,61 @@ class ProductSelector extends WCBase
 
     emitContent()
     {
-        const title = this.mScrollContainer.valueAtIndex;
-        const productSelection = newTagClassHTML('div', 'selection__item', title);
+        this.applySelection( this.mScrollContainer.valueAtIndex );
+    }
+
+    emitClicked( title )
+    {
+        this.applySelection( title );
+    }
+
+    applySelection( title )
+    {
+        if ( ! title || typeof title !== 'string' || title.length < 1 ) return;
+
+        const item = this.mList.find( item => item['name'].toLowerCase() === title.toLowerCase() );
+
+        if ( ! item || this.isSelectionApplied( item.id ) ) return;
+
+        const productSelection = newTagClassAttrs
+        (
+            'li', 
+            'selection__item', 
+            {
+                'data-name': title,
+                'data-id': item.id
+            }
+        );
+        productSelection.textContent = title;
         productSelection.addEventListener('click', e => 
         {
             productSelection.remove();
         });
 
         this.mSelectionArea.appendChild( productSelection );
-            
+        
     }
 
-    emitClicked(title)
+    /**
+     * Compare the product id to existing selection__item ids.
+     * Convert the id from number to string, to match the 
+     * dataset type.
+     * 
+     * Returns the comparison truth value
+     * ------
+     * @param  {number}  id 
+     * @return {boolean} 
+     */
+    isSelectionApplied( id )
     {
-        const productSelection = newTagClassHTML('div', 'selection__item', title);
-        productSelection.addEventListener('click', e => 
+        if ( ! this.mSelectionArea.children.length ) return false;
+
+        for ( const selection of this.mSelectionArea.children )
         {
-            productSelection.remove();
-        });
+            if ( selection.dataset.id === `${id}` ) return true;
+        }
 
-        this.mSelectionArea.appendChild( productSelection );
-    
-        //const obj = this.createEmission(title);
-    }
-
-    createEmission(title)
-    {
-        console.log(`ProductSelector::createEmission title: ${title.toLowerCase()}`);
-        return this.mList.find( item => item['name'].toLowerCase() === title.toLowerCase() );
+        return false;
     }
 
     /**
@@ -399,7 +439,7 @@ class ProductSelector extends WCBase
             e.preventDefault();
             e.stopPropagation();
       
-            //this.emitClicked(title);
+            this.emitClicked(title);
             
         }, true);
 
