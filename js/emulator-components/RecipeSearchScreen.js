@@ -51,11 +51,19 @@ class RecipeSearchScreen extends WCBase
         });
     }
 
-    commitSearch()
+    async commitSearch()
     {
         //1. read inputs
+        const queryParams = '?monthsOld=9&products=1&products=2&products=4';
         //2. query recipes
+        const { ok, status, text } = await FileCache.getRequest( RECIPE_URL + queryParams );
         //3. emit 'recipe-search-result' custom event with recipe list as detail
+        if ( ok )
+        {
+            console.log(`RecipeSearchScreen::commitSearch -- response: ${text}`);
+            this.emit( 'recipe-search-result', text );
+        }
+        //this.emit( 'recipe-search-result', );
     }
 
     // ----------------------------------------------
