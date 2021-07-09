@@ -161,6 +161,7 @@ const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
 const RECIPE_URL = `${API_URL}/recipe`;
 const PRODUCT_URL = `${API_URL}/product`;
+const PRODUCT_TEXT_URL = `${PRODUCT_URL}/text`;
 const FRIDGE_PRODUCT_URL = `${PRODUCT_URL}/fridge`;
 const UPDATE_RECIPE_URL = `${RECIPE_URL}`;
 const UPDATE_FIELDS_URL = `${RECIPE_URL}/image`;
@@ -170,6 +171,7 @@ const UPDATE_STEPS_URL = `${RECIPE_URL}/steps`;
 const UPDATE_STEPS_ADD_URL = `${UPDATE_STEPS_URL}/add`;
 const RECIPE_WITH_THUMBNAILS_URL = `${RECIPE_URL}/thumbnail`;
 const RECIPE_MEDIA_URL = `${RECIPE_URL}/media`;
+const RECIPE_STEPS_MEDIA_URL = `${RECIPE_URL}/steps/media`;
 
 export 
 {
@@ -182,7 +184,9 @@ export
      LOGOUT_URL,
      RECIPE_URL,
      RECIPE_MEDIA_URL,
+     RECIPE_STEPS_MEDIA_URL,
      PRODUCT_URL,
+     PRODUCT_TEXT_URL,
      FRIDGE_PRODUCT_URL,
      RECIPE_WITH_THUMBNAILS_URL,
      UPDATE_RECIPE_URL,
