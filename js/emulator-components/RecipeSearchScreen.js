@@ -33,18 +33,30 @@ class RecipeSearchScreen extends WCBase
             <product-selector data-input='products'></product-selector>
             <button class='button--save'>Search</button>
         </div>`);
+
+
+        this.setupStyle
+        (`.component {
+           width: 300px;
+        }`);
         // ---------------------------
         // - Save element references
         // ---------------------------
 
         this.mProductSelector = this.shadowRoot.querySelector('[data-input="products"]');
         const searchButton    = this.shadowRoot.querySelector('.button--save');
-        /*searchButton.addEventListener( e =>
+        searchButton.addEventListener( 'click', e =>
         {
-
-        });*/
+            this.commitSearch();
+        });
     }
 
+    commitSearch()
+    {
+        //1. read inputs
+        //2. query recipes
+        //3. emit 'recipe-search-result' custom event with recipe list as detail
+    }
 
     // ----------------------------------------------
     // - Lifecycle callbacks
