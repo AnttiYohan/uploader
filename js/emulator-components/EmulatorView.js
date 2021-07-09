@@ -3,6 +3,7 @@ import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, sele
 import { FileCache } from '../util/FileCache.js';
 import { TextInputRow } from '../TextInputRow.js';
 import { ResponseNotifier } from '../ResponseNotifier.js';
+import { RecipeSearchScreen } from './RecipeSearchScreen.js';
 
 
 /**
@@ -32,6 +33,7 @@ class EmulatorView extends WCBase
         <div class='uploader'>
             <div class='uploader__frame' data-input-frame>
                 <button class='button--refresh'>Refresh</button>
+                <recipe-search-screen></recipe-search-screen>
             </div>
         </div>`);
         // ---------------------------
@@ -44,8 +46,8 @@ class EmulatorView extends WCBase
         refreshButton.addEventListener
         ('click', e => 
         { 
-            FileCache.clearCache( RECIPE_URL );
-            this.loadRecipes();
+            //FileCache.clearCache( RECIPE_URL );
+            //this.loadRecipes();
         });
 
     }
@@ -74,7 +76,7 @@ class EmulatorView extends WCBase
 
     generateList( recipes )
     {
-        console.log( `Recipe amoutn: ${recipes.length}` );
+        console.log( `Recipe amount: ${recipes.length}` );
     }
 
     // ----------------------------------------------
@@ -84,7 +86,7 @@ class EmulatorView extends WCBase
     connectedCallback()    
     {
         this.emit( 'emulator-view-connected' );
-        this.loadRecipes();
+        //this.loadRecipes();
     }
 
     disconnectedCallback()
