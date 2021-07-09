@@ -1,4 +1,4 @@
-import { WCBase } from '../WCBase.js';
+import { RECIPE_URL, WCBase } from '../WCBase.js';
 import { deleteChildren, newTagClass, newTagClassAttrsChildren, newTagClassChildren, newTagClassHTML } from '../util/elemfactory.js';
 import { FileCache } from '../util/FileCache.js';
 
@@ -149,9 +149,7 @@ class RecipeBrowseScreen extends WCBase
                  */
                 recipeEntry.addEventListener( 'click', e => 
                 {
-                    const id = recipeEntry.dataset.id;
-
-                    console.log(`Recipe id: ${id}`);
+                    this.commitDetail( recipeEntry.dataset.id );
                 });
 
                 this.mList.appendChild( recipeEntry );
@@ -171,6 +169,30 @@ class RecipeBrowseScreen extends WCBase
                     'No Recipes Found with Search Criteria!'
                 )
             );
+        }
+    }
+
+    /**
+     * Send a recipe detail query and broadcast the response
+     * ------
+     * @param {string} id  
+     */
+    async commitDetail( id )
+    {
+        if ( ! id || typeof id !== 'string' ) return;
+
+        /**
+         * Query for recipes
+         */
+        const { ok, status, text } = await FileCache.getRequest( `${RECIPE_URL}/${id}`, true, false );
+
+        /**
+         * Broadcast the response
+         */
+        if ( ok )
+        {
+            console.log(`RecipeBrowseScreen::commitDetail -- response: ${text}`);
+            this.emit( 'recipe-detail-result', text );
         }
     }
     // ----------------------------------------------
