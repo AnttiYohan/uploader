@@ -31,49 +31,20 @@ class RecipeSearchScreen extends WCBase
         <div class='component'>
             <number-input-row data-input='monthsOld'>Baby Age in Months</number-input-row>
             <product-selector data-input='products'></product-selector>
+            <button class='button--save'>Search</button>
         </div>`);
         // ---------------------------
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        
-        const refreshButton = this.shadowRoot.querySelector('.button--refresh');
-        refreshButton.addEventListener
-        ('click', e => 
-        { 
-            FileCache.clearCache( RECIPE_URL );
-            this.loadRecipes();
-        });
+        this.mProductSelector = this.shadowRoot.querySelector('[data-input="products"]');
+        const searchButton    = this.shadowRoot.querySelector('.button--save');
+        /*searchButton.addEventListener( e =>
+        {
 
+        });*/
     }
 
-    /**
-     * Read recipes from cache or from server
-     */
-    loadRecipes()
-    {
-        FileCache.getRequest( RECIPE_URL)
-        .then(response => 
-        { 
-            console.log(`GET /RECIPE_URL (emulator) status: ${response.status}`);
-
-            if (response.ok)
-            {
-                console.log(`Recipes retrieved succesfully`);
-                try { this.generateList( JSON.parse(response.text)); } 
-                catch (error) { throw new Error(`Product parse failed: ${error}`); }
-            }
-            else throw new Error(`Server responded with: ${response.text}`);
-            
-        })
-        .catch(error => { console.log(`Could not read products: ${error}`); });
-    }
-
-    generateList( recipes )
-    {
-        console.log( `Recipe amoutn: ${recipes.length}` );
-    }
 
     // ----------------------------------------------
     // - Lifecycle callbacks
@@ -81,8 +52,7 @@ class RecipeSearchScreen extends WCBase
 
     connectedCallback()    
     {
-        this.emit( 'emulator-view-connected' );
-        this.loadRecipes();
+        this.emit( 'recipe-search-screen-connected' );
     }
 
     disconnectedCallback()
