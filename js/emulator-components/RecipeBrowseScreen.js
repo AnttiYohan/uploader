@@ -1,5 +1,5 @@
-import { WCBase, props, RECIPE_URL } from '../WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from '../util/elemfactory.js';
+import { WCBase } from '../WCBase.js';
+import { deleteChildren, newTagClass, newTagClassAttrsChildren, newTagClassChildren, newTagClassHTML } from '../util/elemfactory.js';
 import { FileCache } from '../util/FileCache.js';
 
 
@@ -30,6 +30,7 @@ class RecipeBrowseScreen extends WCBase
 
         this.setupStyle
         (`.component {
+           height: 480px;
            background-color: #eef;
            border-radius: 2px;
            border: 1px solid rgba(0,0,0,.25);
@@ -37,12 +38,24 @@ class RecipeBrowseScreen extends WCBase
            width: 300px;
            display: flex;
            flex-direction: column;
+           overflow-y: scroll;
+        }
+        .component__column { margin: auto; }
+        .alert--no-matches {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            font-size: 18px;
+            text-transform: uppercase;
+            text-align: center;
         }
         .recipe__entry {
+            cursor: pointer;
+            margin-bottom: 8px;
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
-            height: 48px;
+            height: 64px;
             box-shadow: inset 0 -5px 20px -5px rgba(0,0,0,.25);
             border: 1px solid rgba(0,0,0,.15);
             font-weight: 200;
@@ -50,12 +63,19 @@ class RecipeBrowseScreen extends WCBase
             font-size: 15px;
             text-transform: uppercase;
         }
-        .recipe_entry .thumbnail {
-            justify-self: flex-start;
-            width: 40px;
-            height: 40px;
-            margin: auto;
+        .recipe__entry:last-of-type {
+            margin-bottom: 0;
+        }
+        .recipe__entry .recipe__img {
+            width: 64px;
+            height: 64px;
             border-radius: 2px;
+            object-fit: cover;
+        }
+        .recipe__entry .recipe__title {
+            width: 100%;
+            display: flex;
+            text-align: center;
         }
         `);
         this.mList = this.shadowRoot.querySelector('.component');
@@ -75,31 +95,82 @@ class RecipeBrowseScreen extends WCBase
         }
         catch ( error ) { return error; }
 
-        if ( recipes && recipes.length )
+        /**
+         * Wipe out the former results
+         */
+        deleteChildren( this.mList );
+
+        /**
+         * Check if there are matches
+         */
+        if ( recipes.length )
         {
+            /**
+             * Iterate through recipes
+             * and display them on the screen 
+             */
             for ( const entry of recipes )
             {
                 const { id, title, mediaDto } = entry;
                 if ( ! id || ! title ) continue;
 
-                if ( mediaDto && mediaDto.thumbnail )
+                const thumbnailElement = newTagClass( 'img', 'recipe__img' );
+                const recipeTitle = newTagClassHTML( 'h4', 'recipe__title', title );
+
+                if ( mediaDto.thumbnail )
                 {
-                    // create image
+                    thumbnailElement.src = `data:${mediaDto.thumbnail.type};base64,${mediaDto.thumbnail.data}`;
                 }
 
-                const recipeEntry = newTagClassAttrs
+                const recipeEntry = newTagClassAttrsChildren
                 ( 
                     'li', 
                     'recipe__entry', 
                     {
                         'data-title': title,
                         'data-id': id
-                    }
+                    },
+                    [
+                        thumbnailElement,
+                        newTagClassChildren
+                        (
+                            'div',
+                            'component__column',
+                            [
+                                recipeTitle
+                            ]
+                        )
+                    ]
                 );
-                recipeEntry.textContent = title;
+
+                /**
+                 * Create click listener with action to open
+                 * the recipe when clicked
+                 */
+                recipeEntry.addEventListener( 'click', e => 
+                {
+                    const id = recipeEntry.dataset.id;
+
+                    console.log(`Recipe id: ${id}`);
+                });
 
                 this.mList.appendChild( recipeEntry );
             }
+        }
+        else
+        {
+            /**
+             * No matches, display this on the screen
+             */
+            this.mList.appendChild
+            (
+                newTagClassHTML
+                (
+                    'li',
+                    'alert--no-matches',
+                    'No Recipes Found with Search Criteria!'
+                )
+            );
         }
     }
     // ----------------------------------------------
@@ -109,11 +180,10 @@ class RecipeBrowseScreen extends WCBase
     connectedCallback()    
     {
         this.emit( 'recipe-browse-screen-connected' );
-        this.shadowRoot.addEventListener('recipe-search-result', e => 
+        window.addEventListener( 'recipe-search-result', e =>
+        //this.shadowRoot.addEventListener('recipe-search-result', e => 
         {
-            const result = e.detail.result;
-
-            this.populateList( result );
+            this.populateList( e.detail );
         }, true);
     }
 
