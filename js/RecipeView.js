@@ -404,7 +404,7 @@ class RecipeView extends WCBase
                 'instructions',
                 'storageInfo',
                 'originalRecipeLink',
-                'image'
+                'mediaDto'
             ]
         };
       
