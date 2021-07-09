@@ -1,5 +1,5 @@
 import { WCBase, props, RECIPE_URL } from '../WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from '../util/elemfactory.js';
+import { newTagClass, newTagClassChildren, newTagClassAttrs, deleteChildren, selectValue, setImageFileInputThumbnail } from '../util/elemfactory.js';
 import { FileCache } from '../util/FileCache.js';
 import { TextInputRow } from '../TextInputRow.js';
 import { NumberInputRow } from '../NumberInputRow.js';
@@ -43,6 +43,7 @@ class RecipeSearchScreen extends WCBase
         // - Save element references
         // ---------------------------
 
+        this.mAgeInput        = this.shadowRoot.querySelector('[data-input="monthsOld"]');
         this.mProductSelector = this.shadowRoot.querySelector('[data-input="products"]');
         const searchButton    = this.shadowRoot.querySelector('.button--save');
         searchButton.addEventListener( 'click', e =>
@@ -53,17 +54,39 @@ class RecipeSearchScreen extends WCBase
 
     async commitSearch()
     {
-        //1. read inputs
-        const queryParams = '?monthsOld=9&products=1&products=2&products=4';
-        //2. query recipes
+        let queryParams = '';
+
+        /**
+         * Read the age input
+         */
+        const age = this.mAgeInput.value;
+        if  ( age ) queryParams = `?monthsOld=${age}`;
+
+        /**
+         * Read the product selection input
+         */
+        const products = this.mProductSelector.value;
+        if  ( products ) for ( const product of products )
+        {
+            queryParams += queryParams.length ? '&' : '?';
+            queryParams += `products=${product}`;
+        }
+
+        console.log( `RecipeSearchScreen::commitSearch query: ${RECIPE_URL}${queryParams}`);
+
+        /**
+         * Query for recipes
+         */
         const { ok, status, text } = await FileCache.getRequest( RECIPE_URL + queryParams );
-        //3. emit 'recipe-search-result' custom event with recipe list as detail
+
+        /**
+         * Broadcast the response
+         */
         if ( ok )
         {
             console.log(`RecipeSearchScreen::commitSearch -- response: ${text}`);
             this.emit( 'recipe-search-result', text );
         }
-        //this.emit( 'recipe-search-result', );
     }
 
     // ----------------------------------------------
