@@ -108,7 +108,8 @@ class ProductSelector extends WCBase
             flex-wrap: wrap;
         }
         .selection__item {
-            padding: 4px;
+            cursor: pointer;
+            padding: 4px 32px 4px 8px;
             height: 28px;
             border-radius: 16px;
             border: 2px solid rgba(255,255,255,0.5);
@@ -118,11 +119,11 @@ class ProductSelector extends WCBase
             background-position-x: 90%;
             background-position-y: center;
             background-repeat: no-repeat;
-            background-image: url('../assets/icon_delete_perm.svg');
+            background-image: url('./assets/icon_delete_perm.svg');
             transition: background-position-x .3s ease-in-out, text-shadow .5s;
         }
         .selection__item:hover {
-            background-position-x: 96%;
+            background-position-x: 98%;
             text-shadow: -1px 0 0px rgba(255,255,255,.5),
             1px 0 0 rgba(255,255,255,.5);
         }
@@ -354,9 +355,9 @@ class ProductSelector extends WCBase
         }
     }
 
-    fetchProducts()
+    async fetchProducts()
     {
-        const { ok, status, text } = FileCache.getRequest( PRODUCT_TEXT_URL );
+        const { ok, status, text } = await FileCache.getRequest( PRODUCT_TEXT_URL );
 
         console.log(`ProductSelector fetch url ${PRODUCT_TEXT_URL}, response status: ${status}`);
 
@@ -402,6 +403,7 @@ class ProductSelector extends WCBase
             
         }, true);
 
+        this.fetchProducts();
         this.emit('product-selector-connected');
     }
 
