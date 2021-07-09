@@ -5,6 +5,7 @@ import { TextInputRow } from '../TextInputRow.js';
 import { ResponseNotifier } from '../ResponseNotifier.js';
 import { RecipeSearchScreen } from './RecipeSearchScreen.js';
 import { RecipeBrowseScreen } from './RecipeBrowseScreen.js';
+import { RecipeDetailScreen } from './RecipeDetailScreen.js';
 
 
 /**
@@ -37,6 +38,7 @@ class EmulatorView extends WCBase
                 <div class='component__frame'>
                   <recipe-search-screen></recipe-search-screen>
                   <recipe-browse-screen></recipe-browse-screen>
+                  <recipe-detail-screen></recipe-detail-screen>
                 </div>
             </div>
         </div>`);
@@ -44,8 +46,10 @@ class EmulatorView extends WCBase
         this.setupStyle
         (`.uploader__frame {
            max-width: 1200px;
-           width: auto;
-        }`);
+           width: 100%;
+        }
+        .component__frame { margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+        `);
         // ---------------------------
         // - Save element references
         // ---------------------------
