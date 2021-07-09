@@ -472,9 +472,8 @@ class EntryBrowser extends WCBase
         let thumbnail = undefined;
 
         try {
-            item.hasOwnProperty('image')
-                ? thumbnail = `data:${item.image.fileType};base64,${item.image.data}`
-                : thumbnail = `data:${item.imageFile.fileType};base64,${item.imageFile.data}`;
+
+            thumbnail = `data:${item.mediaDto.thumbnail.type};base64,${item.mediaDto.thumbnail.data}`
         }
         catch (error) {}
 
