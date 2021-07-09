@@ -4,6 +4,7 @@ import { FileCache } from '../util/FileCache.js';
 import { TextInputRow } from '../TextInputRow.js';
 import { ResponseNotifier } from '../ResponseNotifier.js';
 import { RecipeSearchScreen } from './RecipeSearchScreen.js';
+import { RecipeBrowseScreen } from './RecipeBrowseScreen.js';
 
 
 /**
@@ -33,9 +34,18 @@ class EmulatorView extends WCBase
         <div class='uploader'>
             <div class='uploader__frame' data-input-frame>
                 <button class='button--refresh'>Refresh</button>
-                <recipe-search-screen></recipe-search-screen>
+                <div class='component__frame'>
+                  <recipe-search-screen></recipe-search-screen>
+                  <recipe-browse-screen></recipe-browse-screen>
+                </div>
             </div>
         </div>`);
+
+        this.setupStyle
+        (`.uploader__frame {
+           max-width: 1200px;
+           width: auto;
+        }`);
         // ---------------------------
         // - Save element references
         // ---------------------------
