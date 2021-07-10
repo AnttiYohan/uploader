@@ -60,7 +60,14 @@ class RangeInputRow extends InputBase
         this.initNotifier(input);
         this.initInputAndLabel(input, label);
 
-        function handleInput(e)
+
+        /**
+         * Handles the range/number input synchronization
+         * Broadcasts the value
+         * 
+         * @param {Event} e 
+         */
+        const handleInput = e =>
         {
             if ( e.target.type === 'number' )
             {
@@ -80,7 +87,7 @@ class RangeInputRow extends InputBase
             input.value = numericValue;
             range.value = numericValue;
         }
-        
+
         input.addEventListener( 'input', e => handleInput(e) );
         range.addEventListener( 'input', e => handleInput(e) );
     }
