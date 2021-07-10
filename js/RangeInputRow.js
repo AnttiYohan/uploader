@@ -27,7 +27,7 @@ class RangeInputRow extends InputBase
         const min   = this.mMin                      ? `min='${this.dataset.min}'` : '';
         const max   = this.hasAttribute('data-max')  ? `max='${this.dataset.max}'` : '';
         const value = this.dataset.value;
-        
+        const emitter = this.dataset.emit;
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -78,7 +78,7 @@ class RangeInputRow extends InputBase
                 input.value = e.target.value;
             }
 
-            this.emit( 'recipe-row-height', `${e.target.value}px` );
+            if ( emitter ) this.emit( emitter, `${e.target.value}${unit}` );
         }
 
         if ( value )
