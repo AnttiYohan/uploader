@@ -207,6 +207,15 @@ class RecipeBrowseScreen extends WCBase
         {
             this.populateList( e.detail );
         }, true);
+
+        /**
+         * Listen to emulator layout control changes
+         */
+        window.addEventListener( 'recipe-row-height', e =>
+        //this.shadowRoot.addEventListener('recipe-row-height', e => 
+        {
+            console.log( `Recipe row height: ${e.detail}`);
+        }, true);
     }
 
     disconnectedCallback()
