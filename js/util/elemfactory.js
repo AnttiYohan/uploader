@@ -632,6 +632,25 @@ function fileInputClass(cls = "")
 }
 
 /**
+ * Creates a HTMLImageElement with a class and
+ * an inline source
+ * 
+ * @param {string} cls 
+ * @param {string} src 
+ */
+function imgClassSrc( cls = '', src = undefined )
+{
+    const elem = document.createElement( 'img' );
+    if ( cls.length ) elem.setAttribute( 'class', cls );
+    if ( src && 'type' in src && 'data' in src )
+    {
+        elem.src = `data:${src.type};base64,${src.data}`;
+    }
+
+    return elem;
+}
+
+/**
  * Creates a Checkbox Input Element with class
  * 
  * @param  {string}           cls 
@@ -828,6 +847,7 @@ export
     fileInputClass,
     deleteChildren,
     selectValue,
+    imgClassSrc,
     setSelectedIndex,
     setImageFileInputThumbnail,
     setImageThumbnail
