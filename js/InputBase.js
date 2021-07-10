@@ -178,14 +178,7 @@ class InputBase extends WCBase
     notifyRequired(ensure = true)
     {
         if ( ! this.required ) return;
-
         if ( ! ensure || this.value === undefined ) this.mNotifier.classList.add('notify-required');
-
-        /*const notify = () => { this.mNotifier.classList.add('notify-required'); }
-        
-        if ( ensure === false ) { notify(); }
-        else 
-        if ( this.value === undefined) { notify(); }*/
     }
 
     // ----------------------------------------------
