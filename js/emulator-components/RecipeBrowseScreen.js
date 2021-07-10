@@ -17,6 +17,8 @@ class RecipeBrowseScreen extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
+        this.mEntryList = [];
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -99,6 +101,7 @@ class RecipeBrowseScreen extends WCBase
          * Wipe out the former results
          */
         deleteChildren( this.mList );
+        this.mEntryList = [];
 
         /**
          * Check if there are matches
@@ -152,6 +155,7 @@ class RecipeBrowseScreen extends WCBase
                     this.commitDetail( recipeEntry.dataset.id );
                 });
 
+                this.mEntryList.push( recipeEntry );
                 this.mList.appendChild( recipeEntry );
             }
         }
@@ -195,6 +199,20 @@ class RecipeBrowseScreen extends WCBase
             this.emit( 'recipe-detail-result', text );
         }
     }
+
+    updateEntryListHeight( height )
+    {
+        for ( const entry of this.mEntryList )
+        {
+            const img = entry.firstChild;
+            if ( img ) 
+            {
+                img.style.width  = height;
+                img.style.height = height;
+            }
+            entry.style.height = height;
+        }
+    }
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -215,6 +233,7 @@ class RecipeBrowseScreen extends WCBase
         //this.shadowRoot.addEventListener('recipe-row-height', e => 
         {
             console.log( `Recipe row height: ${e.detail}`);
+            this.updateEntryListHeight( e.detail );
         }, true);
     }
 
