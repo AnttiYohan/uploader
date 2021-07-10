@@ -24,7 +24,9 @@ class EmulatorLayoutControls extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
         <div class='controls'>
-           <range-input-row data-input='recipeRow' data-unit='px' data-min='24' data-max='100' data-value='64'>Recipe Row Height</range-input-row> 
+           <range-input-row data-input='recipeRow'  data-emit='recipe-row-height' data-unit='px' data-min='24' data-max='144' data-value='64'>Recipe Row Height</range-input-row> 
+           <range-input-row data-input='stepHeight' data-emit='step-height' data-unit='px' data-min='32' data-max='144' data-value='64'>Step Height</range-input-row> 
+           <range-input-row data-input='productHeight' data-emit='product-height' data-unit='px' data-min='24' data-max='144' data-value='32'>Product Height</range-input-row> 
         </div>`);
 
 
