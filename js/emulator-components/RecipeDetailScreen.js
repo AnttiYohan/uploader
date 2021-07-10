@@ -1,10 +1,5 @@
-import { WCBase, props, RECIPE_URL } from '../WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from '../util/elemfactory.js';
-import { FileCache } from '../util/FileCache.js';
-import { TextInputRow } from '../TextInputRow.js';
-import { NumberInputRow } from '../NumberInputRow.js';
-import { ProductSelector } from './ProductSelector.js';
-
+import { WCBase } from '../WCBase.js';
+import { newTagClassChildren, newTagClassHTML, deleteChildren, imgClassSrc } from '../util/elemfactory.js';
 
 /**
  * Mobile Application Emulated View:
@@ -70,19 +65,42 @@ class RecipeDetailScreen extends WCBase
         .expandable { display: flex; flex-direction: column; margin-bottom: 8px; padding: 0 4px; }
         .expandable .expandable__toggle { cursor: pointer; margin: auto; width: 20px; height: 20px; justify-self: flex-end; background-size: cover; background-repeat: no-repeat; background-image: url( './assets/icon_plus.svg'); }
         .expandable .expandable__toggle.open { background-image: url( './assets/icon_cached.svg' ); }
-        .expandable .expandable__content { display: none; margin-top: 8px; }
+        .expandable .expandable__content { display: none; margin-top: 8px; transition: height .3s; }
         .expandable .expandable__content.open { display: flex; flex-direction: column; }
         .expandable .expandable__entry {
             display: flex;
             align-items: center;
-            height: 32px;
+            justify-content: space-between;
+            min-height: 32px;
             box-shadow: inset 0 -5px 20px -5px rgba(0,0,0,.25);
             border-bottom: 1px solid rgba(0,0,0,.15);
             font-weight: 200;
             color: #444;
-            text-transform: uppercase;
         }
         .expandable .expandable__entry:last-of-type { border-bottom: none; }
+        .expandable__entry .entry__img  {
+            margin: auto;
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+        }
+        .expandable__entry .entry__p {
+            width: 100%;
+            font-size: 12px;
+            padding: 4px;
+        }
+        .expandable__entry .entry__title  {
+            margin-left: .5em;
+        }
+        .expandable__entry .entry__details {
+            flex-basis: 128px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .expandable__entry .entry__details .detail {
+            margin-right: .5em;
+            font-weight: 400;
+        }
         .component {
            height: 480px;
            background-color: #eef;
@@ -180,17 +198,67 @@ class RecipeDetailScreen extends WCBase
         this.mPrepararationTime.textContent = `${recipe.prepareTimeInMinutes} minutes`;
         this.mInstructions.textContent = recipe.instructions;
 
+        /**
+         * Add steps
+         */
+        if ( recipe.steps && recipe.steps.length )
+        {
+            for ( const step of recipe.steps )
+            {
+            this.mSteps.appendChild
+            (
+                    
+                    newTagClassChildren
+                    (
+                        'li', 
+                        'expandable__entry', 
+                        [
+                            imgClassSrc
+                            (
+                                'entry__img',
+                                step.mediaDto.thumbnail
+                            ),
+                            newTagClassHTML
+                            (
+                                'entry__p',
+                                step.text
+                            )
+                        ]
+                    )
+                );
+            }
+        }
+     
+        /**
+         * Add products
+         */
         if ( recipe.products && recipe.products.length )
         {
             for ( const product of recipe.products )
             {
                 this.mIngredients.appendChild
                 (
-                    newTagClassHTML
+                    newTagClassChildren
                     (
                         'li', 
                         'expandable__entry', 
-                        product.name
+                        [
+                            newTagClassHTML
+                            (
+                                'h4',
+                                'entry__title',
+                                product.name
+                            ),
+                            newTagClassChildren
+                            (
+                                'div',
+                                'entry__details',
+                                [
+                                    newTagClassHTML( 'p', 'detail', product.amount ),
+                                    newTagClassHTML( 'p', 'detail', product.measureUnit )
+                                ]
+                            )
+                        ]
                     )
                 );
             }
