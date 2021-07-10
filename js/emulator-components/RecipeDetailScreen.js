@@ -15,6 +15,9 @@ class RecipeDetailScreen extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
+        this.mStepList    = [];
+        this.mProductList = [];
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -220,6 +223,7 @@ class RecipeDetailScreen extends WCBase
                             ),
                             newTagClassHTML
                             (
+                                'p',
                                 'entry__p',
                                 step.text
                             )
@@ -263,7 +267,35 @@ class RecipeDetailScreen extends WCBase
                 );
             }
         }
+    }
 
+    /**
+     * Updates the step entry height
+     * @param {string} height 
+     */
+    updateStepHeight( height )
+    {
+        for ( const entry of this.mSteps.children )
+        {
+            const img = entry.firstChild;
+            if ( img )
+            {
+                img.style.width  = height;
+                img.style.height = height;
+            }
+        }
+    }
+
+    /**
+     * Updates the product/ingredient height
+     * @param {string} height 
+     */
+    updateProductHeight( height )
+    {
+        for ( const entry of this.mIngredients.children )
+        {
+            entry.style.height = height;
+        }
     }
 
     // ----------------------------------------------
@@ -277,6 +309,22 @@ class RecipeDetailScreen extends WCBase
         window.addEventListener( 'recipe-detail-result', e => 
         {
             this.populateScreen( e.detail );
+        }, true);
+
+        /**
+         * Listen to step-height events
+         */
+        window.addEventListener( 'step-height', e => 
+        {
+            this.updateStepHeight( e.detail );
+        }, true);
+
+        /**
+         * Listen to product-height events
+         */
+        window.addEventListener( 'product-height', e => 
+        {
+            this.updateProductHeight( e.detail );
         }, true);
     }
 
