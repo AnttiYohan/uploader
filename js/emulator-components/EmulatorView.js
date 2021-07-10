@@ -49,7 +49,7 @@ class EmulatorView extends WCBase
            max-width: 1200px;
            width: 100%;
         }
-        .component__frame { margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+        .component__frame { margin-top: 16px; flex-wrap: wrap; justify-content: space-evenly; }
         `);
         // ---------------------------
         // - Save element references
