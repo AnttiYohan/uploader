@@ -1,10 +1,11 @@
+import { deleteChildren, newTagChild } from './util/elemfactory.js';
 import { WCBase, props } from './WCBase.js';
+import { EmulatorView } from './emulator-components/EmulatorView.js';
+import { ArticleView } from './ArticleView.js';
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
-import { EmulatorView } from './emulator-components/EmulatorView.js';
 import { LoginView } from './LoginView.js';
 import { FileCache } from './util/FileCache.js';
-import { deleteChildren } from './util/elemfactory.js';
 
 const 
 template = document.createElement("template");
@@ -19,6 +20,7 @@ template.innerHTML =
       <div class='nav__logo'></div>
       <div class='nav__tablist'>
         <div class='nav__tab admin'>Admin</div>
+        <div class='nav__tab article'>Article</div>
         <div class='nav__tab product'>Product</div>
         <div class='nav__tab recipe'>Recipe</div>
         <div class='nav__tab emulator'>Emulator</div>
@@ -27,6 +29,7 @@ template.innerHTML =
     </div>
   </header>
   
+  <article-view  class='view--article'></article-view>
   <product-view  class='view__product'></product-view>
   <recipe-view   class='view__recipe'></recipe-view>
   <emulator-view class='view--emulator'></emulator-view>
@@ -145,11 +148,13 @@ class UploaderView extends WCBase
         this.mRootElement   = this.shadowRoot.querySelector('.root');
        
         this.mLogoutButton  = this.shadowRoot.querySelector('.nav__logout');
+        this.mArticleTab    = this.shadowRoot.querySelector('.nav__tab.article');
         this.mProductTab    = this.shadowRoot.querySelector('.nav__tab.product');
         this.mRecipeTab     = this.shadowRoot.querySelector('.nav__tab.recipe');
         this.mAdminTab      = this.shadowRoot.querySelector('.nav__tab.admin');
         this.mEmulatorTab   = this.shadowRoot.querySelector('.nav__tab.emulator');
 
+        this.mArticleView   = this.shadowRoot.querySelector('.view--article');
         this.mProductView   = this.shadowRoot.querySelector('.view__product');
         this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
         this.mEmulatorView  = this.shadowRoot.querySelector('.view--emulator');
@@ -175,6 +180,11 @@ class UploaderView extends WCBase
         /**
          * Tab click listeners
          */
+        this.mArticleTab.addEventListener( 'click', e => 
+        {
+            this.openArticleView();
+        });
+
         this.mProductTab.addEventListener( 'click', e => 
         {
             this.openProductView();
@@ -206,22 +216,11 @@ class UploaderView extends WCBase
         // - Define event listeners to listen for LoginView's custom events
         // ----------------------------------------------------------------
 
-        window.addEventListener
-        (
-            "login-event", 
-            e =>
-            {
-                console.log(`UploaderView - login-event catched`);
-
-                // ----------------------------------
-                // - Grab the token from local store
-                // ----------------------------------
-
-                this.mToken = localStorage.getItem('token');
-
-            },
-            true
-        );
+        window.addEventListener( 'login-event', e =>
+        {
+            console.log(`UploaderView - login-event catched`);
+            this.mToken = localStorage.getItem('token');
+        }, true );
 
         // ---------------------------
         // - Setup login functionality
@@ -230,16 +229,28 @@ class UploaderView extends WCBase
 
     }
 
+    openArticleView()
+    {
+        this.mArticleView.style.display  = 'block';
+        this.mProductView.style.display  = 'none';
+        this.mRecipeView.style.display   = 'none';
+        this.mEmulatorView.style.display = 'none';
+    
+        this.mArticleTab.classList.add('active');
+        this.mProductTab.classList.remove('active');
+        this.mEmulatorTab.classList.remove('active');
+        this.mRecipeTab.classList.remove('active');
+        this.mAdminTab.classList.remove('active');
+    }
+
     openProductView()
     {
-        //if ( this.mProductView.style.display === 'none')
-        //{
-            this.mProductView.style.display  = 'block';
-            this.mRecipeView.style.display   = 'none';
-            this.mEmulatorView.style.display = 'none';
-        //}
-
-        
+        this.mArticleView.style.display  = 'none';
+        this.mProductView.style.display  = 'block';
+        this.mRecipeView.style.display   = 'none';
+        this.mEmulatorView.style.display = 'none';
+    
+        this.mArticleTab.classList.remove('active');
         this.mProductTab.classList.add('active');
         this.mEmulatorTab.classList.remove('active');
         this.mRecipeTab.classList.remove('active');
@@ -251,6 +262,7 @@ class UploaderView extends WCBase
         /**
          * Adjust views
          */
+        this.mArticleView.style.display  = 'none';
         this.mRecipeView.style.display  = 'block';
         this.mProductView.style.display = 'none';
         this.mEmulatorView.style.display = 'none';
@@ -258,11 +270,12 @@ class UploaderView extends WCBase
         /**
          * Adjust tabs' classlists
          */
-         this.mRecipeTab.classList.add('active');
-         this.mProductTab.classList.remove('active');
-         this.mEmulatorTab.classList.remove('active');
-         this.mAdminTab.classList.remove('active');
- 
+        this.mArticleTab.classList.remove('active');
+        this.mRecipeTab.classList.add('active');
+        this.mProductTab.classList.remove('active');
+        this.mEmulatorTab.classList.remove('active');
+        this.mAdminTab.classList.remove('active');
+
     }
 
     openEmulatorView()
@@ -270,6 +283,7 @@ class UploaderView extends WCBase
         /**
          * Adjust views
          */
+        this.mArticleView.style.display  = 'none';
         this.mEmulatorView.style.display = 'block';
         this.mRecipeView.style.display  = 'none';
         this.mProductView.style.display = 'none';
@@ -277,12 +291,13 @@ class UploaderView extends WCBase
         /**
          * Adjust tabs' classlists
          */
-         this.mEmulatorTab.classList.add('active');
-         this.mRecipeTab.classList.remove('active');
-         this.mProductTab.classList.remove('active');
-         this.mAdminTab.classList.remove('active');
- 
+        this.mArticleTab.classList.remove('active');
+        this.mEmulatorTab.classList.add('active');
+        this.mRecipeTab.classList.remove('active');
+        this.mProductTab.classList.remove('active');
+        this.mAdminTab.classList.remove('active');
     }
+
     // ---------------------------------------------
     // - HTTP Request methods
     // - --------------------
@@ -293,8 +308,6 @@ class UploaderView extends WCBase
     // - (5) removeStepByStep
     // ----------------------------------------------
     
-
-  
 }
 
 window.customElements.define('uploader-view', UploaderView);
