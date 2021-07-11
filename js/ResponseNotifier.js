@@ -241,6 +241,25 @@ class ResponseNotifier extends WCBase
         {
             for ( const key in dto )
             {
+                let value = dto[key];
+                let keyString = key;
+
+                if ( key === 'mediaDto' )
+                {
+                    const media = dto.mediaDto;
+                    keyString = 'image';
+
+                    if ( dto.mediaDto.image )
+                    {
+                        value = dto.mediaDto.image.fileName;
+                    }
+                    else if ( dto.mediaDto.thumbnail )
+                    {
+                        keyString = 'thumbnail';
+                        value = dto.mediaDto.thumbnail.fileName;
+                    }
+                }
+                    
                 this.mResponseDto.appendChild
                 (
                     newTagClassChildren
@@ -252,13 +271,13 @@ class ResponseNotifier extends WCBase
                             (
                                 'h4',
                                 'key',
-                                key
+                                keyString
                             ),
                             newTagClassHTML
                             (
                                 'p',
                                 'value',
-                                dto[ key ]
+                                value
                             )
                         ]
                     )
