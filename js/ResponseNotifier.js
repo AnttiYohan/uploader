@@ -173,12 +173,21 @@ class ResponseNotifier extends WCBase
              */
             try {
                 const body = JSON.parse( text );
-                message    = body.message;
-                dto        = body[ this.mDtoKey ];
+
+                if ( typeof body === 'string' && body.length )
+                {
+                    message = body;
+                }
+                else
+                {
+                    message    = body.message;
+                    dto        = body[ this.mDtoKey ];
+                }
             }
             catch ( error )
             {
-                message += `Could not parse the response, error: ${error}`;
+                message = text;
+                //message += `Could not parse the response, error: ${error}`;
             }
 
             this.doSuccess( status, message, dto );
@@ -191,11 +200,19 @@ class ResponseNotifier extends WCBase
             try 
             {
                 const body = JSON.parse( text );
-                message    = body.message;
+                if ( typeof body === 'string')
+                {
+                    message = body;
+                }
+                else
+                {
+                    message    = body.message;
+                }
             } 
             catch ( error )
             {
-                message += `Could not parse the message, error: ${error}`;                    
+                message = text;
+                //message += `Could not parse the message, error: ${error}`;                    
             }
 
             this.doFail( status, message );
@@ -229,7 +246,7 @@ class ResponseNotifier extends WCBase
                     newTagClassChildren
                     (
                         'div',
-                        'entry'
+                        'entry',
                         [
                             newTagClassHTML
                             (
