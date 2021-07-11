@@ -102,8 +102,23 @@ import { deleteChildren, newTagClass, newTagClassChildren, newTagClassHTML } fro
                 imageField.style.backgroundImage = `url('${reader.result}')`;
             }
             reader.readAsDataURL(step.image.data);*/
-            imageField.src = `data:${step.image.fileType};base64,${step.image.data}`;;
-     
+
+            let image = null;
+
+            if ( step.mediaDto.thumbnail )
+            {
+                image = step.mediaDto.thumbnail;
+            }
+            else if ( step.mediaDto.image )
+            {
+                image = step.mediaDto.image;
+            }
+
+            if ( image )
+            {
+                imageField.src = `data:${image.fileType};base64,${image.data}`;;
+            }
+
             // - Setup the content
             contentField.textContent = step.text;
             numberField.textContent  = step.stepNumber;
