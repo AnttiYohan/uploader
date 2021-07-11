@@ -73,6 +73,13 @@ class ResponseNotifier extends WCBase
             border: 1px solid rgba(255,255,255,.33);
             box-shadow: 0 2px 5px -1px rgba(0,0,0,.5);
         }
+        .component__row.header-bar {
+            height: 120px;
+            font-size: 16px;
+            text-align: center;
+            color: #000;
+            padding: 8px;
+        }
         .component__row.message-bar {
             overflow-y: scroll;
             min-height: min(200px, 50vh);
@@ -116,6 +123,8 @@ class ResponseNotifier extends WCBase
             </div>
             <div class='component__row progress-bar'>
             </div>
+            <div class='component__row header-bar'>
+            </div>
             <div class='component__row message-bar'>
             </div>
             <div class='component__row response-dto'>
@@ -129,6 +138,7 @@ class ResponseNotifier extends WCBase
          * Map the crucial elements into members
          */
         this.mProgressBar = this.shadowRoot.querySelector('.progress-bar');
+        this.mHeaderBar   = this.shadowRoot.querySelector('.header-bar');
         this.mMessageBar  = this.shadowRoot.querySelector('.message-bar');
         this.mResponseDto = this.shadowRoot.querySelector('.response-dto');
         
@@ -198,6 +208,16 @@ class ResponseNotifier extends WCBase
         this.mProgressBar.innerHTML = `status: ${status}`;
     }
 
+    setOkHeader()
+    {
+        this.mHeaderBar.textContent = this.mMsgOk;
+    }
+
+    setFailHeader()
+    {
+        this.mHeaderBar.textContent = this.mMsgFail;
+    }
+
     setDto( dto )
     {
         if ( dto )
@@ -238,16 +258,18 @@ class ResponseNotifier extends WCBase
     doFail( status, message )
     {
         this.setStatus( status );
+        this.setFailHeader();
         this.mMessageBar.innerHTML = message;
-        this.mFailCallback();
+        if ( typeof this.mFailCallback === 'function' ) this.mFailCallback();
     }
 
     doSuccess( status, message, dto )
     {
         this.setStatus( status );
+        this.setOkHeader();
         this.mMessageBar.innerHTML = message;
         this.setDto( dto );
-        this.mSuccessCallback();
+        if ( typeof this.mSuccessCallback === 'function' ) this.mSuccessCallback();
     }
 
     onSuccess( callback )
