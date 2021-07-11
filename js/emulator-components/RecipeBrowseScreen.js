@@ -1,4 +1,4 @@
-import { RECIPE_URL, WCBase } from '../WCBase.js';
+import { RECIPE_URL, RECIPE_STEP_THUMBNAILS_URL, WCBase } from '../WCBase.js';
 import { deleteChildren, newTagClass, newTagClassAttrsChildren, newTagClassChildren, newTagClassHTML } from '../util/elemfactory.js';
 import { FileCache } from '../util/FileCache.js';
 
@@ -188,14 +188,19 @@ class RecipeBrowseScreen extends WCBase
         /**
          * Query for recipes
          */
-        const { ok, status, text } = await FileCache.getRequest( `${RECIPE_URL}/${id}`, true, false );
+        const { ok, status, text } = await FileCache.getRequest
+        ( 
+            `${RECIPE_STEP_THUMBNAILS_URL}/${id}`, 
+            true, 
+            false 
+        );
 
         /**
          * Broadcast the response
          */
         if ( ok )
         {
-            console.log(`RecipeBrowseScreen::commitDetail -- response: ${text}`);
+            console.log(`RecipeBrowseScreen::commitDetail -- response: ${status}`);
             this.emit( 'recipe-detail-result', text );
         }
     }
