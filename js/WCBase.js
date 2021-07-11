@@ -160,6 +160,7 @@ const API_URL = 'http://localhost:8080';
 const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
 const RECIPE_URL = `${API_URL}/recipe`;
+const RECIPE_ALL_URL = `${RECIPE_URL}/all`;
 const PRODUCT_URL = `${API_URL}/product`;
 const PRODUCT_TEXT_URL = `${PRODUCT_URL}/text`;
 const FRIDGE_PRODUCT_URL = `${PRODUCT_URL}/fridge`;
@@ -183,6 +184,7 @@ export
      LOGIN_URL,
      LOGOUT_URL,
      RECIPE_URL,
+     RECIPE_ALL_URL,
      RECIPE_MEDIA_URL,
      RECIPE_STEPS_MEDIA_URL,
      PRODUCT_URL,
