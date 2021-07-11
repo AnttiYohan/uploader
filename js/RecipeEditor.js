@@ -26,7 +26,7 @@ import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import { EditorBinaryLabel } from './EditorBinaryLabel.js';
 import { EditorSwitchGroup } from './EditorSwitchGroup.js';
 import { EditorProductList } from './EditorProductList.js';
-import { MediaEditor } from './media-components/MediaEditor.js';
+
 
 /**
  * Recipe Editor View  
@@ -69,8 +69,9 @@ class RecipeEditor extends WCBase
                 <editor-label data-label='title'>Current</editor-label> 
                 <text-input-row data-input='title'>New Title</text-input-row>
             </div>
-            <div class='component__frame'>
-                <media-editor data-id=${recipeDto.id}></media-editor>
+            <div class='editor__component'>
+                <editor-image data-label='mediaDto'>Current Image</editor-image>
+                <image-input-row data-input='mediaDto'>New Image</image-input-row>
             </div>
             <div class='editor__component'>
                 <editor-label data-label='originalRecipeLink'>Current Link</editor-label>
@@ -167,8 +168,8 @@ class RecipeEditor extends WCBase
                 </div>
             </div>
             <div class='editor__component steps'>
-                <editor-step-list data-label='stepBySteps'></editor-step-list>
-                <step-editor data-input='stepBySteps'></step-editor>
+                <editor-step-list data-label='steps'></editor-step-list>
+                <step-editor data-input='steps'></step-editor>
                 <div class='two_column'>
                     <binary-button-row data-yes='Add' data-no='Replace' class='step-mode column__item'></binary-button-row>
                     <button class='button update update--steps'>Update</button>
@@ -292,17 +293,28 @@ class RecipeEditor extends WCBase
      */
     async updateRecipe( dto )
     {
-        const response = await FileCache.putDto
+        const { status, ok, text } = await FileCache.putDto
         (
             UPDATE_RECIPE_URL,
             dto
         );
         
-        if ( response.status === 200 )
+        if ( ok )
         {
-            const recipe = await response.json();
+            let recipe = undefined;
 
-            this.mInputOperator.reloadEditor( recipe );
+            try {
+
+                recipe = JSON.parse( text );
+
+            }
+            catch ( error ) {
+
+                console.log( `Recipe parse failed: ${error}`);
+
+            }
+
+            if ( recipe ) this.mInputOperator.reloadEditor( recipe );
         }
     }
 
@@ -323,7 +335,7 @@ class RecipeEditor extends WCBase
 
     async updateRecipeProducts( serialized, addmode )
     {
-        const response = addmode
+        const { status, ok, text } = addmode
                        ? await FileCache.putDto
                        (
                            UPDATE_PRODUCTS_ADD_URL,
@@ -335,11 +347,19 @@ class RecipeEditor extends WCBase
                            serialized
                        );
     
-        if ( response.status === 200 )
+        if ( ok )
         {
-            const products = await response.json();
+            let products = undefined;
 
-            this.mInputOperator.reloadProductMenu( products );
+            try 
+            {
+                products = JSON.parse( text );
+            }
+            catch ( error ) {
+                console.log( `Products could not be parsed: ${error}` );
+            }
+        
+            if ( products ) this.mInputOperator.reloadProductMenu( products );
         }
     }
 
