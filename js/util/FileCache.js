@@ -462,37 +462,41 @@ class FileCache
      * @return {Promise} response
      */
     static async putDto(route, dto)
-        {
-            const bearer = `Bearer ${FileCache.getToken()}`;
-    
-            // ------------------------------------
-            // - No need for multipart
-            // ------------------------------------
-            
-            const response = await fetch
-            (
-                route,
-                {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: 
-                    {
-                        'Authorization' : bearer,
-                        'Content-Type': 'application/json'
-                    },
-                    body: dto
-                }
-            );
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
 
-            // -----------------------------------
-            // - Clear route cache
-            // -----------------------------------
-    
-            FileCache.clearCache(route);
-    
-            return response;
-        }
-    
+        // ------------------------------------
+        // - No need for multipart
+        // ------------------------------------
+        
+        const response = await fetch
+        (
+            route,
+            {
+                method: 'PUT',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer,
+                    'Content-Type': 'application/json'
+                },
+                body: dto
+            }
+        );
+
+        const status = response.status;
+        const ok     = response.ok;
+        const text   = await response.text();
+
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+
+        FileCache.clearCache(route);
+
+        return { ok, status, text };
+    }
+
     /**
      * Performs a HTTP PUT Request, includes an 
      * Authorization header with bearer and token from storage
