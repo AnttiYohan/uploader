@@ -50,11 +50,19 @@ import { props } from './WCBase.js';
 
     }
     
-    addContent( image )
+    addContent( mediaDto )
     {
-        this.mImage = image;
 
-        this.mValueElement.src = `data:${image.fileType};base64,${image.data}`;;
+        if ( mediaDto.image )
+        {
+            this.mImage = mediaDto.image;
+        }
+        else if ( mediaDto.thumbnail )
+        {
+            this.mImage = mediaDto.thumbnail;
+        }
+        
+        this.mValueElement.src = `data:${this.mImage.fileType};base64,${this.mImage.data}`;
      
         /*const reader = new FileReader();
         reader.onloadend = (e) =>
