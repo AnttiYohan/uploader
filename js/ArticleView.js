@@ -51,18 +51,15 @@ class ArticleView extends WCBase
         // - Save element references
         // ---------------------------
 
-        const inputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
-        const inputArray = Array.from(inputFrame.querySelectorAll('[data-input]'));
+        const inputFrame    = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
+        const inputArray    = Array.from(inputFrame.querySelectorAll('[data-input]'));
         this.mInputOperator = new InputOperator('article', inputArray);
-
-
         this.mRootElement   = this.shadowRoot.querySelector('.uploader');
         this.mBrowser       = this.shadowRoot.querySelector('[data-browser="article_browser"]');
         const saveButton    = this.shadowRoot.querySelector('.button--save');
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
 
-        refreshButton.addEventListener
-        ('click', e => 
+        refreshButton.addEventListener('click', e => 
         { 
             FileCache.clearCache(ARTICLE_URL);
             this.loadArticles();
@@ -93,7 +90,6 @@ class ArticleView extends WCBase
                 this.mRootElement.appendChild( responseNotifier );
                 responseNotifier.onSuccess( 
                     () => {
-                        
                         this.loadArticles();
                         this.mInputOperator.reset();
                     }
@@ -109,8 +105,7 @@ class ArticleView extends WCBase
             {
                 console.log(`Add proper data and image file`);
             }
-        }
-        );
+        });
 
         //this.loadProducts();
     }
