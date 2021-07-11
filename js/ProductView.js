@@ -1,10 +1,10 @@
-import { WCBase, props, PRODUCT_URL } from './WCBase.js';
-import { newTagClass, newTagClassChildren, newTagClassHTML, deleteChildren, selectValue, setImageFileInputThumbnail } from './util/elemfactory.js';
+import { WCBase, PRODUCT_URL } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
 import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
+import { ResponseNotifier } from './ResponseNotifier.js';
 import { RadioSwitchGroup } from './RadioSwitchGroup.js';
 
 
@@ -17,15 +17,11 @@ template.innerHTML =
 
     <!-- REFRESH ROW -->
 
-    <button class='button--refresh'>Refresh</button>
+    <button class='button--refresh'>Reload</button>
 
     <text-input-row class='name_input' data-input='name' required>Name</text-input-row>
     <image-input-row class='image_input' data-input='image' required>Product Image</image-input-row>
-    
-    <!-- PRODUCT LIST OF ALLERGENS -->
-
     <binary-button-row class='allergens_input' data-input='hasAllergens'>Allergens</binary-button-row>
-
     <div class='allergens'>
         <div class='two_column'>
            <binary-button-row class='gluten_input' data-input='hasGluten'>Gluten</binary-button-row>
@@ -36,9 +32,6 @@ template.innerHTML =
           <binary-button-row class='eggs_input' data-input='hasEggs'>Eggs</binary-button-row>
         </div>
     </div>
-
-    <!-- PRODUCT CATEGORY LIST -->
-
     <radio-switch-group class='category_input' data-input='productCategory' group='[
         { "title": "Bread & Pastry", "value": "BREAD_AND_PASTRY" }, 
         { "title": "Fruits", "value": "FRUITS" },
@@ -53,15 +46,10 @@ template.innerHTML =
         { "title": "Others", "value": "OTHERS" },
         { "title": "None", "value": "NONE" }
     ]'>Category</radio-switch-group>
-
-    <!-- SAVE BUTTON -->
-
     <div class='uploader__row--last'>
     </div>
     <button class='button--save save_product'>Save</button>
-
   </div>
-
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
     <entry-browser data-browser='product_browser'>Products:</entry-browser>
@@ -69,7 +57,10 @@ template.innerHTML =
 </div>`;
 
 /**
- * 
+ * Product View is one of the Top Level Views in the
+ * BabyFoodWorld Admin Uploader Tool
+ * -------
+ * Manages the system products in the BFW server
  */
 class ProductView extends WCBase
 {
@@ -82,15 +73,12 @@ class ProductView extends WCBase
         // -----------------------------------------------
         this.mProductObjects = [];
 
-        console.log(`ProductView::constructor called`);
-
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
-
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         // ---------------------------
@@ -119,18 +107,13 @@ class ProductView extends WCBase
         // - Allergen group enabling/disabling setting
         // -----------------------------------------------------------------------------
 
-        const allergenInput = this.shadowRoot.querySelector('.allergens_input');
         const allergenGroup = this.shadowRoot.querySelector('.allergens');
-        allergenGroup.style.opacity = 0.25;
+        allergenGroup.style.opacity = .25;
 
-        allergenInput.addEventListener('state', e =>
+        const allergenInput = this.shadowRoot.querySelector('.allergens_input');
+        allergenInput.addEventListener( 'state', e =>
         {
-            console.log(`Allergen state event: ${e.detail}`);
-            if (! e.detail) 
-            {   
-                allergenGroup.style.opacity = 0.25;
-            }
-            else allergenGroup.style.opacity = 1.0;
+            allergenGroup.style.opacity = e.detail ? 1.0 : .25;
         }, true);
 
         // ------------------------------
@@ -139,7 +122,6 @@ class ProductView extends WCBase
 
         this.mAddButton.addEventListener('click', e =>
         {
-            console.log(`Save product clicked`);
             // --------------------------------------
             // - Obtain input values and validate
             // - If dto and image file present, send
@@ -155,27 +137,27 @@ class ProductView extends WCBase
             
             if ( dto && imageFile )
             {
-                this.addProduct(dto, imageFile)
-                    .then(response => 
-                    {
-                        const ok     = response.ok;
-                        const status = response.status;
-                        console.log(`addProduct response status ${status} : ok? ${ok}`);
-
-                        if (ok)
-                        {
-                            console.log(`Product added succesfully ${response.text}`);
-                            this.loadProducts();
-                            this.mInputOperator.reset();
-                        }
-                        else
-                        {
-                            console.log(`Product could not be added to the server, code ${status}`)
-                        }
-                    })
-                    .catch(error => { console.log(`addProduct response fail: ${error}`); });
-
-                this.mInputOperator.reset();
+                const responseNotifier = new ResponseNotifier
+                (
+                    'systemProductDto',
+                    'Create Product', 
+                    'Product Created Succesfully',
+                    'Product Could Not Be Created' 
+                );
+                this.mRootElement.appendChild( responseNotifier );
+                responseNotifier.onSuccess( 
+                    () => {
+                        
+                        this.loadProducts();
+                        this.mInputOperator.reset();
+                    }
+                );
+                responseNotifier.onFail(
+                    () => {
+                        console.log(`Product could not be added to the server`)
+                    }
+                );
+                responseNotifier.begin( FileCache.postDtoAndImage( PRODUCT_URL, dto, imageFile) );
             }
             else
             {
@@ -190,15 +172,21 @@ class ProductView extends WCBase
     /**
      * Read products from cache or from server
      */
-    loadProducts()
+    async loadProducts()
     {
-        this.getProducts()
-        .then(response => 
-        { 
-            try { this.generateList( JSON.parse(response.text)); } 
-            catch (error) { throw new Error(`Product parse failed: ${error}`); }
-        })
-        .catch(error => { console.log(`Could not read products: ${error}`); });
+        const { ok, status, text } = await FileCache.getCached( PRODUCT_URL );
+
+        console.log(`GET /products response status: ${status}`);
+
+        if ( ok )
+        {
+            this.generateList( text );
+        }
+        else
+        {
+            console.log(`Product read status: ${status}`);
+        }
+        
     }
 
 
@@ -207,8 +195,19 @@ class ProductView extends WCBase
      * 
      * @param {array} list 
      */
-    generateList(list)
+    generateList( response )
     {
+        let list = undefined;
+
+        try
+        {
+            list = JSON.parse( response );
+        }
+        catch (error) 
+        {
+            console.log(`ProductView::generateList error ${error}`);
+        }
+
         if ( Array.isArray( list ) )
         { 
             const model = {
@@ -239,7 +238,7 @@ class ProductView extends WCBase
      */
     getProducts()
     {         
-        return FileCache.getCached(PRODUCT_URL);
+        return FileCache.getRequest(PRODUCT_URL);
     }
 
     /**
@@ -249,13 +248,13 @@ class ProductView extends WCBase
      * - {number}  status
      * - {string}  text
      * ------------------------
-     * @param  {ProductDto} dto 
-     * @param  {File}       imageFile
-     * @return {boolean, number, string}
+     * @param  {ProductDto}  dto 
+     * @param  {File}        image
+     * @return {Promise}
      */
-    addProduct(dto, imageFile)
+    addProduct( dto, image )
     {
-        return FileCache.postDtoAndImage(PRODUCT_URL, dto, imageFile);
+        return FileCache.postDtoAndImage( PRODUCT_URL, dto, image );
     }
 
 
@@ -267,26 +266,30 @@ class ProductView extends WCBase
      */
     removeProduct(id)
     {
-        console.log(`Remove product ${id} called`);
-        FileCache
-            .delete(PRODUCT_URL, id)
-            .then(response => {
+        console.log(`Remove product with  ${id} called`);
+        const responseNotifier = new ResponseNotifier
+        ( 
+            'systemProductDto',
+            'Remove Product', 
+            'Product Removed Succesfully',
+            'Product Could Not Be Removed' 
+        );
+        this.mRootElement.appendChild( responseNotifier );
 
-                console.log(`Remove product response status: ${response.status} - ${response.text}`);
+        responseNotifier.onSuccess
+        ( 
+            () => {            
+                this.loadProducts();
+            }
+        );
+        responseNotifier.onFail
+        (
+            () => {
+                console.log(`Product could not be removed`)
+            }
+        );
+        responseNotifier.begin( FileCache.delete( PRODUCT_URL, id ) );
 
-                if (response.ok)
-                {
-                    console.log(`Product succesfully removed from the server`);
-                    this.loadProducts();
-                }
-                else
-                {
-                    console.log(`Server was unable to remove the product`);
-                }
-            })
-            .catch(error => {
-                console.log(`Remove product exception catched: ${error}`);
-            });
     }
 
 
@@ -301,7 +304,7 @@ class ProductView extends WCBase
          */
         this.shadowRoot.addEventListener('remove-by-id', e =>
         {
-            const id = e.detail.id;
+            const id = e.detail.entry.id;
 
             e.preventDefault();
             e.stopPropagation();
