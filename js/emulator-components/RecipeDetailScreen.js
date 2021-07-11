@@ -208,9 +208,21 @@ class RecipeDetailScreen extends WCBase
         {
             for ( const step of recipe.steps )
             {
-            this.mSteps.appendChild
-            (
-                    
+
+                let image = undefined;
+
+                if ( step.mediaDto.thumbnail )
+                {
+                    image = step.mediaDto.thumbnail;
+                }
+                else if ( step.mediaDto.image )
+                {
+                    image = step.mediaDto.image;
+                }
+
+                this.mSteps.appendChild
+                (
+                        
                     newTagClassChildren
                     (
                         'li', 
@@ -219,7 +231,7 @@ class RecipeDetailScreen extends WCBase
                             imgClassSrc
                             (
                                 'entry__img',
-                                step.mediaDto.thumbnail
+                                image
                             ),
                             newTagClassHTML
                             (
