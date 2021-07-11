@@ -40,6 +40,14 @@ class InputOperator
          */
         this.mImage = undefined;
 
+
+        /**
+         * Property for media, main image and thumbnails
+         * ------------
+         * @type Array<File>
+         */
+         this.mMedia = [];
+
         /**
          * The root of editor components
          * ---------
@@ -88,6 +96,10 @@ class InputOperator
             {
                 this.setImageInput(element);
             }
+            else if (element.localName === 'media-input-row')
+            {
+                this.setMediaInput(element);
+            }
             else 
             {
                 this.add(element);
@@ -115,6 +127,14 @@ class InputOperator
         this.mImage = element;
     }
 
+    /**
+     * Store the media input here
+     */
+    setMediaInput(element)
+    {
+        console.log(`Media input ${element.localName} stored`);
+        this.mMedia = element;
+    }
     /**
      * size of the store
      * ----
@@ -201,26 +221,24 @@ class InputOperator
 
         const image = this.imageFile();
 
-        if ( ! image ) 
+        if ( ! image  ) 
         {
             this.mImage.notifyRequired();
-            console.log(`Image file not set`);
+            console.log(`Image not set`);
             success = false;
         }
-
+        
         console.log(`Success after image elem: ${success}`);
 
         if ( success )
         {
-            if (stringify)
-            {
-                const data = JSON.stringify(obj);
-                console.log(`data: ${data}`);
-                return { title: this.mKey, data };
-            }
-
             console.log(`data: ${JSON.stringify(obj)}`);
-            return { title: this.mKey, data: obj };
+            const title = this.mKey;
+
+            return stringify 
+                 ? { title, data: JSON.stringify( obj ) }
+                 : { title, data: obj };
+
         }
         
         return undefined;
@@ -238,24 +256,30 @@ class InputOperator
         return undefined;
     }
 
+    /**
+     * @return {array|undefined}
+     */
+    mediaList()
+    {
+        return this.mMedia.value;
+    }
+
     reset()
     {
-        this.mImage.reset();
-        console.log(`Image inpu reset, iterate others`);
+        if ( this.mImage ) this.mImage.reset();
         this.mStore.forEach(element => 
-            {
-                console.log(`IO: element ${element.localName}`);
-                element.reset();
-            });
+        {
+            element.reset();
+        });
     }
 
     notifyRequired()
     {
         this.mImage.notifyRequired();
         this.mStore.forEach(element =>
-            {
-                element.notifyRequired()
-            });
+        {
+            element.notifyRequired()
+        });
     }
 
     /**
@@ -328,7 +352,7 @@ class InputOperator
                 this.mProductComponent = component;
             }
             else
-            if ( label === 'stepBySteps' )
+            if ( label === 'steps' )
             {
                 this.mStepComponent = component;
             }
@@ -347,7 +371,7 @@ class InputOperator
     {
         let image;
 
-        const component = this.mComponentMap['image'];
+        const component = this.mComponentMap['mediaDto'];
         const fieldSet = component.querySelector('[data-input]');
 
         if ( fieldSet )
@@ -380,7 +404,7 @@ class InputOperator
          */
         for (const key in this.mComponentMap)
         {
-            if ( key === 'image' || key === 'products' || key === 'stepBySteps') continue;
+            if ( key === 'mediaDto' || key === 'products' || key === 'steps') continue;
 
             const component = this.mComponentMap[key];
             const editor = component.querySelector('[data-input]');
@@ -504,7 +528,7 @@ class InputOperator
                 this.initProductMenu( component, value );
                 break;
          
-            case 'stepBySteps':
+            case 'steps':
 
                 this.initStepEditor( component, value );
                 break;
@@ -541,7 +565,7 @@ class InputOperator
         /**
          * Exclude products and steps
          */
-        if ( label === 'products' || label === 'stepBySteps' ) return;
+        if ( label === 'products' || label === 'steps' ) return;
 
         const component = this.mComponentMap[label];
     
