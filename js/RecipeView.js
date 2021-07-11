@@ -1,4 +1,4 @@
-import { WCBase, RECIPE_URL } from './WCBase.js';
+import { WCBase, RECIPE_URL, RECIPE_ALL_URL } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
 import { StepEditor } from './StepEditor.js';
 import { ProductRow } from './ProductRow.js';
@@ -29,7 +29,7 @@ template.innerHTML =
 
   <div class='uploader__frame' data-input-frame>
 
-    <button class='button--refresh'>Refresh</button>
+    <button class='button--refresh'>Reload</button>
     <text-input-row   class='title_input'     data-input='title' required>Title</text-input-row>
     <image-input-row  class='image_input'     data-input='image' required>Recipe Image</image-input-row>
     <text-input-row   class='link_input'      data-input='originalRecipeLink' required>Recipe Link</text-input-row> 
@@ -385,6 +385,60 @@ class RecipeView extends WCBase
             )
         );
     }
+
+
+    async openEditorById(id)
+    {
+        if ( ! id ) return;
+
+        const route = `${RECIPE_URL}/${id}`;
+        const { status, ok, text } = await FileCache.getRequest( route, true, false );
+
+        if ( ok )
+        {
+            let recipe = undefined;
+
+            try 
+            {
+                recipe = JSON.parse( text );
+            }
+            catch ( error )
+            {
+                console.log( `Could not parse recipe: ${error}` );
+            }
+
+            if ( recipe )
+            {
+                console.table( recipe );
+                this.mEditorNode.appendChild
+                (
+                    new RecipeEditor
+                    (
+                        recipe, 
+                        this, 
+                        this.mViewNode,
+                        this.mAvailableProducts
+                    )
+                );
+            }
+        }
+        else
+        {
+            console.log( `Could not read recipe from server, status: ${status}`);
+        }
+        /*
+        this.mEditorNode.appendChild
+        (
+            new RecipeEditor
+            (
+                entry, 
+                this, 
+                this.mViewNode,
+                this.mAvailableProducts
+            )
+        );*/
+    }
+
    /*
     loadProducts()
     {
@@ -443,23 +497,26 @@ class RecipeView extends WCBase
     * Read recipes from cache or from server
     * --------------------------------------
     */
-    loadRecipes()
+    async loadRecipes()
     {
-        this.getRecipes()
-            .then(response => 
-            {   
-                console.log(`GET /recipes response status: ${response.status}`);
+        const { ok, status, text } = await FileCache.getRequest( RECIPE_ALL_URL );
 
-                if (response.ok)
-                {
-                    console.log(`Response ok, parse the recipes`);
-                    try { this.generateList( JSON.parse(response.text)); } 
-                    catch (error) { throw new Error(`Recipe parse failed: ${error}`); }
-                }
-                else throw new Error(`Server responded with: ${response.text}`);
-     
-            })
-            .catch(error => { console.log(`${error}`); });
+        if ( ok )
+        {
+            console.log(`Response ok, parse the recipes`);
+
+            try 
+            { 
+                this.generateList( JSON.parse(text) ); 
+            } 
+            catch (error) {
+                console.log(`Recipe parse failed: ${error}`); 
+            }
+        }
+        else
+        {
+            console.log( `Recipe read failed, status: ${status}` );
+        }
     }
     
     /**
@@ -572,14 +629,14 @@ class RecipeView extends WCBase
          */
         this.shadowRoot.addEventListener('edit-by-id', e =>
         {
-             const entry = e.detail.entry;
+             const id = e.detail.entry.id;
  
              e.preventDefault();
              e.stopPropagation();
  
-             console.log(`RecipeView: edit-by-id ${entry.id} event intercepted. Open the editor for the recipe`);
+             console.log(`RecipeView: edit-by-id ${id} event intercepted. Open the editor for the recipe`);
  
-            this.openEditor(entry);
+            this.openEditorById(id);
             //this.openEditor(id);
  
         }, true);
