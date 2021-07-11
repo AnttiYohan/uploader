@@ -74,7 +74,9 @@ class FileCache
         }
 
         console.log(`Cache found, return from local store`);
-        return Promise.resolve(serialized);
+
+        return Promise.resolve({ ok: true, status: 200, text: serialized });
+        //return Promise.resolve(serialized);
     }
 
     /**
@@ -107,7 +109,9 @@ class FileCache
         }
 
         console.log(`Cache found, return from local store`);
-        return Promise.resolve(serialized);
+
+        return Promise.resolve({ ok: true, status: 200, text: serialized });
+        //return Promise.resolve(serialized);
     }
 
     /**
@@ -124,7 +128,7 @@ class FileCache
 
         if ( useToken )
         {
-            return FileCache.getRequestWithToken(route);
+            return FileCache.getRequestWithToken(route, useStore);
         }
 
         const response = await fetch
@@ -142,14 +146,14 @@ class FileCache
         const text = await response.text();
 
         // -----------------------------------
-        // - Write cache
+        // - Write cache, when ok
         // -----------------------------------
 
-        if (useStore)
+        if ( useStore && ok )
         {
             try {
 
-            localStorage.setItem(route, text);
+            localStorage.setItem( route, text );
 
             } catch (error){}
         }
@@ -166,10 +170,7 @@ class FileCache
      */
     static async getRequestWithToken(route, useStore = true)
     {
-        const bearer = `Bearer ${FileCache.getToken()}`;
-
-        console.log(`Authorization: ${bearer}`);
-       
+        const bearer   = `Bearer ${FileCache.getToken()}`;
         const response = await fetch
         (
             route,
@@ -184,26 +185,27 @@ class FileCache
         );
 
         const status = response.status;
-        const ok = response.ok;
+        const ok     = response.ok;
+        const text   = await response.text();
+
         console.log(`FileCache::response ok ${ok} status ${status}`);
-        const text = await response.text();
-        
+     
         // -----------------------------------
-        // - Write cache
+        // - Write cache, when ok
         // -----------------------------------
 
-        if (useStore)
+        if ( useStore && ok )
         {
             try {
 
-                localStorage.setItem(route, text);
-                console.log(`Cache written - route ${route}, cache: ${text}`);
+            localStorage.setItem( route, text );
 
             } catch (error){}
         }
 
         return { ok, status, text };
     }
+    
 
         /**
      * Performs a HTTP GET Request, includes an 
@@ -220,7 +222,7 @@ class FileCache
        
         let path = '';
         
-        for (let key in params)
+        for ( const key in params )
         {
             path += `/${params[key]}`;
         }
@@ -250,7 +252,7 @@ class FileCache
         // - Write cache
         // -----------------------------------
 
-        if (useStore)
+        if ( useStore && ok )
         {
             try {
 
@@ -281,8 +283,6 @@ class FileCache
     static async postDtoAndImage(route, dto, imageFile)
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
-
-        console.log(`HTTP POST Authorization: ${bearer}`);
 
         // ------------------------------------
         // - Generate multipart payload
@@ -322,6 +322,55 @@ class FileCache
         return { ok, status, text };
     }
 
+    /**
+     * Performs a HTTP POST Request, includes an 
+     * Authorization header with bearer and token from storage
+     * Return the promise
+     * 
+     * @param  {string}       route
+     * @param  {object}       dto
+     * @param  {Array<File>}  media 
+     * @return {Promise}      response
+     */
+     static postDtoAndMedia(route, dto, media)
+     {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+ 
+        console.log(`postDtoAndMedia: HTTP POST Authorization: ${bearer}`);
+ 
+        // -----------------------------------
+        // - Clear route cache
+        // -----------------------------------
+ 
+        FileCache.clearCache(route);
+ 
+        // ------------------------------------
+        // - Generate multipart payload
+        // ------------------------------------
+ 
+        const 
+        formData = new FormData();
+        formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+         
+        for ( const unit of media )
+        {
+            formData.append( 'images', unit.image, `${unit.size}` );   
+        }
+  
+        return fetch
+        (
+            route,
+            {
+                method: 'POST',
+                credentials: 'include',
+                headers: 
+                {
+                     'Authorization' : bearer
+                },
+                body: formData
+            }
+        );
+     }
   /**
      * Performs a HTTP POST Multipart Request
      * contains main json part and image part,
@@ -340,8 +389,6 @@ class FileCache
    static async postDtoAndImageWithChildren(route, dto, imageFile, childrenDto, childrenImageDto)
    {
        const bearer = `Bearer ${FileCache.getToken()}`;
-
-       console.log(`HTTP POST Multipart with chidlren. Authorization: ${bearer}`);
 
        // ------------------------------------
        // - Generate multipart payload
@@ -417,8 +464,6 @@ class FileCache
     static async putDto(route, dto)
         {
             const bearer = `Bearer ${FileCache.getToken()}`;
-    
-            console.log(`HTTP PUT Authorization: ${bearer}`);
     
             // ------------------------------------
             // - No need for multipart
@@ -530,7 +575,7 @@ class FileCache
 
     for (const image of images.data)
     {
-        formData.append( imageTitle, image);
+        formData.append(imageTitle, image);
     }
 
      const response = await fetch
