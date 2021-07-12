@@ -393,6 +393,8 @@ class IngredientMenu extends WCBase
             this.emitClicked(title);
             
         }, true);
+
+        this.emit('ingredient-menu-connected');
     }
 
     disconnectedCallback()
