@@ -162,6 +162,7 @@ const LOGOUT_URL = `${API_URL}/logout`;
 const ARTICLE_URL = `${API_URL}/article`;
 const RECIPE_URL = `${API_URL}/recipe`;
 const RECIPE_ALL_URL = `${RECIPE_URL}/all`;
+const RECIPE_WITH_STEPS = `${RECIPE_URL}/with-steps`;
 const PRODUCT_URL = `${API_URL}/product`;
 const PRODUCT_TEXT_URL = `${PRODUCT_URL}/text`;
 const FRIDGE_PRODUCT_URL = `${PRODUCT_URL}/fridge`;
@@ -188,6 +189,7 @@ export
      RECIPE_URL,
      RECIPE_ALL_URL,
      RECIPE_MEDIA_URL,
+     RECIPE_WITH_STEPS,
      RECIPE_STEPS_MEDIA_URL,
      PRODUCT_URL,
      PRODUCT_TEXT_URL,
