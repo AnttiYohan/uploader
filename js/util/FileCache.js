@@ -298,6 +298,8 @@ class FileCache
             route,
             {
                 method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
                 credentials: 'include',
                 headers: 
                 {
@@ -362,10 +364,12 @@ class FileCache
             route,
             {
                 method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
                 credentials: 'include',
                 headers: 
                 {
-                     'Authorization' : bearer
+                     'Authorization' : bearer,
                 },
                 body: formData
             }
@@ -422,6 +426,8 @@ class FileCache
            route,
            {
                method: 'POST',
+               mode: 'cors',
+               cache: 'no-cache',
                credentials: 'include',
                headers: 
                {
@@ -474,6 +480,8 @@ class FileCache
             route,
             {
                 method: 'PUT',
+                mode: 'cors',
+                cache: 'no-cache',
                 credentials: 'include',
                 headers: 
                 {
@@ -526,6 +534,8 @@ class FileCache
             route,
             {
                 method: 'PUT',
+                mode: 'cors',
+                cache: 'no-cache',
                 credentials: 'include',
                 headers: 
                 {
@@ -587,6 +597,8 @@ class FileCache
          route,
          {
              method: 'PUT',
+             mode: 'cors',
+             cache: 'no-cache',
              credentials: 'include',
              headers: 
              {
