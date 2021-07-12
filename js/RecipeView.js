@@ -1,4 +1,4 @@
-import { WCBase, RECIPE_URL, RECIPE_ALL_URL } from './WCBase.js';
+import { WCBase, RECIPE_URL, RECIPE_ALL_URL, RECIPE_WITH_STEPS } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
 import { StepEditor } from './StepEditor.js';
 import { ProductRow } from './ProductRow.js';
@@ -195,7 +195,7 @@ class RecipeView extends WCBase
                 // - If dto and image file present, send
                 // - To the server
                 // --------------------------------------
-        /*const embed = hasSteps 
+                /*const embed = hasSteps 
                             ? { 'hasSteps': false }
                             : { 'hasSteps': true };*/
         
@@ -214,7 +214,7 @@ class RecipeView extends WCBase
                     // - Call API route /with-steps
                     // -------------------------------------
 
-                    if ( dto.data.hasStepByStep )
+                    if ( dto.data.hasSteps )
                     {
                         
                         // ---------------------------------
@@ -223,7 +223,7 @@ class RecipeView extends WCBase
                         const stepDto    = { title: 'steps',      data: [] };
                         const stepImages = { title: 'stepImages', images: [] };
 
-                        for (const step of dto.data.stepBySteps)
+                        for (const step of dto.data.steps )
                         {
                             console.log(`Step ${step}`);
                             stepDto.data.push({text: step.text, stepNumber: step.stepNumber});
@@ -236,7 +236,7 @@ class RecipeView extends WCBase
                         // - Compile stringified dto data version
                         // --------------------------------------
 
-                        dto.data.stepBySteps = null;
+                        dto.data.steps = null;
 
                         const finalDto = { title: dto.title, data: JSON.stringify(dto.data) };
 
@@ -275,7 +275,7 @@ class RecipeView extends WCBase
                         ( 
                             FileCache.postDtoAndImageWithChildren
                             (
-                                RECIPE_URL,
+                                RECIPE_WITH_STEPS,
                                 finalDto,
                                 imageFile,
                                 finalStepDto,
