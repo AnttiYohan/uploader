@@ -78,7 +78,7 @@ template.innerHTML =
         { "title": "Smoothie", "value": "SMOOTHIE" },
         { "title": "Beverages", "value": "BEVERAGES" }
     ]'>Meal Types</binary-switch-group>     
-    <step-editor class='step_editor' data-input='stepBySteps'></step-editor>
+    <step-editor class='step_editor' data-input='steps'></step-editor>
 
     <multi-entry-row  data-input='tips'>Tips</multi-entry-row>
     <number-input-row data-input='nutritionValue'>Nutrition kcal</number-input-row>
@@ -195,16 +195,17 @@ class RecipeView extends WCBase
                 // - If dto and image file present, send
                 // - To the server
                 // --------------------------------------
-
-                const hasSteps = this.mInputOperator.getValue('stepBySteps');
-                let embed = { hasStepByStep: false };
-                if (hasSteps) embed = { hasStepByStep: true };
-                const dto = this.mInputOperator.processInputs( false, embed );
+        /*const embed = hasSteps 
+                            ? { 'hasSteps': false }
+                            : { 'hasSteps': true };*/
+        
+                const hasSteps  = this.mInputOperator.getValue('steps');
+                const dto       = this.mInputOperator.processInputs
+                (
+                    false,
+                    hasSteps ? { 'hasSteps': true } : { 'hasSteps': false }
+                );
                 const imageFile = this.mInputOperator.imageFile();
-
-               // console.log(`Dto title: ${dto.title}, data: ${dto.data}`);
-               // console.log(`Imagefile: ${imageFile}`);
-               // console.log(`dto.data.hasStepByStep? ${dto.data.hasStepByStep}`);
 
                 if ( dto && imageFile )
                 {
