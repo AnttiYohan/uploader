@@ -4,6 +4,7 @@ import { EmulatorView } from './emulator-components/EmulatorView.js';
 import { ArticleView } from './ArticleView.js';
 import { ProductView } from './ProductView.js';
 import { RecipeView } from './RecipeView.js';
+import { AdminView } from './AdminView.js';
 import { LoginView } from './LoginView.js';
 import { FileCache } from './util/FileCache.js';
 
@@ -29,9 +30,10 @@ template.innerHTML =
     </div>
   </header>
   
-  <article-view  class='view--article'></article-view>
-  <product-view  class='view__product'></product-view>
-  <recipe-view   class='view__recipe'></recipe-view>
+  <admin-view    class='view--admin'   ></admin-view>
+  <article-view  class='view--article' ></article-view>
+  <product-view  class='view__product' ></product-view>
+  <recipe-view   class='view__recipe'  ></recipe-view>
   <emulator-view class='view--emulator'></emulator-view>
 
 </div>`;
@@ -154,6 +156,7 @@ class UploaderView extends WCBase
         this.mAdminTab      = this.shadowRoot.querySelector('.nav__tab.admin');
         this.mEmulatorTab   = this.shadowRoot.querySelector('.nav__tab.emulator');
 
+        this.mAdminView     = this.shadowRoot.querySelector('.view--admin');
         this.mArticleView   = this.shadowRoot.querySelector('.view--article');
         this.mProductView   = this.shadowRoot.querySelector('.view__product');
         this.mRecipeView    = this.shadowRoot.querySelector('.view__recipe');
@@ -180,6 +183,11 @@ class UploaderView extends WCBase
         /**
          * Tab click listeners
          */
+        this.mAdminTab.addEventListener( 'click', e => 
+        {
+            this.openAdminView();
+        });
+        
         this.mArticleTab.addEventListener( 'click', e => 
         {
             this.openArticleView();
@@ -229,8 +237,23 @@ class UploaderView extends WCBase
 
     }
 
+    openAdminView()
+    {
+        this.mAdminView.style.display    = 'block';
+        this.mArticleView.style.display  = 'none';
+        this.mProductView.style.display  = 'none';
+        this.mRecipeView.style.display   = 'none';
+        this.mEmulatorView.style.display = 'none';
+    
+        this.mArticleTab.classList.remove('active');
+        this.mProductTab.classList.remove('active');
+        this.mEmulatorTab.classList.remove('active');
+        this.mRecipeTab.classList.remove('active');
+        this.mAdminTab.classList.add('active');
+    }
     openArticleView()
     {
+        this.mAdminView.style.display    = 'none';
         this.mArticleView.style.display  = 'block';
         this.mProductView.style.display  = 'none';
         this.mRecipeView.style.display   = 'none';
@@ -245,6 +268,7 @@ class UploaderView extends WCBase
 
     openProductView()
     {
+        this.mAdminView.style.display    = 'none';
         this.mArticleView.style.display  = 'none';
         this.mProductView.style.display  = 'block';
         this.mRecipeView.style.display   = 'none';
@@ -262,10 +286,11 @@ class UploaderView extends WCBase
         /**
          * Adjust views
          */
-        this.mArticleView.style.display  = 'none';
-        this.mRecipeView.style.display  = 'block';
-        this.mProductView.style.display = 'none';
-        this.mEmulatorView.style.display = 'none';
+         this.mAdminView.style.display    = 'none';
+        this.mArticleView.style.display   = 'none';
+        this.mRecipeView.style.display    = 'block';
+        this.mProductView.style.display   = 'none';
+        this.mEmulatorView.style.display  = 'none';
 
         /**
          * Adjust tabs' classlists
@@ -283,10 +308,11 @@ class UploaderView extends WCBase
         /**
          * Adjust views
          */
+        this.mAdminView.style.display    = 'none';
         this.mArticleView.style.display  = 'none';
         this.mEmulatorView.style.display = 'block';
-        this.mRecipeView.style.display  = 'none';
-        this.mProductView.style.display = 'none';
+        this.mRecipeView.style.display   = 'none';
+        this.mProductView.style.display  = 'none';
 
         /**
          * Adjust tabs' classlists
