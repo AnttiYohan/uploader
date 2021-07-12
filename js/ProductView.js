@@ -157,7 +157,15 @@ class ProductView extends WCBase
                         console.log(`Product could not be added to the server`)
                     }
                 );
-                responseNotifier.begin( FileCache.postDtoAndImage( PRODUCT_URL, dto, imageFile) );
+                responseNotifier.begin
+                ( 
+                    FileCache.postDtoAndImage
+                    ( 
+                        PRODUCT_URL, 
+                        dto, 
+                        imageFile
+                    ) 
+                );
             }
             else
             {
