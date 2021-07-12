@@ -99,7 +99,6 @@ class AutoCompleteRow extends WCBase
         (`<div class='row'>
             <div class='row__label'><slot></div>
             <input type='text' class='row__input'>
-            <ul class='row__suggestions'>
           </div>`);
 
         

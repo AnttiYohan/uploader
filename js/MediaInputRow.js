@@ -21,8 +21,11 @@ class MediaInputRow extends WCBase
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='component'>
                 <div class='component__row'>
-                    <p class='component__label'><slot></p>
-                    <div class='component__img--required'></div>
+                    <div class='component__frame'>
+                      <p class='component__label'><slot></p>
+                      <div class='component__img--required'></div>
+                    </div>
+                    <button class='button--reset'>Reset</button>
                 </div>
                 <div class='image__area main'>
                     <input  id='image-upload-input'  class='image__file' type='file'>
@@ -181,6 +184,12 @@ class MediaInputRow extends WCBase
         this.mAsterisk = asterisk;
 
         /**
+         * Reset button
+         */
+        const resetButton = this.shadowRoot.querySelector('.button--reset');
+        resetButton.addEventListener('click', e => { this.reset(); });
+
+        /**
          * Main image input element
          */
         this.mArea  = this.shadowRoot.querySelector('.image__area.main');
@@ -200,10 +209,11 @@ class MediaInputRow extends WCBase
             if ( area )
             {
                 const input = area.querySelector('.image__file');
+                const removeButton = area.querySelector('.remove');
 
                 if ( input )
                 {
-                    this.mThumbnails.push({ area, input });
+                    this.mThumbnails.push({ area, input, size });
 
                     /**
                      * Observe image selection
@@ -217,6 +227,15 @@ class MediaInputRow extends WCBase
                             area.style.backgroundImage = `url('${reader.result}')`;
                         }
                         reader.readAsDataURL(file);
+                    });
+                }
+
+                if ( removeButton )
+                {
+                    removeButton.addEventListener('click', e =>
+                    {
+                        input.value = '';
+                        area.style.backgroundImage = `url('assets/icon_image_input.svg')`;
                     });
                 }
             }
@@ -277,13 +296,32 @@ class MediaInputRow extends WCBase
      */
     get value() 
     {
+        const list = [];
 
+        /**
+         * Grab the main image, if not set,
+         * return undefined
+         */
         if ('files' in this.mInput && this.mInput.files.length)
         {
-            return this.mInput.files[0];
+            list.push( { 'image': this.mInput.files[0], 'size': 1000 } );
+        }
+        else return undefined;
+
+        /**
+         * Append the thumbnails
+         */
+        for ( const thumbnail of this.mThumbnails )
+        {
+            const { input, size } = thumbnail;
+
+            if ( 'files' in input && input.files.length )
+            {
+                list.push( { image: input.files[0], size } );
+            }
         }
 
-        return undefined; 
+        return list.length ? list : undefined; 
     }
 
     object()
@@ -311,8 +349,15 @@ class MediaInputRow extends WCBase
         this.mInput.value = '';
         this.mArea.classList.remove('notify-required');
         this.mArea.style.backgroundImage = `url('assets/icon_image_input.svg')`;
-        this.mArea.style.backgroundSize = `50%`;
         this.mAsterisk.style.display = 'block';
+
+        for ( const thumbnail of this.mThumbnails )
+        {
+            const { input, area } = thumbnail;
+
+            input.value = '';
+            area.style.backgroundImage = `url('assets/icon_image_input.svg')`;
+        }
     }
 
     /**
