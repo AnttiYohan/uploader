@@ -1,8 +1,6 @@
 import 
 {
-     WCBase, 
-     props, 
-     RECIPE_URL, 
+     WCBase,
      UPDATE_RECIPE_URL, 
      UPDATE_FIELDS_URL, 
      UPDATE_PRODUCTS_URL,
@@ -22,11 +20,11 @@ import { ImageInputRow } from './ImageInputRow.js';
 import { NumberInputRow } from './NumberInputRow.js';
 import { EditorStepList } from './EditorStepList.js';
 import { BinaryButtonRow } from './BinaryButtonRow.js';
+import { ResponseNotifier } from './ResponseNotifier.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import { EditorBinaryLabel } from './EditorBinaryLabel.js';
 import { EditorSwitchGroup } from './EditorSwitchGroup.js';
 import { EditorProductList } from './EditorProductList.js';
-
 
 /**
  * Recipe Editor View  
@@ -49,11 +47,10 @@ class RecipeEditor extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        this.mRecipeId = recipeDto.id;
-        //this.mInputOperator = inputOperator;
-        this.mRecipeDto = recipeDto;
-        this.mParentContext = parent;
-        this.mViewNode = viewNode;
+        this.mRecipeId          = recipeDto.id;
+        this.mRecipeDto         = recipeDto;
+        this.mParentContext     = parent;
+        this.mViewNode          = viewNode;
         this.mAvailableProducts = availableProducts;
     
         // -----------------------------------------------
@@ -64,6 +61,7 @@ class RecipeEditor extends WCBase
         this.attachShadow({mode : "open"});
         this.setupTemplate(
         `<link rel='stylesheet' href='assets/css/components.css'>
+         <div class='notifier'></div>
          <div class='editor' data-input-frame>
             <div class='editor__component'>
                 <editor-label data-label='title'>Current</editor-label> 
@@ -157,9 +155,7 @@ class RecipeEditor extends WCBase
             <div class='editor__component products'>
                 <editor-product-list data-label='products'>Saved Products</editor-product-list>
                 <event-bouncer data-emitters='["product-select"]'>
-                <ingredient-menu data-connect='host' class='product_menu'
-                                    data-emit='product-select'
-                >Edit product list:</ingredient-menu>
+                <ingredient-menu data-connect='host' class='product_menu' data-emit='product-select'>Edit product list:</ingredient-menu>
                 <product-row data-connect='slave' data-input='products' data-collect='product-select'></product-row>
                 </event-bouncer>
                 <div class='two_column'>
@@ -180,13 +176,16 @@ class RecipeEditor extends WCBase
 
         this.setupStyle
         (`
+        .notifier { position: absolute; }
+        .dialog { top: 1000px; z-index:1; }
         .editor { max-width: 1200px; margin: 0 auto; }
         .two_column .button { margin: auto; }
         .two_column .column__item { margin-bottom: 16px; }
         `);
 
+        this.mRootElement    = this.shadowRoot.querySelector( '.notifier' );
         const dataInputFrame = this.shadowRoot.querySelector('[data-input-frame]');
-        this.mInputOperator = new InputOperator( 'recipe', Array.from(dataInputFrame.querySelectorAll('[data-input]')));
+        this.mInputOperator  = new InputOperator( 'recipe', Array.from(dataInputFrame.querySelectorAll('[data-input]')));
         this.mInputOperator.setComponentFrame( dataInputFrame );
         this.mInputOperator.loadComponents
         (
@@ -203,11 +202,22 @@ class RecipeEditor extends WCBase
         });
 
         /**
+         * HTMLElement, use this to store the clicked
+         * button into it
+         */
+        this.mClickedButton = null;
+
+        /**
          * Listen to update--one-to-one button
         */
         const updateButton = dataInputFrame.querySelector('.update--one-to-one');
         updateButton.addEventListener('click', e => 
         {
+            /**
+             * Store the reference into the clickedbutton
+             */
+            this.mClickedButton = updateButton;
+
             const image = this.mInputOperator.getUpdateImage();
 
             /**
@@ -240,6 +250,8 @@ class RecipeEditor extends WCBase
         const productsUpdateButton = dataInputFrame.querySelector('.update--products');
         productsUpdateButton.addEventListener('click', e =>
         {
+            this.mClickedButton = productsUpdateButton;
+
             const products = this.mInputOperator.getUpdateProductListDto();
             const modeElement = dataInputFrame.querySelector('.product-mode');
 
@@ -257,20 +269,22 @@ class RecipeEditor extends WCBase
          * Listen to Steps update button
          * ------
          */
-         const stepsUpdateButton = dataInputFrame.querySelector('.update--steps');
-         stepsUpdateButton.addEventListener('click', e =>
-         {
-             const steps = this.mInputOperator.getUpdateStepListDto();
-             const modeElement = dataInputFrame.querySelector('.step-mode');
+        const stepsUpdateButton = dataInputFrame.querySelector('.update--steps');
+        stepsUpdateButton.addEventListener('click', e =>
+        {
+            this.mClickedButton = stepsUpdateButton;
+            
+            const steps = this.mInputOperator.getUpdateStepListDto();
+            const modeElement = dataInputFrame.querySelector('.step-mode');
 
-             const add = modeElement && modeElement.value
-                       ? true
-                       : false;
- 
-             console.log(`Steps serialized: ${steps.dto.data}, addmode: ${add}`);
- 
-             if ( steps.dto.data.length ) this.updateRecipeSteps( steps, add );
-         });
+            const add = modeElement && modeElement.value
+                    ? true
+                    : false;
+
+            console.log(`Steps serialized: ${steps.dto.data}, addmode: ${add}`);
+
+            if ( steps.dto.data.length ) this.updateRecipeSteps( steps, add );
+        });
     }
 
     /**
@@ -293,98 +307,149 @@ class RecipeEditor extends WCBase
      */
     async updateRecipe( dto )
     {
-        const { status, ok, text } = await FileCache.putDto
+        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft = Number(this.mClickedButton.offsetLeft);
+        const responseNotifier = new ResponseNotifier
         (
-            UPDATE_RECIPE_URL,
-            dto
+            'recipeDto',
+            'Update Recipe', 
+            'Recipe Updated Succesfully',
+            'The Recipe Could Not Be Updated',
+            { top: `${offsetTop}px`, left: `${offsetLeft}px` }
         );
-        
-        if ( ok )
-        {
-            let recipe = undefined;
-
-            try {
-
-                recipe = JSON.parse( text );
-
+        //this.mViewNode.appendChild( responseNotifier );
+        this.mRootElement.appendChild( responseNotifier );
+        responseNotifier.onSuccess( 
+            ( recipe ) => {
+                //this.mInputOperator.reset();
+                this.mInputOperator.reloadEditor( recipe );
             }
-            catch ( error ) {
-
-                console.log( `Recipe parse failed: ${error}`);
-
+        );
+        responseNotifier.onFail(
+            ( status, message ) => {
+                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
             }
-
-            if ( recipe ) this.mInputOperator.reloadEditor( recipe );
-        }
+        );
+        responseNotifier.begin
+        ( 
+            FileCache.putDto
+            (
+                UPDATE_RECIPE_URL,
+                dto
+            ) 
+        ); 
     }
 
-    updateRecipeImage( stringifiedDto, image )
+    async updateRecipeImage( serialized, image )
     {
-        if ( image )
-        {
-            return this.responseHandler(
-                FileCache.putDtoAndImage
-                (
-                    UPDATE_FIELDS_URL, 
-                    stringifiedDto, 
-                    image
-                )
-            );
-        } 
+        if ( ! image ) return;
+
+        const responseNotifier = new ResponseNotifier
+        (
+            'recipeDto',
+            'Update Recipe With Image', 
+            'Recipe Updated Succesfully',
+            'The Recipe Could Not Be Updated' 
+        );
+        this.mRootElement.appendChild( responseNotifier );
+        responseNotifier.onSuccess( 
+            ( recipe ) => {
+                this.mInputOperator.reloadEditor( recipe );
+            }
+        );
+        responseNotifier.onFail(
+            ( status, message ) => {
+                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
+            }
+        );
+        responseNotifier.begin
+        ( 
+            FileCache.putDtoAndImage
+            (
+                UPDATE_FIELDS_URL, 
+                serialized, 
+                image
+            )
+        ); 
     }
 
     async updateRecipeProducts( serialized, addmode )
     {
-        const { status, ok, text } = addmode
-                       ? await FileCache.putDto
-                       (
-                           UPDATE_PRODUCTS_ADD_URL,
-                           serialized
-                       )
-                       : await FileCache.putDto
-                       (
-                           UPDATE_PRODUCTS_URL,
-                           serialized
-                       );
+        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft = Number(this.mClickedButton.offsetLeft);
     
-        if ( ok )
-        {
-            let products = undefined;
-
-            try 
-            {
-                products = JSON.parse( text );
-            }
-            catch ( error ) {
-                console.log( `Products could not be parsed: ${error}` );
-            }
-        
-            if ( products ) this.mInputOperator.reloadProductMenu( products );
-        }
-    }
-
-    updateRecipeSteps( steps, addmode )
-    {
-        if ( addmode ) return this.responseHandler
+        const responseNotifier = new ResponseNotifier
         (
-            FileCache.putDtoAndImageList
+            'products',
+            'Update Recipe Products', 
+            'Products Updated Succesfully',
+            'Product Could Not Be Updated',
+            { top: `${offsetTop}px`, left: `200px` }
+        );
+        this.mRootElement.appendChild( responseNotifier );
+        responseNotifier.onSuccess( 
+             products  => {
+                this.mInputOperator.reloadProductMenu( products );
+                //this.mInputOperator.reset();
+            }
+        );
+        responseNotifier.onFail(
+            ( status, message ) => {
+                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
+            }
+        );
+        responseNotifier.begin
+        ( 
+            addmode
+            ? await FileCache.putDto
             (
-                UPDATE_STEPS_ADD_URL,
-                steps.dto,
-                steps.images
+                UPDATE_PRODUCTS_ADD_URL,
+                serialized
+            )
+            : await FileCache.putDto
+            (
+                UPDATE_PRODUCTS_URL,
+                serialized
             )
         );
+    }
 
-        return this.responseHandler
+    async updateRecipeSteps( steps, addmode )
+    {
+        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft = Number(this.mClickedButton.offsetLeft);
+    
+        const responseNotifier = new ResponseNotifier
         (
-            FileCache.putDtoAndImageList
+            'steps',
+            'Update Recipe Steps', 
+            'Steps Updated Succesfully',
+            'Steps Could Not Be Updated',
+            { top: `${offsetTop}px`, left: `200px` }
+        );
+        this.mRootElement.appendChild( responseNotifier );
+        responseNotifier.onSuccess( steps  => { this.mInputOperator.reloadStepEditor( steps ) } );
+        responseNotifier.onFail(
+            ( status, message ) => {
+                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
+            }
+        );
+        responseNotifier.begin
+        ( 
+            addmode
+            ? await FileCache.putDtoAndImageList
+            (
+                    UPDATE_STEPS_ADD_URL,
+                    steps.dto,
+                    steps.images
+            )
+            : await FileCache.putDtoAndImageList
             (
                 UPDATE_STEPS_URL,
                 steps.dto,
                 steps.images
             )
-        );
-        
+        );           
     }
 
     closeEditor(response = undefined)
