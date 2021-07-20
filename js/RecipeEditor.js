@@ -35,7 +35,7 @@ class RecipeEditor extends WCBase
      * Recipe Editor Constructor function 
      * ------
      * @param {Object}      recipeDto, holds the data of selected recipe 
-     * @param {Conteext}    parent, recipe view 
+     * @param {Context}     parent, recipe view 
      * @param {HTMLElement} viewNode, the recipe view root node 
      * @param {Array}       availableProducts, currently available products 
      */
