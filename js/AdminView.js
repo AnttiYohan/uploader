@@ -29,7 +29,16 @@ class AdminView extends WCBase
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
          <div class='admin'>
-           <stat-set data-entity='product' data-route='product/usage'>Products used by Recipes</stat-set>
+           <stat-set data-entities='products'
+                     data-entity='product' 
+                     data-route='product/claims'
+                     data-related='claims'
+                     data-model='[
+                         { "key": "product", "type": "single" },
+                         { "key": "claims",  "type": "array" }
+                     ]'
+                     data-relation-phrase='is claimed by'       
+            >Products used by Recipes</stat-set>
          </div>
          `);    
         
