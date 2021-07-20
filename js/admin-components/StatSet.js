@@ -1,6 +1,6 @@
 import { WCBase, API_URL } from '../WCBase.js';
 import { FileCache } from '../util/FileCache.js';
-import { deleteChildren, newTagClassChildren } from '../util/elemfactory.js';
+import { deleteChildren, newTagClassChildren, newTagClassHTML } from '../util/elemfactory.js';
 
 /**
  * StatSet is a list/set of statistical items
@@ -14,6 +14,10 @@ class StatSet extends WCBase
         
 
         this.mRoute = this.dataset.route;
+
+        this.mPluralKey = this.dataset.entities;
+        this.mEntityKey = this.dataset.entity;
+        this.mRelated   = this.dataset.related;
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -31,6 +35,7 @@ class StatSet extends WCBase
             <button class='button--refresh'>Reload</button>
             <ul class='stat'>
             </ul>
+            <p class='message'></p>
          </div>`
         );    
         
@@ -39,6 +44,8 @@ class StatSet extends WCBase
           .stat__entry { display: flex; height: 64px; border-bottom: 1px solid rgba(0,0,0,.12); }
           .stat__key   { min-width: 120px display: flex; }
           .stat__value { width: 100%; margin-left: .7em; display: flex; }
+          .stat__related { width: 100%; margin-left: .7em; display: flex; }
+          .message { margin-top: 32px; margin-bottom: 32px; border: 1px solid rgba(0,0,0,.25); padding: 8px; width: min(350px, 80vw); height: 350px; overflow-y: scroll; }
         `);
         // ---------------------------
         // - Save element references
@@ -47,6 +54,7 @@ class StatSet extends WCBase
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
 
         this.mStat = this.shadowRoot.querySelector( '.stat' );
+        this.mMessage = this.shadowRoot.querySelector( '.message' );
 
         if ( this.mRoute )
         {
@@ -76,8 +84,24 @@ class StatSet extends WCBase
                 return;
             }
 
-            this.pushDataSet( set );
+            if ( Array.isArray( set ) )
+            {
+                this.pushDataSet( set );
+            }
+            else
+            {
+                if ( 'message' in set ) this.displayMessage( set.message );
+                if ( this.mPluralKey in set )
+                {
+                    this.pushDataSet( set[ this.mPluralKey ] );
+                }
+            }
         }
+    }
+
+    displayMessage( message )
+    {
+        this.mMessage.textContent = message;
     }
 
     pushDataSet( set )
@@ -86,16 +110,75 @@ class StatSet extends WCBase
 
         deleteChildren( this.mStat );
 
+        console.log( `Relation: ${this.mRelated}` );
         for ( const entry of set )
         {
+            const entity = entry[ this.mEntityKey ];
+            let entityTitle = 'Unknown';
+
+            if ( 'title' in entity ) entityTitle = entity.title;
+            if ( 'name'  in entity ) entityTitle = entity.name;
+
+            let relatedString = '';
+
+            if ( this.mRelated in entity )
+            {
+                const related = entity[ this.mRelated ];
+
+                /**
+                 * Is the related data an array
+                 */
+                if ( Array.isArray( related ) )
+                {
+                    console.table( related );
+
+                    for ( const item of related )
+                    {
+                        if ( typeof item === 'string' )
+                        {
+                            relatedString += `${item} `;
+                        }
+                        else
+                        {
+                            if ( 'title' in item )
+                            {
+                                relatedString += `${item.title} `
+                            }
+                        }
+                    }
+                }
+                else 
+                {
+                    if ( 'title' in related )
+                    {
+                        relatedString += `${related.title}`
+                    }
+                }
+            }
+
+            /**
+             * Create the child elements
+             */
+            const children = 
+            [
+                newTagClassHTML( 'h4', 'stat__key',   this.mEntityKey ),
+                newTagClassHTML( 'p',  'stat__value', entityTitle )
+            ];
+
+            /**
+             * If there were related data,
+             * push it into the children
+             */
+            if ( relatedString.length )
+            {
+                children.push( newTagClassHTML( 'p',  'stat__related', relatedTitle ) );
+            }
+            
             const elem = newTagClassChildren
             (
                 'li',
                 'stat__entry',
-                [
-                    newTagClassHTML( 'h4', 'stat__key',   entry.key   ),
-                    newTagClassHTML( 'p',  'stat__value', entry.value )
-                ]
+                children
             );
 
             this.mStat.appendChild( elem );
