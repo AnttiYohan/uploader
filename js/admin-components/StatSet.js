@@ -1,6 +1,6 @@
-import { WCBase } from './WCBase.js';
-import { FileCache } from './util/FileCache.js';
-import { newTagClassChildren } from '../util/elemfactory.js';
+import { WCBase, API_URL } from '../WCBase.js';
+import { FileCache } from '../util/FileCache.js';
+import { deleteChildren, newTagClassChildren } from '../util/elemfactory.js';
 
 /**
  * StatSet is a list/set of statistical items
@@ -12,6 +12,9 @@ class StatSet extends WCBase
     {
         super();
         
+
+        this.mRoute = this.dataset.route;
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -25,6 +28,7 @@ class StatSet extends WCBase
             <div class='component__row'>
                 <h4 class='component__header'><slot></h4>
             </div>
+            <button class='button--refresh'>Reload</button>
             <ul class='stat'>
             </ul>
          </div>`
@@ -43,18 +47,44 @@ class StatSet extends WCBase
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
 
         this.mStat = this.shadowRoot.querySelector( '.stat' );
-        /*refreshButton.addEventListener('click', e => 
-        { 
-            FileCache.clearCache(ARTICLE_URL);
-            this.loadArticles();
-        });*/
 
+        if ( this.mRoute )
+        {
+            refreshButton.addEventListener('click', e => 
+            { 
+                this.execQuery();
+            });
+        }
         
+    }
+
+    async execQuery()
+    {
+        const { status, ok, text } = await FileCache.getRequest( `${API_URL}/${this.mRoute}`, true, false );
+
+        if ( ok )
+        {
+            let set = undefined;
+
+            try
+            {
+                set = JSON.parse( text );
+            }
+            catch ( error ) 
+            {
+                console.log( `SetSet::execQuery response parse error: ${error}` );
+                return;
+            }
+
+            this.pushDataSet( set );
+        }
     }
 
     pushDataSet( set )
     {
         if ( ! set || ! Array.isArray( set ) ) return;
+
+        deleteChildren( this.mStat );
 
         for ( const entry of set )
         {
@@ -66,7 +96,9 @@ class StatSet extends WCBase
                     newTagClassHTML( 'h4', 'stat__key',   entry.key   ),
                     newTagClassHTML( 'p',  'stat__value', entry.value )
                 ]
-            )
+            );
+
+            this.mStat.appendChild( elem );
         }
     }
 
@@ -76,6 +108,7 @@ class StatSet extends WCBase
 
     connectedCallback()    
     {
+        console.log( `StatSet connected, route: ${API_URL}/${this.mRoute}` );
     }
 
     disconnectedCallback()
