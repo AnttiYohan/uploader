@@ -162,6 +162,10 @@ class ResponseNotifier extends WCBase
         });
     }
 
+    async beginArray( promise )
+    {
+
+    }
     /**
      * Initiate response notifier display
      * ------
@@ -194,8 +198,16 @@ class ResponseNotifier extends WCBase
                 }
                 else
                 {
-                    message = body.message;
-                    dto     = body[ this.mDtoKey ];
+                    if ( Array.isArray( body ) )
+                    {
+                        dto = body;
+                        message = '';
+                    }
+                    else
+                    {
+                        if ( 'message' in body ) message = body.message;
+                        if ( body.hasOwnProperty( this.mDtoKey ) ) dto = body[ this.mDtoKey ];
+                    }
                 }
             }
             catch ( error )
@@ -253,7 +265,65 @@ class ResponseNotifier extends WCBase
     {
         if ( dto )
         {
-            for ( const key in dto )
+            if ( Array.isArray( dto ) )
+            {
+                let index = 0;
+                
+                for ( const unit of dto )
+                {
+                    this.mResponseDto.appendChild
+                    (
+                        newTagClassHTML('h3', 'dto-index', `Index: ${index}`)
+                    );
+                    index++;
+
+                    for ( const key in unit )
+                    {
+                        let value = unit[key];
+                        let keyString = key;
+
+                        if ( key === 'mediaDto' )
+                        {
+                            const media = unit.mediaDto;
+                            keyString = 'image';
+
+                            if ( unit.mediaDto.image )
+                            {
+                                value = unit.mediaDto.image.fileName;
+                            }
+                            else if ( unit.mediaDto.thumbnail )
+                            {
+                                keyString = 'thumbnail';
+                                value = unit.mediaDto.thumbnail.fileName;
+                            }
+                        }
+                        
+                        this.mResponseDto.appendChild
+                        (
+                            newTagClassChildren
+                            (
+                                'div',
+                                'entry',
+                                [
+                                    newTagClassHTML
+                                    (
+                                        'h4',
+                                        'key',
+                                        keyString
+                                    ),
+                                    newTagClassHTML
+                                    (
+                                        'p',
+                                        'value',
+                                        value
+                                    )
+                                ]
+                            )
+                        );
+                    }
+                }
+            }
+            else for ( const key in dto )
             {
                 let value = dto[key];
                 let keyString = key;
@@ -310,7 +380,7 @@ class ResponseNotifier extends WCBase
         this.setStatus( status );
         this.setFailHeader();
         this.mMessageBar.innerHTML = message;
-        if ( typeof this.mFailCallback === 'function' ) this.mFailCallback();
+        if ( typeof this.mFailCallback === 'function' ) this.mFailCallback( status, message );
     }
 
     doSuccess( status, message, dto )
