@@ -1,4 +1,5 @@
-import { WCBase, ARTICLE_URL } from './WCBase.js';
+import { WCBase } from './WCBase.js';
+import { StatSet } from './admin-components/StatSet.js';
 import { FileCache } from './util/FileCache.js';
 import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
@@ -26,13 +27,11 @@ class AdminView extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupTemplate
-        (
-        `<link rel='stylesheet' href='assets/css/components.css'>
-        <div class='admin'>
-         
-         <!-- Existing products frame -->
-       </div>`
-        );    
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+         <div class='admin'>
+           <stat-set data-entity='product' data-route='product/usage'>Products used by Recipes</stat-set>
+         </div>
+         `);    
         
         this.setupStyle
         (`.admin { margin: 0 auto; display: flex; flex-direction: column; min-width: 300px; width: 85vw; max-width: 1200px;}
