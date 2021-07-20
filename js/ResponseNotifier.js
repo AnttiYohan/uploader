@@ -267,15 +267,63 @@ class ResponseNotifier extends WCBase
         {
             if ( Array.isArray( dto ) )
             {
+                /**
+                 * Display first the response
+                 * array length
+                 */
+                this.mResponseDto.appendChild
+                (
+                    newTagClassChildren
+                    (
+                        'div',
+                        'entry',
+                        [
+                            newTagClassHTML
+                            (
+                                'h4',
+                                'key',
+                                `${this.mDtoKey} amount:`
+                            ),
+                            newTagClassHTML
+                            (
+                                'p',
+                                'value',
+                                dto.length
+                            )
+                        ]
+                    )
+                );
+            
                 let index = 0;
-                
+
                 for ( const unit of dto )
                 {
+                    /**
+                     * Display the object index
+                     */
+                    index++;
                     this.mResponseDto.appendChild
                     (
-                        newTagClassHTML('h3', 'dto-index', `Index: ${index}`)
+                        newTagClassChildren
+                        (
+                            'div',
+                            'entry',
+                            [
+                                newTagClassHTML
+                                (
+                                    'h4',
+                                    'key',
+                                    `${this.mDtoKey}`
+                                ),
+                                newTagClassHTML
+                                (
+                                    'p',
+                                    'value',
+                                    index
+                                )
+                            ]
+                        )
                     );
-                    index++;
 
                     for ( const key in unit )
                     {
