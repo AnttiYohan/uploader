@@ -11,7 +11,14 @@ import { WCBase } from './WCBase.js';
  */
 class ResponseNotifier extends WCBase
 {
-    constructor( dtoKey, header, msgOk = 'Request succeeded', msgFail = 'Request failed')
+    constructor
+    ( 
+        dtoKey, 
+        header,
+        msgOk = 'Request succeeded', 
+        msgFail = 'Request failed',
+        options = {}
+    )
     {
         super();
         
@@ -21,6 +28,10 @@ class ResponseNotifier extends WCBase
         this.mMsgOk     = msgOk;
         this.mMsgFail   = msgFail;
 
+        const zIndex = 'zIndex' in options ? `z-index:${options.zIndex};` : '';
+        const top  = 'top'  in options ? `top:${options.top};`   : 'top:0;';
+        const left = 'left' in options ? `left:${options.left};` : 'left:0;';
+
         /**
          * Setup the shadow DOM
          */
@@ -28,8 +39,10 @@ class ResponseNotifier extends WCBase
         this.setupStyle
         (`.dialog {
             position: absolute;
-            left: 0;
+            ${left}
             right: 0;
+            ${top}
+            z-index: 1;
             min-width: 300px;
             width: 95vw;
             max-width: 700px;
@@ -171,7 +184,8 @@ class ResponseNotifier extends WCBase
             /**
              * Extract response DTO and message
              */
-            try {
+            try 
+            {
                 const body = JSON.parse( text );
 
                 if ( typeof body === 'string' && body.length )
@@ -180,8 +194,8 @@ class ResponseNotifier extends WCBase
                 }
                 else
                 {
-                    message    = body.message;
-                    dto        = body[ this.mDtoKey ];
+                    message = body.message;
+                    dto     = body[ this.mDtoKey ];
                 }
             }
             catch ( error )
@@ -206,7 +220,7 @@ class ResponseNotifier extends WCBase
                 }
                 else
                 {
-                    message    = body.message;
+                    message = body.message;
                 }
             } 
             catch ( error )
@@ -305,7 +319,7 @@ class ResponseNotifier extends WCBase
         this.setOkHeader();
         this.mMessageBar.innerHTML = message;
         this.setDto( dto );
-        if ( typeof this.mSuccessCallback === 'function' ) this.mSuccessCallback();
+        if ( typeof this.mSuccessCallback === 'function' ) this.mSuccessCallback( dto );
     }
 
     onSuccess( callback )
