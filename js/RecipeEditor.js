@@ -39,7 +39,7 @@ class RecipeEditor extends WCBase
      * @param {HTMLElement} viewNode, the recipe view root node 
      * @param {Array}       availableProducts, currently available products 
      */
-    constructor(recipeDto, parent, viewNode, availableProducts)
+    constructor( recipeDto, parent, viewNode, availableProducts )
     {
         super();
         
@@ -184,17 +184,17 @@ class RecipeEditor extends WCBase
         `);
 
         this.mRootElement    = this.shadowRoot.querySelector( '.notifier' );
-        const dataInputFrame = this.shadowRoot.querySelector('[data-input-frame]');
+        const dataInputFrame = this.shadowRoot.querySelector( '[data-input-frame]' );
         this.mInputOperator  = new InputOperator( 'recipe', Array.from(dataInputFrame.querySelectorAll('[data-input]')));
         this.mInputOperator.setComponentFrame( dataInputFrame );
         this.mInputOperator.loadComponents
         (
-            Array.from( dataInputFrame.querySelectorAll('.editor__component') ),
+            Array.from( dataInputFrame.querySelectorAll( '.editor__component' ) ),
             recipeDto,
             availableProducts
         );
 
-        const exitButton = this.shadowRoot.querySelector('.button.exit');
+        const exitButton = this.shadowRoot.querySelector( '.button.exit' );
         exitButton.addEventListener
         ( 'click', e => 
         { 
@@ -211,7 +211,7 @@ class RecipeEditor extends WCBase
          * Listen to update--one-to-one button
         */
         const updateButton = dataInputFrame.querySelector('.update--one-to-one');
-        updateButton.addEventListener('click', e => 
+        updateButton.addEventListener( 'click', e => 
         {
             /**
              * Store the reference into the clickedbutton
@@ -340,6 +340,11 @@ class RecipeEditor extends WCBase
         ); 
     }
 
+    /**
+     * 
+     * @param  {string} serialized 
+     * @param  {File}   image 
+     */
     async updateRecipeImage( serialized, image )
     {
         if ( ! image ) return;
@@ -373,6 +378,13 @@ class RecipeEditor extends WCBase
         ); 
     }
 
+    /**
+     * Hadnles the recipe product updating HTTP Request and
+     * routes the response to an appropriate handler function
+     * 
+     * @param {string}  serialized 
+     * @param {boolean} addmode 
+     */
     async updateRecipeProducts( serialized, addmode )
     {
         const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
@@ -387,10 +399,11 @@ class RecipeEditor extends WCBase
             { top: `${offsetTop}px`, left: `200px` }
         );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( 
-             products  => {
+        responseNotifier.onSuccess
+        ( 
+            products => 
+            {
                 this.mInputOperator.reloadProductMenu( products );
-                //this.mInputOperator.reset();
             }
         );
         responseNotifier.onFail(
@@ -414,6 +427,13 @@ class RecipeEditor extends WCBase
         );
     }
 
+    /**
+     * Executes the step update request and
+     * routes the response to the appropriate handler 
+     * 
+     * @param {array}   steps 
+     * @param {boolean} addmode 
+     */
     async updateRecipeSteps( steps, addmode )
     {
         const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
@@ -439,9 +459,9 @@ class RecipeEditor extends WCBase
             addmode
             ? await FileCache.putDtoAndImageList
             (
-                    UPDATE_STEPS_ADD_URL,
-                    steps.dto,
-                    steps.images
+                UPDATE_STEPS_ADD_URL,
+                steps.dto,
+                steps.images
             )
             : await FileCache.putDtoAndImageList
             (
@@ -452,64 +472,54 @@ class RecipeEditor extends WCBase
         );           
     }
 
-    closeEditor(response = undefined)
+    /**
+     * Closes the editor, if response is set,
+     * Send it as a detail with 'recipe-edit-ok'-event
+     * @param {boolean} response 
+     */
+    closeEditor( response = undefined )
     {
-        if (response) this.emit('recipe-edit-ok', { response });
+        if ( response ) this.emit( 'recipe-edit-ok', { response } );
         this.remove();
         delete this;
     }
-    dtoTest(dto)
+
+    /**
+     * 
+     * @param {object} dto 
+     */
+    dtoTest( dto )
     {
-        for (let key in dto)
+        for ( const key in dto )
         {
-            console.log(`Set: ${key}: ${dto[key]}`);
+            console.log( `Set: ${key}: ${dto[key]}` );
         }
     }
 
-    initEditor()
-    {
- 
-    }
-
-    initProductMenu()
-    {
-    }
-    /**
-     * -------------------------
-     * Opens the New Step Editor
-     * -------------------------
-     */
-    openStepEditor()
-    {
- 
-    }
-
+    
     // ----------------------------------------------------------------
     // - Lifecycle callbacks and child component event callbackcs
     // ----------------------------------------------------------------
 
     connectedCallback()
     {
-        this.mViewNode.style.display = 'none';
-
         /**
-         * The Editor is now connected,
-         * Fill the components with original values.
-         * Let's use the Input Operator to deal with this, too,
-         * So we have everything Centralized
+         * Turn the parent view off for now
          */
-        //const dto = this.mRecipeDto;
-        //this.mInputOperator.fillEditor( dto );
+        this.mViewNode.style.display = 'none';
 
     }
 
     disconnectedCallback()
     {
+        /**
+         * Turn the parent view on again
+         */
         this.mViewNode.style.display = 'flex';
     }  
 
 }
 
-window.customElements.define('recipe-editor', RecipeEditor);
+window.customElements.define( 'recipe-editor', RecipeEditor );
 
 export { RecipeEditor };
