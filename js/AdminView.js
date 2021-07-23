@@ -33,45 +33,14 @@ class AdminView extends WCBase
                      data-entity='product' 
                      data-route='product/claims'
                      data-related='claims'
-                     data-model='[
-                         { "key": "product", "type": "single" },
-                         { "key": "claims",  "type": "array" }
-                     ]'
+                     data-reader='ProductClaims'
                      data-relation-phrase='is claimed by'       
             >Products used by Recipes</stat-set>
-         </div>
-         `);    
+         </div>`);    
         
         this.setupStyle
-        (`.admin { margin: 0 auto; display: flex; flex-direction: column; min-width: 300px; width: 85vw; max-width: 1200px;}
-        `);
-        // ---------------------------
-        // - Save element references
-        // ---------------------------
-
-        const refreshButton = this.shadowRoot.querySelector('.button--refresh');
-
-        /*refreshButton.addEventListener('click', e => 
-        { 
-            FileCache.clearCache(ARTICLE_URL);
-            this.loadArticles();
-        });*/
-
+        (`.admin { margin: 0 auto; display: flex; flex-direction: column; min-width: 300px; width: 85vw; max-width: 1200px;}`);
         
-    }
-
-    
-
-    // ----------------------------------------------
-    // - Lifecycle callbacks
-    // ----------------------------------------------
-
-    connectedCallback()    
-    {
-    }
-
-    disconnectedCallback()
-    {
     }  
 }
 
