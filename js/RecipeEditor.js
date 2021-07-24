@@ -321,8 +321,8 @@ class RecipeEditor extends WCBase
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( 
             ( recipe ) => {
-                //this.mInputOperator.reset();
                 this.mInputOperator.reloadEditor( recipe );
+                this.mInputOperator.reset();
             }
         );
         responseNotifier.onFail(
