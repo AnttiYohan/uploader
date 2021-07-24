@@ -1,5 +1,5 @@
 import { EditorComponent } from './EditorComponent.js';
-import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
+import { deleteChildren, newTagClassAttrsChildren, newTagClassChildren, newTagClassHTML } from './util/elemfactory.js';
 
 /**
  * Text Input Row, with old value on the left
@@ -42,6 +42,35 @@ import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/ele
  
     }
 
+    /**
+     * Returns the value of the saved product list
+     */
+    get value()
+    {
+        const list = [];
+
+        for ( const row of this.mValueElement.children )
+        {
+            const name            = row.dataset.name;
+            const amount          = row.dataset.amount;
+            const measureUnit     = row.dataset.measureUnit;
+            const productCategory = row.dataset.productCategory;
+            const systemProductId = row.dataset.systemProductId;
+            
+            list.push({
+
+                name,
+                amount,
+                measureUnit,
+                productCategory,
+                systemProductId
+
+            });
+        }
+
+        return list.length ? list : undefined;
+    }
+
     reset()
     {
         deleteChildren( this.mValueElement );
@@ -51,9 +80,18 @@ import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/ele
     {
         for ( const product of list )
         {
-            const row = newTagClassChildren(
+            const attrs =
+            {
+                'data-name':              product.name,
+                'data-product-category':  product.productCategory,
+                'data-system-product-id': product.systemProductId,
+                'data-amount':            product.amount,
+                'data-measure-unit':      product.measureUnit
+            };
+            const row = newTagClassAttrsChildren(
                 'div',
                 'component__row',
+                attrs,
                 [
                     newTagClassHTML( 'div', 'component__label label--header', product.name ),
                     newTagClassHTML( 'div', 'component__label', product.amount ),
