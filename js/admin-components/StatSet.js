@@ -41,10 +41,11 @@ class StatSet extends WCBase
         
         this.setupStyle
         (`.stat { margin: 8px auto; padding: 8px; display: flex; flex-direction: column; width: 100%; box-shadow -2px 2px 13px -3px rgba(0,0,0,.25); background-color: #f0f2ff; border-radius: 6px; border: 1px solid rgba(0,0,20,.25); }
-          .stat__entry { display: flex; height: 64px; border-bottom: 1px solid rgba(0,0,0,.12); }
-          .stat__key   { min-width: 120px display: flex; }
-          .stat__value { width: 100%; margin-left: .7em; display: flex; }
-          .stat__related { width: 100%; margin-left: .7em; display: flex; }
+          .stat__entry { display: flex; border-bottom: 1px solid rgba(0,0,0,.12); justify-content: space-between; }
+          .stat__header { flex-basis: 50%; display: flex; flex-direction: row; }
+          .stat__entity { flex-basis: 50%; display: flex; flex-direction: column; }
+          .stat__key { height: 48px; padding: 8px; border-bottom: 1px solid rgba(0,0,0,.25); font-size: 14px; text-transform: uppercase; }
+          .stat__value { margin-top: .7em; height: 48px; font-size: 12px; }
           .message { margin-top: 32px; margin-bottom: 32px; border: 1px solid rgba(0,0,0,.25); padding: 8px; width: min(350px, 80vw); height: 350px; overflow-y: scroll; }
         `);
         // ---------------------------
@@ -111,9 +112,21 @@ class StatSet extends WCBase
 
         deleteChildren( this.mStat );
 
-        const reader = await import( this.mReader );
-        const read = reader.default();
+        const readerClass = await import( `./${this.mReader}.js` );
+        const reader = new readerClass.default();
 
+        /**
+         * Iterate through the set
+         */
+        for ( const entry of set )
+        {
+            //const { product, claims } = reader.generateRow( entry );
+
+            this.mStat.appendChild( reader.fetchHTML( entry ) );
+            //console.table( product );
+            //console.table( claims );
+        }
+        /*
         console.log( `Relation: ${this.mRelated}` );
         for ( const entry of set )
         {
@@ -128,10 +141,6 @@ class StatSet extends WCBase
             if ( this.mRelated in entity )
             {
                 const related = entity[ this.mRelated ];
-
-                /**
-                 * Is the related data an array
-                 */
                 if ( Array.isArray( related ) )
                 {
                     console.table( related );
@@ -160,19 +169,12 @@ class StatSet extends WCBase
                 }
             }
 
-            /**
-             * Create the child elements
-             */
             const children = 
             [
                 newTagClassHTML( 'h4', 'stat__key',   this.mEntityKey ),
                 newTagClassHTML( 'p',  'stat__value', entityTitle )
             ];
 
-            /**
-             * If there were related data,
-             * push it into the children
-             */
             if ( relatedString.length )
             {
                 children.push( newTagClassHTML( 'p',  'stat__related', relatedTitle ) );
@@ -186,7 +188,7 @@ class StatSet extends WCBase
             );
 
             this.mStat.appendChild( elem );
-        }
+        }*/
     }
 
     // ----------------------------------------------
