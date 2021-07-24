@@ -18,7 +18,7 @@ class StatSet extends WCBase
         this.mPluralKey = this.dataset.entities;
         this.mEntityKey = this.dataset.entity;
         this.mRelated   = this.dataset.related;
-
+        this.mReader    = this.dataset.reader;
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -63,6 +63,7 @@ class StatSet extends WCBase
                 this.execQuery();
             });
         }
+     
         
     }
 
@@ -104,11 +105,14 @@ class StatSet extends WCBase
         this.mMessage.textContent = message;
     }
 
-    pushDataSet( set )
+    async pushDataSet( set )
     {
         if ( ! set || ! Array.isArray( set ) ) return;
 
         deleteChildren( this.mStat );
+
+        const reader = await import( this.mReader );
+        const read = reader.default();
 
         console.log( `Relation: ${this.mRelated}` );
         for ( const entry of set )
