@@ -33,7 +33,7 @@ class AdminView extends WCBase
                      data-entity='product' 
                      data-route='product/claims'
                      data-related='claims'
-                     data-reader='ProductClaims'
+                     data-reader='ProductClaimsReader'
                      data-relation-phrase='is claimed by'       
             >Products used by Recipes</stat-set>
          </div>`);    
