@@ -28,15 +28,12 @@ import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/ele
                 </div>
             </div>`);
  
-         /*
+         
          this.setupStyle
-          (`.component__value {
-             background-color: #fff;
-             border-radius: 4px;
-             border: 1px solid rgba(0,0,0,0.133);
-             box-shadow: 0 3px 12px -5px rgba(0,0,0,0.25);
-             width: 100%;
-          }`);*/
+          (`
+            .component__label { margin-right: 12px; }
+            .component__label.label--header { flex-basis: 200px; }
+           `);
 
         this.initValueElement
         (
@@ -58,7 +55,7 @@ import { deleteChildren, newTagClassChildren, newTagClassHTML } from './util/ele
                 'div',
                 'component__row',
                 [
-                    newTagClassHTML( 'div', 'component__label', product.name ),
+                    newTagClassHTML( 'div', 'component__label label--header', product.name ),
                     newTagClassHTML( 'div', 'component__label', product.amount ),
                     newTagClassHTML( 'div', 'component__label', product.measureUnit )
                 ]
