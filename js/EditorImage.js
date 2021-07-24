@@ -31,10 +31,10 @@ import { props } from './WCBase.js';
          this.setupStyle
           (`.image__area {
             position: relative;
-            border: 1px solid ${props.color.grey};
-            border-radius: 2px;
-            width: ${props.input_width};
+            border: 6px solid ${props.color.grey};
+            border-radius: 15px;
             height: 96px;
+            object-fit: cover;
         }`);
 
         this.initValueElement( this.shadowRoot.querySelector('.image__area') ); 
