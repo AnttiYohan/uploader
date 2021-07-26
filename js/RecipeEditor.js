@@ -177,7 +177,7 @@ class RecipeEditor extends WCBase
 
         this.setupStyle
         (`
-        .update--one-to-one { margin-top: 32px; margin-bottom: 42px; }
+        .update--one-to-one { margin-top: 32px; margin-bottom: 42px; display: block; }
         .notifier { position: absolute; }
         .dialog { top: 1000px; z-index:1; }
         .editor { max-width: 1200px; margin: 24px auto; padding: 0; box-shadow: 0 0 4px -1px rgba(0,0,0,.25); border-radius: 24px; border: 6px solid #abd; }
