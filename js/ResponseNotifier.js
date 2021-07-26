@@ -28,10 +28,6 @@ class ResponseNotifier extends WCBase
         this.mMsgOk     = msgOk;
         this.mMsgFail   = msgFail;
 
-        const zIndex = 'zIndex' in options ? `z-index:${options.zIndex};` : '';
-        const top  = 'top'  in options ? `top:${options.top};`   : 'top:0;';
-        const left = 'left' in options ? `left:${options.left};` : 'left:0;';
-
         /**
          * Setup the shadow DOM
          */
@@ -39,9 +35,9 @@ class ResponseNotifier extends WCBase
         this.setupStyle
         (`.dialog {
             position: absolute;
-            ${left}
+            top: ${'top' in options ? options.top : '0'};
+            left: ${'left' in options ? options.left : '0'};
             right: 0;
-            ${top}
             z-index: 1;
             min-width: 300px;
             width: 95vw;
@@ -154,18 +150,11 @@ class ResponseNotifier extends WCBase
         this.mHeaderBar   = this.shadowRoot.querySelector('.header-bar');
         this.mMessageBar  = this.shadowRoot.querySelector('.message-bar');
         this.mResponseDto = this.shadowRoot.querySelector('.response-dto');
-        
-        const buttonExit = this.shadowRoot.querySelector('.button.exit');
-        buttonExit.addEventListener('click', e =>
-        {
-            this.remove();
-        });
+        const buttonExit  = this.shadowRoot.querySelector('.button.exit');
+
+        buttonExit.addEventListener( 'click', e => this.remove() );
     }
 
-    async beginArray( promise )
-    {
-
-    }
     /**
      * Initiate response notifier display
      * ------
@@ -181,68 +170,29 @@ class ResponseNotifier extends WCBase
          * When response status is OK, attempt to parse the response body
          */
         if ( ok )
-        {
-            let message = '';
-            let dto = null;
-
-            /**
-             * Extract response DTO and message
-             */
-            try 
-            {
-                const body = JSON.parse( text );
-
-                if ( typeof body === 'string' && body.length )
-                {
-                    message = body;
-                }
-                else
-                {
-                    if ( Array.isArray( body ) )
-                    {
-                        dto = body;
-                        message = '';
-                    }
-                    else
-                    {
-                        if ( 'message' in body ) message = body.message;
-                        if ( body.hasOwnProperty( this.mDtoKey ) ) dto = body[ this.mDtoKey ];
-                    }
-                }
-            }
-            catch ( error )
-            {
-                message = text;
-                //message += `Could not parse the response, error: ${error}`;
-            }
-
+        {    
+            const { dto, message } = parseDtoAndMessage( text, this.mDtoKey );
             this.doSuccess( status, message, dto );
-
         }
         else /** When response status is not okay, display the message if available */ 
         {
-            let message = '';
+            let message = text;
+            const body  = parseResponse( text, false );
 
-            try 
+            if ( body )
             {
-                const body = JSON.parse( text );
-                if ( typeof body === 'string')
+                if ( typeof body === 'string' )
                 {
                     message = body;
                 }
-                else
+                else 
+                if ( 'message' in body )
                 {
                     message = body.message;
                 }
-            } 
-            catch ( error )
-            {
-                message = text;
-                //message += `Could not parse the message, error: ${error}`;                    
             }
 
-            this.doFail( status, message );
-        
+            this.doFail( status, message );        
         }
     }
 
@@ -373,7 +323,7 @@ class ResponseNotifier extends WCBase
             }
             else for ( const key in dto )
             {
-                let value = dto[key];
+                let value     = dto[ key ];
                 let keyString = key;
 
                 if ( key === 'mediaDto' )
@@ -381,14 +331,14 @@ class ResponseNotifier extends WCBase
                     const media = dto.mediaDto;
                     keyString = 'image';
 
-                    if ( dto.mediaDto.image )
+                    if ( media.image )
                     {
-                        value = dto.mediaDto.image.fileName;
+                        value = media.image.fileName;
                     }
-                    else if ( dto.mediaDto.thumbnail )
+                    else if ( media.thumbnail )
                     {
                         keyString = 'thumbnail';
-                        value = dto.mediaDto.thumbnail.fileName;
+                        value = media.thumbnail.fileName;
                     }
                 }
                     
@@ -449,20 +399,67 @@ class ResponseNotifier extends WCBase
     {
         this.mFailCallback = callback;
     }
-    
-    
-    
-
-    // ----------------------------------------------
-    // - Lifecycle callbacks
-    // ----------------------------------------------
-
-    connectedCallback()
-    {
-    }
-  
 }
 
-window.customElements.define('response-notifier', ResponseNotifier );
+/**
+ * Parses the response body to a JSON Object,
+ * On success, return the JSON
+ * On error, when param 'returnError' is true, return error msg,
+ * Otherwise return null
+ * 
+ * @param  {string}             input
+ * @param  {boolean}            returnError
+ * @return {object|string|null} 
+ */
+function parseResponse( input, returnError = true )
+{
+    let body = null;
 
-export { ResponseNotifier };
+    try 
+    {
+        body = JSON.parse( input );
+    }
+    catch ( error )
+    {
+        if ( returnError ) return error;
+    }
+
+    return body;
+}
+
+/**
+ * Parse the input string and try to parse
+ * an message string and a dto, by the use of
+ * param 'dtoKey' from the parsed JSON
+ * 
+ * @param  {string}          input 
+ * @param  {string}          dtoKey
+ * @return {{string,object}} 
+ */
+function parseDtoAndMessage( input, dtoKey )
+{
+    let   message = '';
+    let   dto     = null;
+    const body    = parseResponse( input, false );
+
+    if ( ! body )
+    {
+        message = input;
+    }
+    else 
+    if ( Array.isArray( body ) )
+    {
+        dto = body;
+    }
+    else
+    {
+        if ( 'message' in body ) message = body.message;
+        if ( body.hasOwnProperty( dtoKey ) ) dto = body[ dtoKey ];
+    }
+
+    return { dto, message }
+}
+
+window.customElements.define( 'response-notifier', ResponseNotifier );
+
+export { ResponseNotifier, parseResponse, parseDtoAndMessage };
