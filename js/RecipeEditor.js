@@ -1,6 +1,7 @@
 import 
 {
      WCBase,
+     props,
      UPDATE_RECIPE_URL, 
      UPDATE_FIELDS_URL, 
      UPDATE_PRODUCTS_URL,
@@ -179,7 +180,7 @@ class RecipeEditor extends WCBase
         .update--one-to-one { margin-top: 32px; margin-bottom: 42px; }
         .notifier { position: absolute; }
         .dialog { top: 1000px; z-index:1; }
-        .editor { max-width: 1200px; margin: 0 auto; }
+        .editor { max-width: 1200px; margin: 24px auto; padding: 0; box-shadow: 0 0 4px -1px rgba(0,0,0,.25); border-radius: 24px; border: 6px solid #abd; }
         .two_column .button { margin: auto; }
         .two_column .column__item { margin-bottom: 16px; }
         `);
