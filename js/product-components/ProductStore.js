@@ -1,4 +1,5 @@
 import { StoreComponent } from "../StoreComponent.js";
+import validate from "../util/validator.js";
 import { ProductEntry } from "./ProductEntry.js";
 
 /**
@@ -80,33 +81,45 @@ class ProductStore extends StoreComponent
 
         for ( const entry of this.entries )
         {
-            const {
-
-                name,
-                userId,
-                productCategory,
-                systemProductId,
-                amount,
-                measureUnit
-
-            } = entry;
+            
+            const model = 
+            [
+                {
+                    prop: 'name',
+                    type: 'string',
+                    empty: 'false'
+                },
+                {
+                    prop: 'userId',
+                    type: 'number',
+                    empty: 'false'
+                },
+                {
+                    prop: 'productCategory',
+                    type: 'string',
+                    empty: 'false'
+                },
+                {
+                    prop: 'systemProductId',
+                    type: 'number',
+                    empty: 'false'
+                },
+                {
+                    prop: 'amount',
+                    type: 'number',
+                    empty: 'false'
+                },
+                {
+                    prop: 'measureUnit',
+                    type: 'string',
+                    empty: 'false'
+                }
+            ];
 
             /**
              * Validate
              */
-            if (
-
-                name                    && 
-                name.length             && 
-                userId > 0              && 
-                productCategory         && 
-                productCategory.length  &&
-                systemProductId > 0     &&
-                amount                  && 
-                amount > 0              &&
-                measureUnit.length
-
-            )
+            if ( validate( entry, model ) )
             {
                 result.push( entry );
             }
@@ -184,11 +197,11 @@ class ProductStore extends StoreComponent
     {
         console.log( '<product-store> connected' );
 
-        function sendAllergens()
+        const sendAllergens = () =>
         {
             this.shadowRoot.dispatchEvent
             (
-                new CustomEvent('allergens-map', 
+                new CustomEvent( 'allergens-map', 
                 {
                     bubbles: true,
                     composed: true,
