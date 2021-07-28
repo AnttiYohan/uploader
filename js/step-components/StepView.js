@@ -13,19 +13,23 @@ class StepView extends WCBase
     {
         super();
 
+        /** Unique string as key for HTTP Request */
+
+        this.mKey   = this.dataset.input ? this.dataset.input : 'steps';
+
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
 
-        this.attachShadow({mode : "open"});
+        this.attachShadow( { mode: 'open' } );
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
           <div class='component'>
             <div class='component__row'>
                <p class='component__label'>Steps</p>
             </div>
-            <div class='component__row'>
+            <div class='component__row row--button'>
                 <button class='button'>Add</button>
             </div>
             <div class='store'>
@@ -34,6 +38,8 @@ class StepView extends WCBase
 
         this.setupStyle
         (`
+        .component { background-color: #fff; border-radius: 4px; box-shadow: 0 8px 12px -2px rgba(20,0,0,.25); }
+        .row--button { margin-bottom: 24px; }
         .button { display: block; margin: auto; }
         .store { display: flex; flex-direction: column; }
         `);
@@ -49,6 +55,18 @@ class StepView extends WCBase
            this.mStore.appendChild( new StepEntry() );
        });
 
+       this.shadowRoot.addEventListener( 'dragover', e =>
+       {
+           e.preventDefault();
+       });
+
+       this.shadowRoot.addEventListener( 'drop', e =>
+        {
+            e.preventDefault();
+            const text = e.dataTransfer.getData( 'text' );
+            console.log( `Text from dropped: ${text}` );
+        });
+
     }
 
 
@@ -62,7 +80,7 @@ class StepView extends WCBase
 
         for ( const entry of this.mStore.children )
         {
-            entry.number = index++;
+            entry.stepNumber = index++;
         }        
     }
     
@@ -135,17 +153,17 @@ class StepView extends WCBase
             if ( 'image' in entry && 'text' in entry )
             {
                 const { image, text } = entry;
-                
+
                 this.mStore.appendChild
                 (
                     new StepEntry({
 
-                        image,
                         text,
+                        image,
                         stepNumber
 
                     })
-                )
+                );
             }
         }
     }
@@ -162,6 +180,6 @@ class StepView extends WCBase
 
 }
 
-window.customElements.define('step-editor', StepEditor);
+window.customElements.define( 'step-view', StepView );
 
-export { StepEditor };
+export { StepView };
