@@ -473,6 +473,7 @@ class ProductEntry extends WCBase
             }
         }
     }
+    
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -480,39 +481,7 @@ class ProductEntry extends WCBase
     connectedCallback()
     {
         console.log("<product-entry> connected");
-
-        if ( this.mAmount )
-        {
-            this.mAmountInput.value = this.mAmount;
-        }
-
-        if ( this.measureUnit )
-        {
-            this.setMeasureUnit( this.measureUnit );
-        }
-
-
-        const product = {
-
-            name:               this.mName, 
-            productCategory:    this.mProductCategory, 
-            systemProductId:    this.mSystemProductId
-    
-        };
-
-        this.shadowRoot.dispatchEvent
-        (
-            new CustomEvent('allergens-added', 
-            {
-                bubbles: true,
-                composed: true,
-                detail: 
-                {
-                    product
-                }
-            })
-        );
-
+        this.emit( 'product-entry-added' );
     }
 
     disconnectedCallback()
