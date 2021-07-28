@@ -324,16 +324,13 @@ class RecipeEditor extends WCBase
         );
         //this.mViewNode.appendChild( responseNotifier );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( 
-            ( recipe ) => {
-                this.mInputOperator.reloadEditor( recipe );
-                this.mInputOperator.reset();
-            }
-        );
-        responseNotifier.onFail(
-            ( status, message ) => {
-                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
-            }
+        responseNotifier.onSuccess( recipe => 
+        {
+            this.mInputOperator.reloadEditor( recipe );
+            this.mInputOperator.reset();
+        });
+        responseNotifier.onFail(( status, message ) =>
+            console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`)
         );
         responseNotifier.begin
         ( 
@@ -362,15 +359,9 @@ class RecipeEditor extends WCBase
             'The Recipe Could Not Be Updated' 
         );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( 
-            ( recipe ) => {
-                this.mInputOperator.reloadEditor( recipe );
-            }
-        );
-        responseNotifier.onFail(
-            ( status, message ) => {
-                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
-            }
+        responseNotifier.onSuccess( recipe => this.mInputOperator.reloadEditor( recipe ) );
+        responseNotifier.onFail( ( status, message ) => 
+            console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`)
         );
         responseNotifier.begin
         ( 
@@ -401,20 +392,12 @@ class RecipeEditor extends WCBase
             'Update Recipe Products', 
             'Products Updated Succesfully',
             'Product Could Not Be Updated',
-            { top: `${offsetTop}px`, left: `200px` }
+            { top: `${offsetTop}px`, left: `20px` }
         );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess
-        ( 
-            products => 
-            {
-                this.mInputOperator.reloadProductMenu( products );
-            }
-        );
-        responseNotifier.onFail(
-            ( status, message ) => {
-                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
-            }
+        responseNotifier.onSuccess( products => this.mInputOperator.reloadProductStore( products ) );
+        responseNotifier.onFail( ( status, message ) => 
+            console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`) 
         );
         responseNotifier.begin
         ( 
@@ -450,14 +433,12 @@ class RecipeEditor extends WCBase
             'Update Recipe Steps', 
             'Steps Updated Succesfully',
             'Steps Could Not Be Updated',
-            { top: `${offsetTop}px`, left: `200px` }
+            { top: `${offsetTop}px`, left: `20px` }
         );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( steps  => { this.mInputOperator.reloadStepEditor( steps ) } );
-        responseNotifier.onFail(
-            ( status, message ) => {
-                console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`);
-            }
+        responseNotifier.onSuccess( steps => this.mInputOperator.reloadStepStore( steps ) );
+        responseNotifier.onFail( ( status, message ) =>
+            console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`) 
         );
         responseNotifier.begin
         ( 
