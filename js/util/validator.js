@@ -69,7 +69,7 @@ export default function validate( obj, model )
             let result = false;
             for ( const prop of key.prop )
             {
-                if ( obj.hasOwnPropery( prop ) )
+                if ( obj.hasOwnProperty( prop ) )
                 {
                     result = propertyCheck( obj, prop, key );
                     break;
@@ -95,7 +95,7 @@ export default function validate( obj, model )
 
 function propertyCheck( obj, prop, key )
 {
-    if ( obj.hasOwnPropery( prop ) )
+    if ( obj.hasOwnProperty( prop ) )
     {
         const property = obj[ prop ];
 
@@ -170,7 +170,7 @@ function instanceCheck( property, instance )
 
 function isEmpty( property )
 {
-    if ( property === null || propery === undefined )
+    if ( property === null || property === undefined )
     {
         return true;
     }
