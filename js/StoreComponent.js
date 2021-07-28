@@ -39,15 +39,28 @@ class StoreComponent extends WCBase
         .store { display: flex; flex-direction: column; }
         `);
 
-        this.mStore = this.shadowRoot.querySelector( '.store' );
+        this.mFrame         = this.shadowRoot.querySelector( '.component--root' );
+        this.mAsteriskLabel = this.shadowRoot.querySelector( '.component__label.required' );
+        this.mStore         = this.shadowRoot.querySelector( '.store' );
 
     }
     
+    /**
+     * Return the store entry objects in an array
+     * 
+     * @return {array}
+     */
     get children()
     {
         return Array.from( this.mStore.children );
     }
 
+    /**
+     * Return the store entry values in an array
+     * 
+     * @return {array}
+     */
+    
     get entries()
     {
         const result = [];
@@ -60,6 +73,11 @@ class StoreComponent extends WCBase
         return result;
     }  
   
+    /**
+     * Returns the entries' values or if no entries, undefined
+     * 
+     * @return {array|undefined}
+     */
     get value()
     {
         const  entries = this.entries;
@@ -87,6 +105,11 @@ class StoreComponent extends WCBase
         deleteChildren( this.mStore );
     }
 
+    /**
+     * Return the stored entry count
+     * 
+     * @return {number}
+     */
     get count()
     {
         return this.mStore.children.length;
