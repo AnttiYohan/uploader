@@ -86,6 +86,10 @@ export default function validate( obj, model )
         else
         {
             success = propertyCheck( obj, key.prop, key );
+            if ( ! success )
+            {
+                break;
+            }
         } 
     }
 
@@ -151,6 +155,10 @@ function typeCheck( property, type )
     if ( type === 'array' && Array.isArray( property ) )
     {
         return true;
+    }
+    if ( type === 'number' )
+    {
+        return isNaN( property ) ? false : true;
     }
 
     return typeof property === type;
