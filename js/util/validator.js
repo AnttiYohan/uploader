@@ -85,7 +85,7 @@ export default function validate( obj, model )
         }
         else
         {
-            success = propertyCheck( obj, prop, key );
+            success = propertyCheck( obj, key.prop, key );
         } 
     }
 
@@ -95,8 +95,6 @@ export default function validate( obj, model )
 
 function propertyCheck( obj, prop, key )
 {
-    let success = false;
-
     if ( obj.hasOwnPropery( prop ) )
     {
         const property = obj[ prop ];
