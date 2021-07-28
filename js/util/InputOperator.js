@@ -1,3 +1,4 @@
+import { EditorComponent } from "../EditorComponent";
 
 
 /**
@@ -362,11 +363,6 @@ class InputOperator
         }
     }
 
-    loadProductComponent( productComponent )
-    {
-
-    }
-
     getUpdateImage()
     {
         let image;
@@ -382,22 +378,22 @@ class InputOperator
         return image;
     }
 
-    getUpdateRecipe(originals = false)
+    getUpdateRecipe( originals = false )
     {
-        const dto = this.getUpdateRecipeDto(originals);
+        const dto = this.getUpdateRecipeDto( originals );
         return Object.keys(dto).length > 1
              ? JSON.stringify(dto)
              : '';
     }
 
-    getUpdateRecipeDto(originals = false)
+    getUpdateRecipeDto( originals = false )
     {
         const resultSet = {};
 
         /**
          * Add id
          */
-        resultSet['id'] = this.mRecipeId;
+        resultSet[ 'id' ] = this.mRecipeId;
 
         /**
          * Add components
@@ -413,16 +409,14 @@ class InputOperator
             {
                 const value = editor.value;
                 if ( value ) resultSet[key] = value;
-                else {
-                    if (originals)
-                    {
-                        const labelElement = component.querySelector('[data-label]');
-                        const labelValue = labelElement.value;
+                else
+                if ( originals )
+                {
+                    const labelElement = component.querySelector('[data-label]');
+                    const labelValue = labelElement.value;
 
-                        resultSet[key] = labelValue;
-                    }
-                }
-                
+                    resultSet[ key ] = labelValue;
+                }    
             }
         }
 
@@ -510,8 +504,8 @@ class InputOperator
      */
     fillComponent( label )
     {
-        const component = this.mComponentMap[label];
-        const value = this.mComponentValueMap[label];
+        const component = this.mComponentMap[ label ];
+        const value = this.mComponentValueMap[ label ];
 
         /**
          * Check for special cases:
@@ -521,35 +515,33 @@ class InputOperator
          * - seasons
          * - tips
          */
-         switch (label) 
-         {
+        switch ( label ) 
+        {
              case 'products':
                  
-                this.initProductMenu( component, value );
+                this.initProductStore( component, value );
                 break;
          
             case 'steps':
 
-                this.initStepEditor( component, value );
+                this.loadStore( component, value, 'step-store' );
                 break;
 
             case 'mealTypes':
 
-                this.initBinarySwitchGroup( component, value );
+                this.loadStore( component, value, 'binary-switch-group' );
                 break;
 
             case 'season':
 
-                this.initBinarySwitchGroup( component, value );
+                this.loadStore( component, value, 'binary-switch-group' );
                 break;
 
-            default:
-                break;
-         }
+        }
  
         if ( component )
         {
-            const labelElement = component.querySelector('[data-label]');
+            const labelElement = component.querySelector( '[data-label]' );
 
             if ( labelElement ) {
                 console.log(`Label elem: ${labelElement}, value: ${value}`);
@@ -560,23 +552,19 @@ class InputOperator
 
     reloadComponent( label, value )
     {
-        console.log(`Reload component ${label}`);
+        console.log( `Reload component ${label}` );
 
         /**
          * Exclude products and steps
          */
         if ( label === 'products' || label === 'steps' ) return;
 
-        const component = this.mComponentMap[label];
-    
+        const component = this.mComponentMap[ label ];
         if ( component )
         {
-            const labelElement = component.querySelector('[data-label]');
-
+            const labelElement = component.querySelector( '[data-label]' );
             labelElement.reset();
             labelElement.addContent( value );
-            //const label = labelElement.dataset.label;
-            //component.addContent( value );
         }
     }
     
@@ -587,6 +575,7 @@ class InputOperator
             this.reloadComponent( key, recipe[key] );
         }
     }
+
     /**
      * Fills the editor component collection with values
      * given in recipe DTO
@@ -608,44 +597,84 @@ class InputOperator
              * Set value into the labelElement
              */
             labelElement.addContent( dto[label] );
-            //labelElement.value = this.getValue( label );
         }
     }
     
-    initProductMenu( component, products )
+    /**
+     * Initial loading of a StoreComponent, wait for connected event
+     * 
+     * @param {EditorComponent} component 
+     * @param {array}           set 
+     * @param {string}          selector 
+     * @param {string}          event 
+     */
+    loadStore( component, set, selector )
+    {
+        /**
+         * Listen for param event,
+         * and pass the availabale set into the component store
+         */
+        component.addEventListener( `${selector}-connected`, e => 
+        {
+            console.log( `InputOperator::loadStore: ${selector}`);
+
+            /**
+             * The StoreComponent
+             */
+            const store = component.querySelector( selector );
+            if ( store )
+            {
+                store.pushDataSet( set );
+            }
+        });
+    }
+
+    /**
+     * Reloading of a store component
+     * 
+     * @param {EditorComponent} component 
+     * @param {array}           set 
+     * @param {string}          selector 
+     */
+    reloadStore( component, set, selector )
+    {
+        /**
+         * Editor label element
+         */
+        const labelElement = component.querySelector( '[data-label]' );
+        if ( labelElement )
+        {
+            labelElement.reset();
+            labelElement.addContent( set );
+        }
+
+        /**
+         * StoreComponent
+         */
+        const store = component.querySelector( selector );
+        if ( store ) 
+        {
+            store.pushDataSet( set );
+        } 
+    }
+
+    initProductStore( component, products )
     {
 
+        this.loadStore( component, products, 'product-store' );
+
         /**
          * Listen for ingredient menu connected event,
          * and pass the availabale products into it
          */
-         component.addEventListener('product-row-connected', e => 
-         {
-             console.log(`InputOperator::initProductMenu: product-row-connected`);
-      
-            /**
-             * The product row
-             */
-            const row = component.querySelector('product-row');
-
-            if ( row ) for ( const product of products )
-            {
-                row.addField( product, true );
-            }
-
-        });
-        /**
-         * Listen for ingredient menu connected event,
-         * and pass the availabale products into it
-         */
-        component.addEventListener('ingredient-menu-connected', e => 
+        component.addEventListener( 'ingredient-menu-connected', e => 
         {
             console.log(`InputOperator::initProductMenu: ingredient-menu-connected`);
 
             /**
              * Fill the menu with all available products
              */
-            const menu = component.querySelector('ingredient-menu');
+            const menu = component.querySelector( 'ingredient-menu' );
 
             if ( menu ) menu.pushDataSet( this.mAvailableProducts );
         
@@ -659,58 +688,14 @@ class InputOperator
      * 
      * @param {array} products 
      */
-    reloadProductMenu( products )
+    reloadProductStore( products )
     {
-        const component = this.mProductComponent;
-
-        /**
-         * Parse the label from the component
-         */
-        const labelElement = component.querySelector('[data-label]');
-        
-        if ( labelElement )
-        {
-            labelElement.reset();
-            labelElement.addContent( products );
-        }
-         
-        /**
-         * The product row
-         */
-        const row = component.querySelector('product-row');
-
-        if ( row ) {
-
-            row.reset();
-
-            for ( const product of products )
-            {
-                row.addField( product, true );
-            } 
-        } 
+        this.reloadStore( this.mProductComponent, products, 'product-store' ); 
     }
 
-    initStepEditor( component, steps )
+    initStepStore( component, steps )
     {
-
-        /**
-         * Listen for ingredient menu connected event,
-         * and pass the availabale products into it
-         */
-         component.addEventListener('step-editor-connected', e => 
-         {
-             console.log(`InputOperator::initProductMenu: step-editor-connected`);
-      
-            /**
-             * The product row
-             */
-            const editor = component.querySelector('step-editor');
-
-            if ( editor ) for ( const step of steps )
-            {
-                editor.addField( step );
-            }
-        });
+        this.loadStore( component, steps, 'step-store' );
     }
 
     initBinarySwitchGroup( component, binarySwitchList )
@@ -726,8 +711,7 @@ class InputOperator
             /**
              * The Binary Switch Group
              */
-            const group = component.querySelector('binary-switch-group');
-
+            const group = component.querySelector( 'binary-switch-group' );
             if ( group ) //for ( const binarySwitch of binarySwitchList )
             {
                 group.pushDataSet( binarySwitchList );
