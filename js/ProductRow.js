@@ -503,7 +503,7 @@ class ProductRow extends WCBase
     {
         const key = 'name';
 
-        if ( ! product.hasOwnProperty(key))
+        if ( ! product.hasOwnProperty(key) )
         {
             console.log(`ProductRow::applyConnection() product ${product} has no key`);
             return;
