@@ -4,6 +4,7 @@ import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
+import { ArticleEditor } from './ArticleEditor.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
 
 /**
