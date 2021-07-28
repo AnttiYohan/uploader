@@ -17,14 +17,55 @@ class StepStore extends StoreComponent
         const style = `.row--button { margin-bottom: 24px; }`;
 
         super( { template, style } );
+
+        const addButton = this.shadowRoot.querySelector( '.button' );
+        addButton.addEventListener( 'click', e => this.addStep() );
     }
 
     /**
      * Extended add product in
      */
-    addStep( step )
+    addStep( step = {} )
     {
-        const stepEntry = new StepEntry( step ); 
+        this.addEntry( new StepEntry( step ) );
+    }
+
+    /**
+     * Iterates though the stored fields and
+     * Sets the field number to match current row
+     */
+    enumerate()
+    {
+        let index = 1;
+
+        for ( const entry of this.mStore.children )
+        {
+            entry.stepNumber = index++;
+        }        
+    }
+    
+    /**
+     * Returns the valid entries, or - if none, undefied
+     * 
+     * @return {Array<object>|null}
+     */
+    get value()
+    {
+        const result   = [];
+        let stepNumber = 0;
+
+        for ( const entry of this.entries )
+        {
+            const { text, image } = entry;
+
+            if ( image && text && text.length )
+            {
+                stepNumber++;
+                result.push( { text, image, stepNumber } );
+            }
+        }
+
+        return result.length ? result : undefined;
     }
 
     // ----------------------------------------------
@@ -33,32 +74,7 @@ class StepStore extends StoreComponent
 
     connectedCallback()
     {
-        console.log( '<product-store> connected' );
-        
-        const steps = [
-
-            {
-                name: 'Potatoes',
-                productCategory: 'VEGETABLES',
-                systemProductId: 1
-            },
-            {
-                name: 'Salt',
-                productCategory: 'SPICES',
-                systemProductId: 2
-            },
-            {
-                name: 'Sugar',
-                productCategory: 'SPICES',
-                systemProductId: 3
-            }
-
-        ];
-
-        for ( const step of steps )
-        {
-            this.addStep( step );
-        }
+        console.log( '<step-store> connected' );
     }
 
 
