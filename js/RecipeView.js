@@ -162,7 +162,7 @@ class RecipeView extends WCBase
 
             if ( allergens )
             {
-                let hasAllerges = allergens.hasAllergens;
+                let hasAllergens = allergens.hasAllergens;
                 const { 
 
                     hasEggs,
