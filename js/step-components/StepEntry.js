@@ -7,18 +7,23 @@ import { WCBase, props } from '../WCBase.js';
  */
 class StepEntry extends WCBase
 {
-    constructor( options )
+    constructor( options = {} )
     {
         super();
 
-        this.mImageFile = null;
-
+        /**
+         * Check whether there are values passed in the constructor params
+         */
+        this.mText       = 'text'      in options ? options.text       : '';
+        this.mImage      = 'image'     in options ? options.image      : null;
+        this.mStepNumber = 'stepNumer' in options ? options.stepNumber : 0;
+        
+        this.draggable = true;
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
 
-        this.attachShadow({mode : "open"});
-  
+        this.attachShadow( { mode: 'open' } );
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
             <div class='entry'>
@@ -38,12 +43,12 @@ class StepEntry extends WCBase
             display: flex;
             position: relative;
             width: 100%; 
-            height: 100px;
-            padding: 4px 6px;
+            height: 114px;
+            padding: 12px 6px;
             background-color: #fff;
-            box-shadow: 0 12px 24px 0 rgba(0,0,0,.25);
+            border-top: 1px solid rgba(0,0,0,0.25);
         }
-        .entry__imgframe { position: relative; margin-right: 4px; }
+        .entry__imgframe { position: relative; margin-right: 10px; }
         .entry__img {
             margin: auto;
             width: 64px;
@@ -78,7 +83,7 @@ class StepEntry extends WCBase
             border-radius: 6px;
             border-radius: 8px;
             border: 3px solid #ff8080;
-            width: 100%;
+            width: calc(100% - 77px);
             height: 100%;
             box-shadow: inset 0 -8px 20px -4px rgba(4,4,20,0.25);
         }
@@ -87,14 +92,15 @@ class StepEntry extends WCBase
             position: absolute;
             top: 0;
             right: 0;
-            border-radius: 8px;
+            border-radius: 12px;
             width: 32px;
             height: 32px;
             padding: 2px;
             margin-left: 4px;
             background-repeat: no-repeat;
             background-size: cover;
-            border: 2px solid transparent;
+            border: 3px solid rgba(255,80,80,0.7);
+            box-shadow: -4px 4px 4px -2 rgba(40,40,128,0.5);
             transition: border-color .3s;
          }
         .action:hover {
@@ -116,35 +122,82 @@ class StepEntry extends WCBase
         }`);
 
 
-        const imageElement = this.shadowRoot.querySelector( '.entry__img' );
         const inputElement = this.shadowRoot.querySelector( '.entry__fileinput' );
         const removeButton = this.shadowRoot.querySelector( '.action.remove' );
+        this.mImageElement = this.shadowRoot.querySelector( '.entry__img' );
         this.mTextArea     = this.shadowRoot.querySelector( '.entry__textarea' );
 
         inputElement.addEventListener( 'change', e =>
         {
-            this.mImageFile = e.target.files[0];
-            const reader    = new FileReader();
+            this.mImage  = e.target.files[0];
+            const reader = new FileReader();
 
-            reader.onloadend = () => { imageElement.src = reader.result; }
-            reader.readAsDataURL( this.mImageFile );
+            reader.onloadend = () => { this.mImageElement.src = reader.result; }
+            reader.readAsDataURL( this.mImage );
         });
 
         removeButton.addEventListener( 'click', e => this.remove() );
          
+        this.shadowRoot.addEventListener( 'dragstart', e =>
+        {
+            e.dataTransfer.setData( 'text', '434124' );
+        });
     }
 
     /**
      * Return the image and the text content
      * 
-     * @return { {string},{File} }
+     * @return {{string},{File},{number}}
      */
     get value()
     {
-        const text  = this.mTextArea.value;
-        const image = this.mImageFile;
+        return {
 
-        return { text, image };
+            text:       this.text, 
+            image:      this.image, 
+            stepNumber: this.stepNumber
+
+        };
+    }
+
+    // -------------------------------------------
+    // - 
+    // - Accessor methods for step properties:
+    // - 1) Text
+    // - 2) Image 
+    // - 3) Step Number
+    // -
+    // -------------------------------------------
+
+    get text()
+    {
+        return this.mTextArea.value;
+    }
+
+    get image()
+    {
+        return this.mImage;
+    }
+
+    get stepNumber()
+    {
+        return this.mStepNumber;
+    }
+
+    set text( value )
+    {
+        this.mTextArea.value = value;
+    }
+
+    set image( obj )
+    {
+        this.mImage = obj; 
+        imageField.src = `data:${obj.fileType};base64,${obj.data}`;
+    }
+
+    set stepNumber( value )
+    {
+        this.mStepNumber = value;
     }
 
     // ----------------------------------------------
