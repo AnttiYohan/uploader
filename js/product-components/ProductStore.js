@@ -89,16 +89,7 @@ class ProductStore extends StoreComponent
 
             )
             {
-                result.push({ 
-                    
-                    name, 
-                    productCategory, 
-                    systemProductId,
-                    amount,
-                    measureUnit,
-                    userId
-
-                });
+                result.push( entry );
             }
         }
 
