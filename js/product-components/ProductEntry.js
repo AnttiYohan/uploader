@@ -251,14 +251,14 @@ class ProductEntry extends WCBase
         let unitAmount  = unitList.length;
         let unitFocus   = false;
     
-        const productAttributes = () =>
+        /*const productAttributes = () =>
         {
             return {
                 name:   this.mName,
                 amount: this.mAmountInput.value,
                 unit:   this.mUnitTitle.textContent.replaceAll(' ', '_').toUpperCase()
             };
-        };
+        };*/
 
         const setActiveUnit = () =>
         {
@@ -465,7 +465,7 @@ class ProductEntry extends WCBase
                     {
                          clist.add( 'active' );
                          this.mUnitIndex = index;
-                         this.mUnitTitle = unit;
+                         this.mUnitTitle.textContent = unit;
                     }
                     else clist.remove( 'active' ); 
                     index++;
