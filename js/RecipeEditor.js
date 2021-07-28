@@ -320,15 +320,11 @@ class RecipeEditor extends WCBase
             'Update Recipe', 
             'Recipe Updated Succesfully',
             'The Recipe Could Not Be Updated',
-            { top: `${offsetTop}px`, left: `${offsetLeft}px` }
+            { top: `${offsetTop}px`, left: `${20}px` }
         );
         //this.mViewNode.appendChild( responseNotifier );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( recipe => 
-        {
-            this.mInputOperator.reloadEditor( recipe );
-            this.mInputOperator.reset();
-        });
+        responseNotifier.onSuccess( recipe => this.mInputOperator.reloadEditor( recipe ) );
         responseNotifier.onFail(( status, message ) =>
             console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`)
         );
@@ -351,12 +347,15 @@ class RecipeEditor extends WCBase
     {
         if ( ! image ) return;
 
+        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft = Number(this.mClickedButton.offsetLeft);
         const responseNotifier = new ResponseNotifier
         (
             'recipeDto',
-            'Update Recipe With Image', 
+            'Update Recipe', 
             'Recipe Updated Succesfully',
-            'The Recipe Could Not Be Updated' 
+            'The Recipe Could Not Be Updated',
+            { top: `${offsetTop}px`, left: `${20}px` }
         );
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( recipe => this.mInputOperator.reloadEditor( recipe ) );
