@@ -44,7 +44,7 @@ template.innerHTML =
         <ingredient-menu data-connect='host' class='product_menu'
                          data-emit='product-select'
         >Product menu:</ingredient-menu>
-        <product-store data-input='products'>Ingredients</product-store>
+        <product-store data-input='products' data-connect='slave'>Ingredients</product-store>
     </event-bouncer>
     
     <text-input-area class='instructions_input' data-input='instructions' required>Instructions</text-input-area>
@@ -154,13 +154,13 @@ class RecipeView extends WCBase
         // ------------------------------
 
         /**
-         * @listens allergens-added
+         * @listens allergens-map
          */
-        this.shadowRoot.addEventListener('allergens-added', e =>
+        this.shadowRoot.addEventListener( 'allergens-map', e =>
         {
-            const product = e.detail.product;
+            const allergens = e.detail.allergens;
 
-            if ( product && product.hasOwnProperty('hasAllergens'))
+            if ( allergens )
             {
                 const { 
                     hasAllergens,
@@ -168,13 +168,15 @@ class RecipeView extends WCBase
                     hasNuts,
                     hasGluten,
                     hasLactose
-                } = product;
+                } = allergens;
 
                 console.log(`RecipeView event: allergens-added hasAllergens: ${hasAllergens}`);
 
                 // --------------------------------------
                 // - Apply properties only when set
                 // --------------------------------------
+
+                if ( hasEggs || hasNuts || hasGluten || hasLactose ) hasAllergens = true;
 
                 if ( hasAllergens ) this.mAllergensInput.turnOn();
                 if ( hasEggs )      this.mEggsInput.turnOn();
@@ -185,157 +187,151 @@ class RecipeView extends WCBase
         }, true );
 
         /**
-         * @listens click
+         * Create a recipe on click
          */
-        this.mSaveButton.addEventListener('click',
-            e =>
+        this.mSaveButton.addEventListener( 'click', e =>
+        {
+            // --------------------------------------
+            // - Obtain input values and validate
+            // - If dto and image file present, send
+            // - To the server
+            // --------------------------------------
+            /*const embed = hasSteps 
+                        ? { 'hasSteps': false }
+                        : { 'hasSteps': true };*/
+    
+            const hasSteps  = this.mInputOperator.getValue('steps');
+            const dto       = this.mInputOperator.processInputs
+            (
+                false,
+                hasSteps ? { 'hasSteps': true } : { 'hasSteps': false }
+            );
+            const imageFile = this.mInputOperator.imageFile();
+
+            if ( dto && imageFile )
             {
-                // --------------------------------------
-                // - Obtain input values and validate
-                // - If dto and image file present, send
-                // - To the server
-                // --------------------------------------
-                /*const embed = hasSteps 
-                            ? { 'hasSteps': false }
-                            : { 'hasSteps': true };*/
-        
-                const hasSteps  = this.mInputOperator.getValue('steps');
-                const dto       = this.mInputOperator.processInputs
-                (
-                    false,
-                    hasSteps ? { 'hasSteps': true } : { 'hasSteps': false }
-                );
-                const imageFile = this.mInputOperator.imageFile();
+                // -------------------------------------
+                // - Check if dto has steps. If so,
+                // - Call API route /with-steps
+                // -------------------------------------
 
-                if ( dto && imageFile )
+                if ( dto.data.hasSteps )
                 {
-                    // -------------------------------------
-                    // - Check if dto has steps. If so,
-                    // - Call API route /with-steps
-                    // -------------------------------------
+                    
+                    // ---------------------------------
+                    // - Compile step by step json array
+                    // ---------------------------------
+                    const stepDto    = { title: 'steps',      data: [] };
+                    const stepImages = { title: 'stepImages', images: [] };
 
-                    if ( dto.data.hasSteps )
+                    for (const step of dto.data.steps )
                     {
-                        
-                        // ---------------------------------
-                        // - Compile step by step json array
-                        // ---------------------------------
-                        const stepDto    = { title: 'steps',      data: [] };
-                        const stepImages = { title: 'stepImages', images: [] };
+                        console.log(`Step ${step}`);
+                        stepDto.data.push({text: step.text, stepNumber: step.stepNumber});
+                        stepImages.images.push(step.image);
+                    }
 
-                        for (const step of dto.data.steps )
-                        {
-                            console.log(`Step ${step}`);
-                            stepDto.data.push({text: step.text, stepNumber: step.stepNumber});
-                            stepImages.images.push(step.image);
+                    // --------------------------------------
+                    // - Remove the stepBySteps data from the
+                    // - main recipeDto and
+                    // - Compile stringified dto data version
+                    // --------------------------------------
+
+                    dto.data.steps = null;
+
+                    const finalDto = { title: dto.title, data: JSON.stringify(dto.data) };
+
+                    // -----------------------------------------
+                    // - Construct also a data stringified final
+                    // - version from the child step data
+                    // -----------------------------------------
+
+                    const finalStepDto =
+                    {
+                        title: stepDto.title,
+                        data: JSON.stringify(stepDto.data)
+                    };
+
+                    const responseNotifier = new ResponseNotifier
+                    (
+                        'recipeDto',
+                        'Create Recipe', 
+                        'Recipe Created Succesfully',
+                        'Recipe Could Not Be Created' 
+                    );
+                    this.mRootElement.appendChild( responseNotifier );
+                    responseNotifier.onSuccess( 
+                        () => {
+                            
+                            this.loadRecipes();
+                            this.mInputOperator.reset();
                         }
-
-                        // --------------------------------------
-                        // - Remove the stepBySteps data from the
-                        // - main recipeDto and
-                        // - Compile stringified dto data version
-                        // --------------------------------------
-
-                        dto.data.steps = null;
-
-                        const finalDto = { title: dto.title, data: JSON.stringify(dto.data) };
-
-                        // -----------------------------------------
-                        // - Construct also a data stringified final
-                        // - version from the child step data
-                        // -----------------------------------------
-
-                        const finalStepDto =
-                        {
-                            title: stepDto.title,
-                            data: JSON.stringify(stepDto.data)
-                        };
-
-                        const responseNotifier = new ResponseNotifier
+                    );
+                    responseNotifier.onFail(
+                        () => {
+                            console.log(`Product could not be added to the server`)
+                        }
+                    );
+                    responseNotifier.begin
+                    ( 
+                        FileCache.postDtoAndImageWithChildren
                         (
-                            'recipeDto',
-                            'Create Recipe', 
-                            'Recipe Created Succesfully',
-                            'Recipe Could Not Be Created' 
-                        );
-                        this.mRootElement.appendChild( responseNotifier );
-                        responseNotifier.onSuccess( 
-                            () => {
-                                
-                                this.loadRecipes();
-                                this.mInputOperator.reset();
-                            }
-                        );
-                        responseNotifier.onFail(
-                            () => {
-                                console.log(`Product could not be added to the server`)
-                            }
-                        );
-                        responseNotifier.begin
-                        ( 
-                            FileCache.postDtoAndImageWithChildren
-                            (
-                                RECIPE_WITH_STEPS,
-                                finalDto,
-                                imageFile,
-                                finalStepDto,
-                                stepImages
-                            )
-                        );
-                    }
-                    else
-                    {
-                        const finalDto = 
-                        { 
-                            title: dto.title, 
-                            data: JSON.stringify(dto.data)
-                        };
-
-                        const responseNotifier = new ResponseNotifier
-                        (
-                            'recipeDto',
-                            'Create Recipe', 
-                            'Recipe Created Succesfully',
-                            'Recipe Could Not Be Created' 
-                        );
-                        this.mRootElement.appendChild( responseNotifier );
-                        responseNotifier.onSuccess( 
-                            () => {
-                                
-                                this.loadRecipes();
-                                this.mInputOperator.reset();
-                            }
-                        );
-                        responseNotifier.onFail(
-                            () => {
-                                console.log(`Product could not be added to the server`)
-                            }
-                        );
-                        responseNotifier.begin
-                        ( 
-                            FileCache.postDtoAndImage
-                            (
-                                RECIPE_URL,
-                                finalDto,
-                                imageFile
-                            )
-                        );
-                    }
+                            RECIPE_WITH_STEPS,
+                            finalDto,
+                            imageFile,
+                            finalStepDto,
+                            stepImages
+                        )
+                    );
                 }
                 else
                 {
-                    console.log(`Add proper data and image file`);
+                    const finalDto = 
+                    { 
+                        title: dto.title, 
+                        data: JSON.stringify(dto.data)
+                    };
+
+                    const responseNotifier = new ResponseNotifier
+                    (
+                        'recipeDto',
+                        'Create Recipe', 
+                        'Recipe Created Succesfully',
+                        'Recipe Could Not Be Created' 
+                    );
+                    this.mRootElement.appendChild( responseNotifier );
+                    responseNotifier.onSuccess( 
+                        () => {
+                            this.loadRecipes();
+                            this.mInputOperator.reset();
+                        }
+                    );
+                    responseNotifier.onFail(
+                        ( message, status ) => {
+                            console.log( `Recipe could not be added: ${message} ${status}` );
+                        }
+                    );
+                    responseNotifier.begin
+                    ( 
+                        FileCache.postDtoAndImage
+                        (
+                            RECIPE_URL,
+                            finalDto,
+                            imageFile
+                        )
+                    );
                 }
             }
-        );
+            else
+            {
+                console.log(`Add proper data and image file`);
+            }
+        });
 
         /**
-         * @listens click
+         * Reload recipes from server on click
          */
-        refreshButton.addEventListener('click', e => 
-        {
-            this.reload();
-        });
+        refreshButton.addEventListener( 'click', this.reload() );
 
         // ---------------------------------------------
         // - Listens to an event from the product view
@@ -344,17 +340,19 @@ class RecipeView extends WCBase
         // ----------------------------------------------
 
         /**
+         * Add products to product menu's available products
+         * 
          * @listens product-list
          */
-        window.addEventListener('product-list', e => 
+        window.addEventListener( 'product-list', e => 
         {
             const list = e.detail;
 
-            if (list && Array.isArray(list))
+            if ( list && Array.isArray(list) )
             {
                 this.mAvailableProducts = list;
                 try  { this.mProductMenu.pushDataSet(list); }
-                catch (error) { console.log(`RecipeView ProductMenu init error: ${error}`); }
+                catch (error) { console.log( `RecipeView ProductMenu init error: ${error}` ); }
             }
         }, true);
 
@@ -367,19 +365,27 @@ class RecipeView extends WCBase
 
     }
 
+    /**
+     * Invalidate the recipe cache and reload the recipes
+     */
     reload()
     {
         FileCache.clearCache(RECIPE_URL);
         this.loadRecipes(); 
     }
 
-    openEditor(entry)
+    /**
+     * Open the recipe editor with recipe DTO
+     * 
+     * @param {RecipeDto} recipeDto 
+     */
+    openEditor( recipeDto )
     {
         this.mEditorNode.appendChild
         (
             new RecipeEditor
             (
-                entry, 
+                recipeDto, 
                 this, 
                 this.mViewNode,
                 this.mAvailableProducts
@@ -387,8 +393,12 @@ class RecipeView extends WCBase
         );
     }
 
-
-    async openEditorById(id)
+    /**
+     * Open the recipe editor by reading the recipeDTO from the server
+     * 
+     * @param  {number} id 
+     */
+    async openEditorById( id )
     {
         if ( ! id ) return;
 
@@ -427,38 +437,7 @@ class RecipeView extends WCBase
         {
             console.log( `Could not read recipe from server, status: ${status}`);
         }
-        /*
-        this.mEditorNode.appendChild
-        (
-            new RecipeEditor
-            (
-                entry, 
-                this, 
-                this.mViewNode,
-                this.mAvailableProducts
-            )
-        );*/
     }
-
-   /*
-    loadProducts()
-    {
-        console.log(`RecipeView::loadProducts()`);
-
-        this.getProducts()
-            .then(response => 
-            {console.log(`Product response: ${response.text}`);    
-                try {
-                    //const list = JSON.parse(data);
-                    //if ( list ) this.generateList(list);
-                } catch (error) {}
-            })
-            .catch(error => 
-            {
-                console.log(`Could not read products: ${error}`);
-            });
-    }*/
-
   
     /**
      * Generates the list of existing recipes
@@ -466,9 +445,9 @@ class RecipeView extends WCBase
      * 
      * @param {array} list 
      */
-    generateList(list)
+    generateList( list )
     {
-        console.log(`RecipeView::generateList() -- Recipe amount: ${list.length}`);
+        console.log( `RecipeView::generateList() -- Recipe amount: ${list.length}` );
 
         const model = {
             titlekey: 'title',
@@ -483,15 +462,7 @@ class RecipeView extends WCBase
             ]
         };
       
-        this.mBrowser.pushDataSet(list, model);
-
-      
-        /**{
-                    this.mViewNode.style.display = 'none';
-                    const editor = new RecipeEditor(recipe, this, this.mViewNode, this.mAvailableProducts);
-                    this.mEditorNode.appendChild(editor);
-        }**/
-
+        this.mBrowser.pushDataSet( list, model );
     }
 
    /**
@@ -508,7 +479,7 @@ class RecipeView extends WCBase
 
             try 
             { 
-                this.generateList( JSON.parse(text) ); 
+                this.generateList( JSON.parse( text ) ); 
             } 
             catch (error) {
                 console.log(`Recipe parse failed: ${error}`); 
@@ -526,7 +497,7 @@ class RecipeView extends WCBase
      */
     getRecipes()
     {         
-        return FileCache.getCached(RECIPE_URL);
+        return FileCache.getCached( RECIPE_URL );
     }
 
     /**
@@ -540,7 +511,7 @@ class RecipeView extends WCBase
      * @param  {File}       imageFile
      * @return {boolean, number, string}
      */
-    addRecipe(dto, imageFile)
+    addRecipe( dto, imageFile )
     {
         return FileCache.postDtoAndImage(RECIPE_URL, dto, imageFile);
     }
@@ -558,7 +529,7 @@ class RecipeView extends WCBase
      * @param  {Array}     stepImageList
      * @return {boolean, number, string}
      */
-    addRecipeWithSteps(dto, imageFile, stepDtoList, stepImageList)
+    addRecipeWithSteps( dto, imageFile, stepDtoList, stepImageList )
     {
         return FileCache.postDtoAndImageWithChildren
         (
@@ -573,10 +544,9 @@ class RecipeView extends WCBase
     /**
      * Executes HTTP DELETE by recipe route / id
      * -----------------------
-     * @param  {integer} id
-     * @return {Promise} response
+     * @param  {number} id
      */
-    removeRecipe(id)
+    removeRecipe( id )
     {
         console.log(`Remove recipe ${id} called`);
         const responseNotifier = new ResponseNotifier
@@ -596,8 +566,8 @@ class RecipeView extends WCBase
         );
         responseNotifier.onFail
         (
-            () => {
-                console.log(`Product could not be removed`)
+            ( message, status ) => {
+                console.log( `Recipe could not be removed: Status: ${status}, message: ${message}` );
             }
         );
         responseNotifier.begin( FileCache.delete( RECIPE_URL, id ) );
@@ -612,7 +582,7 @@ class RecipeView extends WCBase
         /**
          * Listen to remove events
          */
-        this.shadowRoot.addEventListener('remove-by-id', e =>
+        this.shadowRoot.addEventListener( 'remove-by-id', e =>
         {
             const id = e.detail.entry.id;
 
@@ -628,7 +598,7 @@ class RecipeView extends WCBase
         /**
          * @listens edit-by-id
          */
-        this.shadowRoot.addEventListener('edit-by-id', e =>
+        this.shadowRoot.addEventListener( 'edit-by-id', e =>
         {
              const id = e.detail.entry.id;
  
@@ -642,12 +612,7 @@ class RecipeView extends WCBase
  
         }, true);
 
-        this.shadowRoot.addEventListener('recipe-edit-ok', e => 
-        {
-            this.reload();
-        }, true);
-
-        
+        this.shadowRoot.addEventListener( 'recipe-edit-ok', this.reload(), true );
     }
 
     disconnectedCallback()
@@ -655,6 +620,6 @@ class RecipeView extends WCBase
     }  
 }
 
-window.customElements.define('recipe-view', RecipeView);
+window.customElements.define( 'recipe-view', RecipeView );
 
 export { RecipeView };
