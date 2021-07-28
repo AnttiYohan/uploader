@@ -16,18 +16,38 @@
             {
                 'prop' : 'text',
                 'type' : 'string',
-                'empty': false
+                'empty': 'false'
             },
             {
                 'prop': 'image',
-                'instnace': 'File'
+                'instance': 'File'
             }
         ];
 
     const productModel = [
 
         {
-            'name': 'name'
+            'prop': 'name',
+            'type': 'string',
+            'empty': 'false
+        },
+        {
+            'prop': 'productCategory',
+            'type': 'string',
+            'empty': 'false
+        },
+        {
+            'prop': [
+                'id',
+                'systemProductId'
+            ],
+            'type': 'number',
+            'empty': 'false
+        },
+        {
+            'prop': 'name',
+            'type': 'string',
+            'empty': 'false
         }
 
     ];
@@ -41,53 +61,80 @@ export default function validate( obj, model )
 
     if ( model && Array.isArray( model ) ) for ( const key of model )
     {
-        if ( obj.hasOwnProperty( key.prop ) )
+        /**
+         * property list
+         */
+        if ( Array.isArray( key.prop ) ) 
         {
-            const property = obj[ key.prop ];
-
-            /**
-             * Is there a type?
-             */
-            if ( 'type' in key )
+            let result = false;
+            for ( const prop of key.prop )
             {
-                success = typeCheck( property, key.type );
-                if ( ! success )
+                if ( obj.hasOwnPropery( prop ) )
                 {
-                    break;
-                }
-            }
-            else /** Or an instance */
-            if ( 'instance' in key )
-            {
-                success = instanceCheck( property, key.instance )
-                if ( ! success )
-                {
+                    result = propertyCheck( obj, prop, key );
                     break;
                 }
             }
 
-            /**
-             * Empty check
-             */
-            if ( 'empty' in key )
+            success = result;
+                
+            if ( ! result )
             {
-                if ( key.empty === 'false' && isEmpty( property ) )
-                {
-                    success = false;
-                    break;
-                }
+                break;
             }
-
-            success = true;
         }
         else
         {
-            success = false;
-            break;
-        }
+            success = propertyCheck( obj, prop, key );
+        } 
     }
 
     return success;
+    
+}
+
+function propertyCheck( obj, prop, key )
+{
+    let success = false;
+
+    if ( obj.hasOwnPropery( prop ) )
+    {
+        const property = obj[ prop ];
+
+        /**
+         * Is there a type?
+         */
+        if ( 'type' in key )
+        {
+            if ( ! typeCheck( property, key.type ) )
+            {
+                return false;
+            }
+        }
+        else /** Or an instance */
+        if ( 'instance' in key )
+        {
+            if ( ! instanceCheck( property, key.instance ) )
+            {
+                return false;
+            }
+        }
+
+        /**
+         * Empty check
+         */
+        if ( 'empty' in key )
+        {
+            if ( key.empty === 'false' && isEmpty( property ) )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    return false;
 }
 
 /**
