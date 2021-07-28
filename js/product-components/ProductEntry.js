@@ -457,7 +457,7 @@ class ProductEntry extends WCBase
             {
                 let index = 0;
 
-                for ( const elem of unitFrame.children )
+                for ( const elem of this.mUnitFrame.children )
                 {
                     const text = elem.textContent.toLowerCase();
                     const clist = elem.classList;
@@ -482,6 +482,9 @@ class ProductEntry extends WCBase
     {
         console.log("<product-entry> connected");
         this.emit( 'product-entry-added' );
+
+        if ( this.mAmount ) this.mAmountInput.value = this.mAmount;
+        if ( this.mMeasureUnit ) this.setMeasureUnit( this.mMeasureUnit );
     }
 
     disconnectedCallback()
