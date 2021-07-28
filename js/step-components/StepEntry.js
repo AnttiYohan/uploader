@@ -14,9 +14,9 @@ class StepEntry extends WCBase
         /**
          * Check whether there are values passed in the constructor params
          */
-        this.mText       = 'text'      in options ? options.text       : '';
-        this.mImage      = 'image'     in options ? options.image      : null;
-        this.mStepNumber = 'stepNumer' in options ? options.stepNumber : 0;
+        this.mText       = 'text'      in options ? options.text            : '';
+        this.mImage      = 'mediaDto'  in options ? options.mediaDto.image  : null;
+        this.mStepNumber = 'stepNumer' in options ? options.stepNumber      : 0;
         
         this.draggable = true;
         // -----------------------------------------------
@@ -209,10 +209,23 @@ class StepEntry extends WCBase
         this.mTextArea.value = value;
     }
 
-    set image( obj )
+    setImage( obj )
     {
-        this.mImage = obj; 
-        imageField.src = `data:${obj.fileType};base64,${obj.data}`;
+        const byteString = atob( obj.data );
+        let   index = byteString.length;
+        const byteArray = new Uint8Array( index );
+        
+        while ( index-- )
+        {
+            byteArray[ index ] = byteString.charCodeAt( index );
+        }
+
+        const file = new File( [ byteArray ], obj.fileName, { type: obj.fileType } );
+        this.mImage = file;
+
+        const reader = new FileReader();
+        reader.onloadend = () => { this.mImageElement.src = reader.result; }
+        reader.readAsDataURL( file );
     }
 
     set stepNumber( value )
@@ -227,6 +240,12 @@ class StepEntry extends WCBase
     connectedCallback()
     {
         console.log("<step-entry> connected");
+
+        if ( this.mText && this.mImage )
+        {
+            this.text  = this.mText;
+            this.setImage( this.mImage );
+        }
     }
 
     disconnectedCallback()
