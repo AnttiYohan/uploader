@@ -39,7 +39,7 @@ export default function validate( obj, model )
 {
     let success = false;
 
-    for ( const key of model )
+    if ( model && Array.isArray( model ) ) for ( const key of model )
     {
         if ( obj.hasOwnProperty( key.prop ) )
         {
