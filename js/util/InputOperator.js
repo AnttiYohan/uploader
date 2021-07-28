@@ -565,6 +565,9 @@ class InputOperator
             const labelElement = component.querySelector( '[data-label]' );
             labelElement.reset();
             labelElement.addContent( value );
+
+            const inputElement = component.querySelector( '[data-input]' );
+            inputElement.reset();
         }
     }
     
