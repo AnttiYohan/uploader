@@ -25,25 +25,25 @@ class ArticleView extends WCBase
 
         this.attachShadow({mode : "open"});
         this.setupTemplate
-        (
-        `<link rel='stylesheet' href='assets/css/components.css'>
-        <div class='uploader'>
-         <div class='uploader__frame' data-input-frame>
-           <button class='button--refresh'>Reload</button>
-           <text-input-row  data-input='title' required>Title</text-input-row>
-           <image-input-row data-input='image' required>Article Image</image-input-row>
-           <text-input-row  data-input='description' required>Description</text-input-row>
-           <text-input-area data-input='text' data-rows='24' required>Content</text-input-area>
-           <number-input-row data-input='likes'>Likes</number-input-row>
-           <text-input-row  data-input='mainPictureLink'>Main Image Link</text-input-row>
-           <div class='uploader__row--last'>
-           </div>
-           <button class='button--save'>Save</button>
-         </div>
-         <!-- Existing products frame -->
-         <div class='uploader__frame--scroll article_list'>
+        (`<link rel='stylesheet' href='assets/css/components.css'>
+        <div class='popup-connector'></div>
+        <div class='uploader view-node'>
+            <div class='uploader__frame' data-input-frame>
+                <button class='button--refresh'>Reload</button>
+                <text-input-row  data-input='title' required>Title</text-input-row>
+                <image-input-row data-input='image' required>Article Image</image-input-row>
+                <text-input-row  data-input='description' required>Description</text-input-row>
+                <text-input-area data-input='text' data-rows='24' required>Content</text-input-area>
+                <number-input-row data-input='likes'>Likes</number-input-row>
+                <text-input-row  data-input='mainPictureLink'>Main Image Link</text-input-row>
+                <div class='uploader__row--last'>
+            </div>
+            <button class='button--save'>Save</button>
+        </div>
+        <!-- Existing articles frame -->
+        <div class='uploader__frame--scroll article_list'>
            <entry-browser data-browser='article_browser'>Articles:</entry-browser>
-         </div>
+        </div>
        </div>`
         );    
         
@@ -51,21 +51,23 @@ class ArticleView extends WCBase
         // - Save element references
         // ---------------------------
 
-        const inputFrame    = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
-        const inputArray    = Array.from(inputFrame.querySelectorAll('[data-input]'));
-        this.mInputOperator = new InputOperator('article', inputArray);
-        this.mRootElement   = this.shadowRoot.querySelector('.uploader');
-        this.mBrowser       = this.shadowRoot.querySelector('[data-browser="article_browser"]');
-        const saveButton    = this.shadowRoot.querySelector('.button--save');
-        const refreshButton = this.shadowRoot.querySelector('.button--refresh');
+        const inputFrame     = this.shadowRoot.querySelector( '.uploader__frame[data-input-frame]' );
+        const inputArray     = Array.from(inputFrame.querySelectorAll('[data-input]'));
+        this.mInputOperator  = new InputOperator( 'article', inputArray );
+        this.mEditorNode     = this.shadowRoot.querySelector( '.popup-connector' );
+        this.mRootElement    = this.shadowRoot.querySelector( '.uploader' );
+        this.mViewNode       = this.shadowRoot.querySelector( '.view-node' );
+        this.mBrowser        = this.shadowRoot.querySelector( '[data-browser="article_browser"]' );
+        const saveButton     = this.shadowRoot.querySelector( '.button--save' );
+        const refreshButton  = this.shadowRoot.querySelector( '.button--refresh' );
 
-        refreshButton.addEventListener('click', e => 
+        refreshButton.addEventListener( 'click', e => 
         { 
             FileCache.clearCache(ARTICLE_URL);
             this.loadArticles();
         });
 
-        saveButton.addEventListener('click', e =>
+        saveButton.addEventListener( 'click', e =>
         {
             // --------------------------------------
             // - Obtain input values and validate
@@ -195,6 +197,52 @@ class ArticleView extends WCBase
     }
 
 
+    /**
+     * Open the article editor by reading the ArticleDTO from the server
+     * 
+     * @param  {number} id 
+     */
+    async openEditorById( id )
+    {
+        if ( ! id ) return;
+
+        const { status, ok, text } = await FileCache.getRequest( `${ARTICLE_URL}/${id}`, true, false );
+
+        if ( ok )
+        {
+            let article = undefined;
+
+            try 
+            {
+                article = JSON.parse( text );
+            }
+            catch ( error )
+            {
+                console.log( `Could not parse article: ${error}` );
+            }
+
+            if ( article )
+            {
+                console.table( article );
+                this.mEditorNode.appendChild(
+
+                    new ArticleEditor
+                    (
+                        article, 
+                        this, 
+                        this.mViewNode
+                    )
+
+                );
+            }
+        }
+        else
+        {
+            console.log( `Could not read article from the server, status: ${status}`);
+        }
+    }
+
+
     // ----------------------------------------------
     // - Lifecycle callbacks
     // ----------------------------------------------
@@ -204,7 +252,7 @@ class ArticleView extends WCBase
         /**
          * Listen to remove events
          */
-        this.shadowRoot.addEventListener('remove-by-id', e =>
+        this.shadowRoot.addEventListener( 'remove-by-id', e =>
         {
             const id = e.detail.entry.id;
 
@@ -220,7 +268,7 @@ class ArticleView extends WCBase
         /**
          * Listen to edit events
          */
-        this.shadowRoot.addEventListener('edit-by-id', e =>
+        this.shadowRoot.addEventListener( 'edit-by-id', e =>
         {
             const id = e.detail.entry.id;
 
