@@ -1,10 +1,10 @@
 import { WCBase, RECIPE_URL, RECIPE_ALL_URL, RECIPE_WITH_STEPS } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
-import { StepEditor } from './StepEditor.js';
-import { ProductRow } from './ProductRow.js';
+import { StepStore } from './step-components/StepStore.js';
 import { RecipeEditor } from './RecipeEditor.js';
 import { EventBouncer } from './EventBouncer.js';
 import { EntryBrowser } from './EntryBrowser.js';
+import { ProductStore } from './product-components/ProductStore.js';
 import { TextInputRow } from './TextInputRow.js';
 import { TextInputArea } from './TextInputArea.js';
 import { InputOperator } from './util/InputOperator.js';
@@ -15,6 +15,7 @@ import { IngredientMenu } from './IngredientMenu.js';
 import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
+
 
 const 
 template = document.createElement("template");
@@ -43,7 +44,7 @@ template.innerHTML =
         <ingredient-menu data-connect='host' class='product_menu'
                          data-emit='product-select'
         >Product menu:</ingredient-menu>
-        <product-row data-connect='slave' data-input='products' data-collect='product-select'></product-row>
+        <product-store data-input='products'>Ingredients</product-store>
     </event-bouncer>
     
     <text-input-area class='instructions_input' data-input='instructions' required>Instructions</text-input-area>
@@ -77,9 +78,8 @@ template.innerHTML =
         { "title": "Soup", "value": "SOUP" },
         { "title": "Smoothie", "value": "SMOOTHIE" },
         { "title": "Beverages", "value": "BEVERAGES" }
-    ]'>Meal Types</binary-switch-group>     
-    <step-editor class='step_editor' data-input='steps'></step-editor>
-
+    ]'>Meal Types</binary-switch-group>
+    <step-store       data-input='steps'>Steps</step-store>
     <multi-entry-row  data-input='tips'>Tips</multi-entry-row>
     <number-input-row data-input='nutritionValue'>Nutrition kcal</number-input-row>
     <text-input-row   data-input='interestingInfo'>Interesting Info</text-input-row>
