@@ -1,5 +1,6 @@
 import { StoreComponent } from "../StoreComponent.js";
 import { StepEntry } from "./StepEntry.js";
+import { validate } from '../util/validator.js';
 
 /**
  * This is a store for StepEntry components,
@@ -21,6 +22,37 @@ class StepStore extends StoreComponent
         const addButton = this.shadowRoot.querySelector( '.button' );
         addButton.addEventListener( 'click', e => this.addStep() );
     }
+
+    /**
+     * Reset the store and push a set of steps
+     * Validate the steps
+     * @param {array} steps 
+     */
+    pushDataSet( steps )
+    {
+        this.reset();
+
+        if ( steps && Array.isArray( steps ) ) for ( const step of steps )
+        {
+            const validationModel = 
+            [
+                {
+                    prop:  'text',
+                    type:  'string',
+                    empty: 'false'
+                },
+                {
+                    prop:  'image'
+                }
+            ];
+
+            if ( validate( step, validationModel ) )
+            {
+                this.addStep( step );
+            }
+        }
+    }
+
 
     /**
      * Extended add product in
