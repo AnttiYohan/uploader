@@ -698,6 +698,16 @@ class InputOperator
         this.loadStore( component, steps, 'step-store' );
     }
 
+    /**
+     * Resets and loads products into the product menu
+     * 
+     * @param {array} steps 
+     */
+    reloadStepStore( steps )
+    {
+        this.reloadStore( this.mStepComponent, steps, 'step-store' ); 
+    }
+
     initBinarySwitchGroup( component, binarySwitchList )
     {
         /**
