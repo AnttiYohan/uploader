@@ -51,8 +51,6 @@ class UploaderView extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        console.log(`Token: ${token}`);
-
         this.mToken     = token;
         this.mDisplay   = 'flex';
         this.mMode      = 'login';
