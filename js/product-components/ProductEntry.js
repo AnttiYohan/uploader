@@ -12,10 +12,25 @@ class ProductEntry extends WCBase
     {
         super();
 
+        let id = undefined;
+
+        /**
+         * Check for id/systemProductId
+         */
+        if ( 'id' in product )
+        {
+            id = product.id;
+        }
+
+        if ( 'systemProductId'  in product )
+        {
+            id = product.systemProductId;
+        }
+
         if ( 
             ! 'name'            in product ||
             ! 'productCategory' in product ||
-            ! 'systemProductId' in product    
+            ! id 
         )
         {
             this.remove();
@@ -26,15 +41,51 @@ class ProductEntry extends WCBase
          * Required
          */
         this.mName            = product.name;
-        this.mProductCategory = product.productCategory
-        this.mSystemProductId = product.systemProductId
+        this.mProductCategory = product.productCategory;
+        this.mSystemProductId = id;
 
         /**
          * If these are set, the product is about to be edited
          */
         this.mAmount          = product.amount;
-        this.mMeasureUnit     = product.measureUnit           
+        this.mMeasureUnit     = product.measureUnit
+        
+        this.mProductReference = product;
                        
+        /**
+         * Get the allergen data
+         */
+
+        this.mHasAllergens = false;
+        this.mHasEggs      = false;
+        this.mHasNuts      = false;
+        this.mHasGluten    = false;
+        this.mHasLactose   = false;
+
+        if ( 'hasAllerges' in product )
+        {
+            this.mHasAllergens = product.hasAllergens;
+        }
+
+        if ( 'hasEggs' in product )
+        {
+            this.mHasEggs = product.hasEggs;
+        }
+
+        if ( 'hasNuts' in product )
+        {
+            this.mHasNuts = product.hasNuts;
+        }
+
+        if ( 'hasGluten' in product )
+        {
+            this.mHasGluten = product.hasGluten;
+        }
+
+        if ( 'hasLactose' in product )
+        {
+            this.mHasLactose = product.hasLactose;
+        }
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -310,8 +361,7 @@ class ProductEntry extends WCBase
                 {
                     unitFrame.classList.add( 'visible' );
                 }
-            }
-            
+            }    
         });
 
     
@@ -344,14 +394,39 @@ class ProductEntry extends WCBase
 
         //if ( ! amount.length || ! amount ) return undefined;
 
-        return {
+        const attributes = {
 
             name:               this.mName, 
             productCategory:    this.mProductCategory, 
             systemProductId:    this.mSystemProductId,
             amount:             this.mAmountInput.value,
-            unit:               this.mUnitTitle.textContent.replaceAll(' ', '_').toUpperCase(),
+            measureUnit:        this.mUnitTitle.textContent.replaceAll(' ', '_').toUpperCase(),
             userId:             1
+
+
+        };
+
+        const allergens = this.allergens;
+        for ( const key in allergens )
+        {
+            attributes[ key ] = allergens[ key ];
+        }
+
+        return attributes;
+    }
+
+    /**
+     * Returns the allergen truth map
+     */
+    get allergens()
+    {
+        return {
+
+            hasAllergens: this.mHasAllergens,
+            hasNuts:      this.mHasNuts,
+            hasEggs:      this.mHasEggs,
+            hasGluten:    this.mHasGluten,
+            hasLactose:   this.mHasLactose
 
         };
     }
@@ -443,29 +518,7 @@ class ProductEntry extends WCBase
     disconnectedCallback()
     {
         console.log("<product-entry> disconnected");
-
-        const product = {
-
-            name:               this.mName, 
-            productCategory:    this.mProductCategory, 
-            systemProductId:    this.mSystemProductId
-    
-        };
-
-
-        this.shadowRoot.dispatchEvent
-        (
-            new CustomEvent('allergens-removed', 
-            {
-                bubbles: true,
-                composed: true,
-                detail: 
-                {
-                    product
-                }
-            })
-        );
-
+        this.emit( 'product-entry-removed' );
     }
 }
  
