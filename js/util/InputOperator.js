@@ -800,4 +800,10 @@ class InputOperator
     }
 }
 
-export { InputOperator };
+
+class ArticleOperator
+{
+
+}
+
+export { InputOperator, ArticleOperator };
