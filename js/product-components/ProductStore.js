@@ -196,7 +196,7 @@ class ProductStore extends StoreComponent
     connectedCallback()
     {
         console.log( '<product-store> connected' );
-
+        this.emit( 'product-store-connected' );
         const sendAllergens = () =>
         {
             this.shadowRoot.dispatchEvent
