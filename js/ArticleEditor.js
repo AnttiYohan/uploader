@@ -7,7 +7,9 @@ import
 import { FileCache } from './util/FileCache.js';
 import { EditorLabel } from './EditorLabel.js';
 import { EditorImage } from './EditorImage.js';
+import { ArticleOperator } from './util/InputOperator.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
+
 
 /**
  * This is an Editor Popup for ArticleView  
