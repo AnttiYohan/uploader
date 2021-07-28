@@ -11,9 +11,11 @@ import
 
 } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
+import { StepStore } from './step-components/StepStore.js';
 import { EditorList } from './EditorList.js';
 import { EditorLabel } from './EditorLabel.js';
 import { EditorImage } from './EditorImage.js';
+import { ProductStore } from './product-components/ProductStore.js';
 import { TextInputRow } from './TextInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
 import { TextInputArea } from './TextInputArea.js';
@@ -156,8 +158,8 @@ class RecipeEditor extends WCBase
             <div class='editor__component products'>
                 <editor-product-list data-label='products'>Saved Products</editor-product-list>
                 <event-bouncer data-emitters='["product-select"]'>
-                <ingredient-menu data-connect='host' class='product_menu' data-emit='product-select'>Edit product list:</ingredient-menu>
-                <product-row data-connect='slave' data-input='products' data-collect='product-select'></product-row>
+                    <ingredient-menu data-connect='host' class='product_menu' data-emit='product-select'>Edit product list:</ingredient-menu>
+                    <product-store data-input='products' data-connect='slave'>Ingredients</product-store>
                 </event-bouncer>
                 <div class='two_column'>
                     <binary-button-row data-yes='Add' data-no='Replace' class='product-mode column__item'></binary-button-row>
@@ -166,7 +168,7 @@ class RecipeEditor extends WCBase
             </div>
             <div class='editor__component steps'>
                 <editor-step-list data-label='steps'></editor-step-list>
-                <step-editor data-input='steps'></step-editor>
+                <step-store data-input='steps'>Steps</step-store>
                 <div class='two_column'>
                     <binary-button-row data-yes='Add' data-no='Replace' class='step-mode column__item'></binary-button-row>
                     <button class='button update update--steps'>Update</button>
