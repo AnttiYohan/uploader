@@ -22,9 +22,9 @@ class StoreComponent extends WCBase
         this.attachShadow( { mode: 'open' } );
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
-          <div class='component'>
+          <div class='component component--root'>
             <div class='component__row'>
-               <p class='component__label'><slot></p>
+               <p class='component__label required'><slot></p>
             </div>
             ${'template' in options ? options.template : ''}
             <div class='store'>
