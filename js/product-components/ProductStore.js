@@ -26,11 +26,26 @@ class ProductStore extends StoreComponent
     }
 
     /**
+     * Reset the store and push a set of products
+     * 
+     * @param {array} products 
+     */
+    pushDataSet( products )
+    {
+        this.reset();
+
+        if ( products && Array.isArray( products ) ) for ( const product of products )
+        {
+            this.addProduct( product );
+        }
+    }
+
+    /**
      * Extended add product in
      */
     addProduct( product )
     {
-        const entries = this.entries;
+        const entries  = this.entries;
         let   conflict = false;
 
         for ( const entry of entries )
@@ -46,6 +61,10 @@ class ProductStore extends StoreComponent
         {
             const productEntry = new ProductEntry( product );
             if ( productEntry instanceof ProductEntry ) this.addEntry( productEntry );
+            if ( this.count && this.mFrame.classList.contains( 'notify-required' ) ) 
+            {
+                this.mFrame.classList.remove( 'notify-required' );
+            }
         } 
     }
 
@@ -118,16 +137,6 @@ class ProductStore extends StoreComponent
     }
 
     /**
-     * Ensures that the asterisk of requirement
-     * is properly set
-     */
-    checkAsterisk()
-    {
-        const clist = this.mAsteriskLabel.classList;
-        this.count ? clist.add('off') : clist.remove('off');
-    }
-
-    /**
      * Adds a class into the image area element, to display
      * a red border -- when ensure is set,
      * the notification fires only when the input is not set
@@ -136,7 +145,7 @@ class ProductStore extends StoreComponent
      */
     notifyRequired(ensure = true)
     {
-        if ( ! ensure || ! this.value ) this.mFrame.classList.add('notify-required');
+        if ( ! ensure || ! this.value ) this.mFrame.classList.add( 'notify-required' );
     }
     
     /**
@@ -189,6 +198,8 @@ class ProductStore extends StoreComponent
                     }
                 })
             );
+
+            this.checkAsterisk();
         }
         /**
          * Listen to product-entry-removed events, 
@@ -196,31 +207,6 @@ class ProductStore extends StoreComponent
          */
         this.shadowRoot.addEventListener( 'product-entry-added',   sendAllergens, true );
         this.shadowRoot.addEventListener( 'product-entry-removed', sendAllergens, true );
-        
-        const products = [
-
-            {
-                name: 'Potatoes',
-                productCategory: 'VEGETABLES',
-                systemProductId: 1
-            },
-            {
-                name: 'Salt',
-                productCategory: 'SPICES',
-                systemProductId: 2
-            },
-            {
-                name: 'Sugar',
-                productCategory: 'SPICES',
-                systemProductId: 3
-            }
-
-        ];
-
-        /*for ( const p of products )
-        {
-            this.addProduct( p );
-        }*/
     }
 
 
