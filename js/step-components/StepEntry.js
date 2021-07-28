@@ -48,7 +48,13 @@ class StepEntry extends WCBase
             background-color: #fff;
             border-top: 1px solid rgba(0,0,0,0.25);
         }
-        .entry__imgframe { position: relative; margin-right: 10px; }
+        .entry__imgframe { 
+            position: relative; margin-right: 10px; height: auto;
+        }
+        .entry__imgframe:focus-within .entry__img {
+            border: 3px solid #f04040;
+            box-shadow: 0 0 8px 2px rgba(240,80,80,0.5);
+        }
         .entry__img {
             margin: auto;
             width: 64px;
@@ -56,11 +62,11 @@ class StepEntry extends WCBase
             border-radius: 8px;
             border: 3px dashed #ff8080;
             object-fit: cover;
-            transform: scale3d(1,1,1);
-            transition: transform .3s;
+            transform: scale3D(1,1,1);
+            transition: transform .3s, box-shadow .3s;
         }
         .entry__img:hover {
-            transform: scale3d(1.2,1.2,1);
+            transform: scale3D(1.2,1.2,1);
         }
         .entry__filelabel {
             position: absolute;
@@ -76,7 +82,16 @@ class StepEntry extends WCBase
             left: 0;
             top: 0;
             width: 100%;
-            height: 100%;
+            height: 64px;
+        }
+        .entry__fileinput:focus + .entry__img {
+            border: 3px solid rgba(240, 80, 80, 1);
+        }
+        .entry__fileinput:active + .entry__img {
+            border: 3px ridge rgba(240, 80, 80, 1);
+        }
+        .entry__fileinput:target + .entry__img {
+            border: 5px ridge rgba(40, 80, 240, 0.6);
         }
         .entry__textarea {
             padding: 4px;
@@ -86,6 +101,11 @@ class StepEntry extends WCBase
             width: calc(100% - 77px);
             height: 100%;
             box-shadow: inset 0 -8px 20px -4px rgba(4,4,20,0.25);
+        }
+        .entry__textarea:active,
+        .entry__textarea:focus {
+            outline: none;
+            border-color: #555;
         }
          .action {
             cursor: pointer;
@@ -101,18 +121,18 @@ class StepEntry extends WCBase
             background-size: cover;
             border: 3px solid rgba(255,80,80,0.7);
             box-shadow: -4px 4px 4px -2 rgba(40,40,128,0.5);
-            transition: border-color .3s;
+            transition: border-color 300ms, transform 300ms;
          }
         .action:hover {
-            border-color: rgba(0,0,0,.25);
+            transform: scale3D(1.2,1.2,1);
         }
         .action:focus {
-            border-color: rgba(255,80,80,0.5);
+            border-color: #555;
             outline: none;
         }
         .action:active {
             outline: none;
-            border-color: rgba(0, 0, 0, 0.5);
+            border-color: #555;
         }
         .action.edit {
             background-image: url('assets/icon_edit.svg');
