@@ -162,12 +162,14 @@ class RecipeView extends WCBase
 
             if ( allergens )
             {
+                let hasAllerges = allergens.hasAllergens;
                 const { 
-                    hasAllergens,
+
                     hasEggs,
                     hasNuts,
                     hasGluten,
                     hasLactose
+
                 } = allergens;
 
                 console.log(`RecipeView event: allergens-added hasAllergens: ${hasAllergens}`);
