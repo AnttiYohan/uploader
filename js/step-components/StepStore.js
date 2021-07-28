@@ -42,7 +42,7 @@ class StepStore extends StoreComponent
                     empty: 'false'
                 },
                 {
-                    prop:  'image'
+                    prop:  'mediaDto'
                 }
             ];
 
@@ -107,6 +107,7 @@ class StepStore extends StoreComponent
     connectedCallback()
     {
         console.log( '<step-store> connected' );
+        this.emit( 'step-store-connected' );
     }
 
 
