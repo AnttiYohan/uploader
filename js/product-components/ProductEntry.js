@@ -356,9 +356,47 @@ class ProductEntry extends WCBase
         };
     }
 
-    setValue( )
+    setMeasureUnit( unit )
     {
+        const unitList = [
+            'ml',
+            'liter',
+            'gr',
+            'pieces',
+            'cup',
+            'cups',
+            'tsp',
+            'tbsp',
+            'clove',
+            'can',
+            'cans',
+            'slice',
+            'slices',
+            'a pinch of',
+            'none'
+        ];
 
+        for ( const unitItem of unitList )
+        {
+            if ( unit === unitItem )
+            {
+                let index = 0;
+
+                for ( const elem of unitFrame.children )
+                {
+                    const text = elem.textContent.toLowerCase();
+                    const clist = elem.classList;
+                    if ( text === unit )
+                    {
+                         clist.add( 'active' );
+                         this.mUnitIndex = index;
+                         this.mUnitTitle = unit;
+                    }
+                    else clist.remove( 'active' ); 
+                    index++;
+                }
+            }
+        }
     }
     // ----------------------------------------------
     // - Lifecycle callbacks
@@ -367,6 +405,17 @@ class ProductEntry extends WCBase
     connectedCallback()
     {
         console.log("<product-entry> connected");
+
+        if ( this.mAmount )
+        {
+            this.mAmountInput.value = this.mAmount;
+        }
+
+        if ( this.measureUnit )
+        {
+            this.setMeasureUnit( this.measureUnit );
+        }
+
 
         const product = {
 
