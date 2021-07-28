@@ -7,7 +7,6 @@ import { InputOperator } from './util/InputOperator.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
 import { RadioSwitchGroup } from './RadioSwitchGroup.js';
 
-
 const 
 template = document.createElement("template");
 template.innerHTML =
