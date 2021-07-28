@@ -34,6 +34,7 @@ class StoreComponent extends WCBase
         this.setupStyle
         (`
         .component { background-color: #fff; border-radius: 4px; box-shadow: 0 8px 12px -2px rgba(20,0,0,.25); }
+        ${'style' in options ? options.style : ''}
         .button { display: block; margin: auto; }
         .store { display: flex; flex-direction: column; }
         `);
