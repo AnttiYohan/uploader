@@ -145,7 +145,7 @@ class ArticleEditor extends WCBase
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( article => this.mInputOperator.reloadEditor( article ) );
         responseNotifier.onFail(( status, message ) =>
-            console.log(`RecipeEditor::update recipe fail: status ${status}, ${message}`)
+            console.log( `ArticleEditor::update article fail: status ${status}, ${message}`)
         );
         responseNotifier.begin( image
 
