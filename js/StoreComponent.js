@@ -43,6 +43,11 @@ class StoreComponent extends WCBase
 
     }
     
+    get children()
+    {
+        return Array.from( this.mStore.children );
+    }
+
     get entries()
     {
         const result = [];
