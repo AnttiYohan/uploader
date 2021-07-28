@@ -103,7 +103,18 @@ class StoreComponent extends WCBase
     reset()
     {
         deleteChildren( this.mStore );
+        this.checkAsterisk();
     }
+
+    /**
+     * Ensures that the asterisk of requirement
+     * is properly set
+     */
+     checkAsterisk()
+     {
+         const clist = this.mAsteriskLabel.classList;
+         this.count ? clist.add( 'off' ) : clist.remove( 'off' );
+     }
 
     /**
      * Return the stored entry count
