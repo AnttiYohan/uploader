@@ -11,20 +11,12 @@ import
 
 } from './WCBase.js';
 import { FileCache } from './util/FileCache.js';
-import { StepStore } from './step-components/StepStore.js';
 import { EditorList } from './EditorList.js';
 import { EditorLabel } from './EditorLabel.js';
 import { EditorImage } from './EditorImage.js';
-import { ProductStore } from './product-components/ProductStore.js';
-import { TextInputRow } from './TextInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
-import { TextInputArea } from './TextInputArea.js';
-import { ImageInputRow } from './ImageInputRow.js';
-import { NumberInputRow } from './NumberInputRow.js';
 import { EditorStepList } from './EditorStepList.js';
-import { BinaryButtonRow } from './BinaryButtonRow.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
-import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 import { EditorBinaryLabel } from './EditorBinaryLabel.js';
 import { EditorSwitchGroup } from './EditorSwitchGroup.js';
 import { EditorProductList } from './EditorProductList.js';
