@@ -322,11 +322,14 @@
     min-height: 24px;
     font-size: 18px;
 }
-@media screen and (max-width: 600px)
+@media screen and (max-width: 650px)
 {
     .uploader {
         flex-direction: column;
     }
+}
+@media screen and (max-width: 600px)
+{
     .component__fluid--600 {
         flex-direction: column;
         width: 100%;
