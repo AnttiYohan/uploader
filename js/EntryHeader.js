@@ -228,20 +228,20 @@ class EntryHeader extends WCBase
 
         /**
          * Create the edit button listener
-         * With the recipe entries
+         * When item is editable
          */
-        if ( this.mKey === 'title')
+        if ( this.mEditable )
         {
             const editButton = this.shadowRoot.querySelector('.action.edit');
 
-            editButton.addEventListener('click', e => 
+            editButton.addEventListener( 'click', e => 
             {
                 const msg =
                 {
                     'title' : this.mTitle
                 };
     
-                this.emit('header-edit', msg);
+                this.emit( 'header-edit', msg );
     
             });
         }
