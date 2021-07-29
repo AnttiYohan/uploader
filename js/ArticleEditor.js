@@ -7,7 +7,7 @@ import
 import { FileCache } from './util/FileCache.js';
 import { EditorLabel } from './EditorLabel.js';
 import { EditorImage } from './EditorImage.js';
-import { ArticleOperator } from './util/InputOperator.js';
+import { InputOperator } from './util/InputOperator.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
 
 
@@ -63,10 +63,6 @@ class ArticleEditor extends WCBase
                 <text-input-area data-input='text'>Edited</text-input-area>
             </div>
             <div class='editor__component'>
-                <editor-label     data-label='likes'>Likes</editor-label>
-                <number-input-row data-input='likes'>Edited</number-input-row>
-            </div>
-            <div class='editor__component'>
                 <editor-label    data-label='mainImageLink'>Main Image Link</editor-label>
                 <text-input-row  data-input='mainImageLink'>Edited</text-input-row>
             </div>
@@ -90,7 +86,8 @@ class ArticleEditor extends WCBase
         this.mInputOperator.loadComponents
         (
             Array.from( dataInputFrame.querySelectorAll( '.editor__component' ) ),
-            articleDto
+            articleDto,
+            []
         );
 
         const exitButton = this.shadowRoot.querySelector( '.button.exit' );
@@ -114,11 +111,11 @@ class ArticleEditor extends WCBase
             this.mClickedButton = updateButton;
 
             const image = this.mInputOperator.getUpdateImage();
-            const data =  this.mInputOperator.getUpdateArticle();
+            const data =  this.mInputOperator.getEditorDto();
             
             if ( ! data && ! image ) return;
 
-            this.updateArticle( { 'title': 'article', data }, image );
+            this.updateArticle( { 'title': 'article', 'data': JSON.stringify( data ) }, image );
                     
         });
 
@@ -151,8 +148,8 @@ class ArticleEditor extends WCBase
         );
         responseNotifier.begin( image
 
-            ? FileCache.putDtoAndImage( ARTICLE_URL, serialized, image )
-            : FileCache.putDto( ARTICLE_URL, dto )
+            ? FileCache.putDtoAndImage( ARTICLE_URL, dto, image )
+            : FileCache.putDtoAndImage( ARTICLE_URL, dto, null )
 
         ); 
     }
