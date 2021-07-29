@@ -90,7 +90,7 @@ template.innerHTML =
 
     <!-- Existing recipe list wrapper -->
     <div class='uploader__frame recipe_list'>
-      <entry-browser data-browser='recipe_browser' class='browser'>Recipes</entry-browser>
+      <entry-browser data-browser='recipe_browser' data-edit=true class='browser'>Recipes</entry-browser>
     </div>
   
 </div> <!-- End of view node -->
