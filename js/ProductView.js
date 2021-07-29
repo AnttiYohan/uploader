@@ -299,6 +299,51 @@ class ProductView extends WCBase
 
     }
 
+    /**
+     * Open the product editor by reading the ProductDTO from the server
+     * 
+     * @param  {number} id 
+     */
+    async openEditorById( id )
+    {
+        if ( ! id ) return;
+
+        const { status, ok, text } = await FileCache.getRequest( `${PRODUCT_URL}/${id}`, true, false );
+
+        if ( ok )
+        {
+            let product = undefined;
+
+            try 
+            {
+                product = JSON.parse( text );
+            }
+            catch ( error )
+            {
+                console.log( `Could not parse product: ${error}` );
+            }
+
+            if ( product )
+            {
+                console.table( product );
+                this.mEditorNode.appendChild(
+
+                    new ProductEditor
+                    (
+                        product, 
+                        this, 
+                        this.mViewNode
+                    )
+
+                );
+            }
+        }
+        else
+        {
+            console.log( `Could not read product from the server, status: ${status}`);
+        }
+    }
+
 
     // ----------------------------------------------
     // - Lifecycle callbacks
@@ -309,7 +354,7 @@ class ProductView extends WCBase
         /**
          * Listen to remove events
          */
-        this.shadowRoot.addEventListener('remove-by-id', e =>
+        this.shadowRoot.addEventListener( 'remove-by-id', e =>
         {
             const id = e.detail.entry.id;
 
@@ -318,9 +363,26 @@ class ProductView extends WCBase
 
             console.log(`ProductView: remove-by-id ${id}`);
 
-            this.removeProduct(id);
+            this.removeProduct( id );
 
         }, true);
+
+        /**
+         * Listen to edit events
+         */
+        this.shadowRoot.addEventListener( 'edit-by-id', e =>
+        {
+            const id = e.detail.entry.id;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            console.log( `ProductView: edit-by-id ${id}`);
+
+            this.openEditorById( id );
+
+        }, true);
+
 
         this.loadProducts();
 
