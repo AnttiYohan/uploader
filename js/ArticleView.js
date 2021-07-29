@@ -43,7 +43,7 @@ class ArticleView extends WCBase
         </div>
         <!-- Existing articles frame -->
         <div class='uploader__frame--scroll article_list'>
-           <entry-browser data-browser='article_browser'>Articles:</entry-browser>
+           <entry-browser data-browser='article_browser' data-edit=true>Articles:</entry-browser>
         </div>
        </div>`
         );    
