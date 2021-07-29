@@ -60,8 +60,8 @@ class ProductEditor extends WCBase
          <div class='notifier'></div>
          <div class='editor' data-input-frame>
             <div class='editor__component'>
-                <editor-label data-label='title'>Current Name</editor-label> 
-                <text-input-row data-input='title'>New Name</text-input-row>
+                <editor-label data-label='name'>Current Name</editor-label> 
+                <text-input-row data-input='name'>New Name</text-input-row>
             </div>
             <div class='editor__component'>
                 <editor-image data-label='mediaDto'>Current Image</editor-image>
