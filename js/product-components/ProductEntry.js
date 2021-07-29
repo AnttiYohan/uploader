@@ -133,7 +133,12 @@ class ProductEntry extends WCBase
             border-top: 1px solid rgba(0,0,0,0.25);
             box-shadow: inset 0 -12px 18px -6px rgba(0,0,40,.25);
         }
-        .entry__name { min-width: 128px; font-size: 16px; }
+        .entry__name { 
+            max-width: 380px;
+            width: 50%;
+            min-width: 80px;  
+            font-size: 14px; 
+        }
         .entry__amount { 
             margin-right: 4px;
             padding-left: 8px;
@@ -153,6 +158,7 @@ class ProductEntry extends WCBase
             position: relative;
             width: 64px;
             height: 30px;
+            margin-right: 20px;
             padding: 5px;
             background-color: #fff;
             border-radius: 6px;
