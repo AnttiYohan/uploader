@@ -4,6 +4,7 @@ import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
+import { ProductEditor } from './ProductEditor.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
 import { RadioSwitchGroup } from './RadioSwitchGroup.js';
 
@@ -11,7 +12,8 @@ const
 template = document.createElement("template");
 template.innerHTML =
 `<link rel='stylesheet' href='assets/css/components.css'>
- <div class='uploader'>
+ <div class='popup-connector'></div>   
+ <div class='uploader view-node'>
   <div class='uploader__frame' data-input-frame>
 
     <!-- REFRESH ROW -->
@@ -84,13 +86,14 @@ class ProductView extends WCBase
         // - Save element references
         // ---------------------------
 
-        this.mRootElement = this.shadowRoot.querySelector('.uploader');
-        this.mAddButton   = this.shadowRoot.querySelector('.button--save.save_product');
-        this.mBrowser     = this.shadowRoot.querySelector('[data-browser="product_browser"]');
+        this.mEditorNode  = this.shadowRoot.querySelector( '.popup-connector' );
+        this.mRootElement = this.shadowRoot.querySelector( '.uploader' );
+        this.mViewNode    = this.shadowRoot.querySelector( '.view-node' );
+        this.mAddButton   = this.shadowRoot.querySelector( '.button--save.save_product' );
+        this.mBrowser     = this.shadowRoot.querySelector( '[data-browser="product_browser"]' );
         
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
-        refreshButton.addEventListener
-        ('click', e => 
+        refreshButton.addEventListener( 'click', e => 
         { 
             FileCache.clearCache(PRODUCT_URL);
             this.loadProducts();
