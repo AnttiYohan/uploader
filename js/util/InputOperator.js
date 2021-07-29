@@ -268,19 +268,13 @@ class InputOperator
     reset()
     {
         if ( this.mImage ) this.mImage.reset();
-        this.mStore.forEach(element => 
-        {
-            element.reset();
-        });
+        this.mStore.forEach( element => element.reset() );
     }
 
     notifyRequired()
     {
         this.mImage.notifyRequired();
-        this.mStore.forEach(element =>
-        {
-            element.notifyRequired()
-        });
+        this.mStore.forEach( element => element.notifyRequired() );
     }
 
     /**
@@ -325,7 +319,7 @@ class InputOperator
          * Store dto, available products into
          * InputOperator instance memory
          */
-        this.mRecipeId = dto.id;
+        this.mDtoId = dto.id;
         this.mComponentValueMap = dto;
         this.mAvailableProducts = availableProducts;
 
@@ -378,6 +372,42 @@ class InputOperator
         return image;
     }
 
+    getEditorDto( originals = false )
+    {
+        const resultSet = {};
+
+        /**
+         * Add id
+         */
+        resultSet[ 'id' ] = this.mDtoId;
+
+        /**
+         * Add components
+         */
+        for ( const key in this.mComponentMap )
+        {
+            if ( key === 'mediaDto' || key === 'products' || key === 'steps' ) continue;
+
+            const component = this.mComponentMap[ key ];
+            const editor = component.querySelector( '[data-input]' );
+
+            if ( editor )
+            {
+                const value = editor.value;
+                if ( value ) resultSet[ key ] = value;
+                else
+                if ( originals )
+                {
+                    const labelElement = component.querySelector( '[data-label]' );
+                    resultSet[ key ]   = labelElement.value;
+                }    
+            }
+        }
+
+        return resultSet;
+    }
+
+
     getUpdateRecipe( originals = false )
     {
         const dto = this.getUpdateRecipeDto( originals );
@@ -393,7 +423,7 @@ class InputOperator
         /**
          * Add id
          */
-        resultSet[ 'id' ] = this.mRecipeId;
+        resultSet[ 'id' ] = this.mDtoId;
 
         /**
          * Add components
@@ -440,7 +470,7 @@ class InputOperator
             for ( const product of products )
             {
                 console.log(`Product: ${product}, recipe id: ${product.recipeId}`);
-                product.recipeId = this.mRecipeId;
+                product.recipeId = this.mDtoId;
             }
         }
 
@@ -485,7 +515,7 @@ class InputOperator
                 dtoList.push({
                     text: step.text,
                     stepNumber: step.stepNumber,
-                    recipeId: this.mRecipeId
+                    recipeId: this.mDtoId
                 });
 
                 steps.images.data.push(step.image);
@@ -801,9 +831,4 @@ class InputOperator
 }
 
 
-class ArticleOperator
-{
-
-}
-
-export { InputOperator, ArticleOperator };
+export { InputOperator };
