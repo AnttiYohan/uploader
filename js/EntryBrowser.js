@@ -44,6 +44,8 @@ class EntryBrowser extends WCBase
                      ? true
                      : false;
         
+        this.mEditable = this.dataset.edit;
+
         /**
          * List actions
          **/
@@ -477,7 +479,9 @@ class EntryBrowser extends WCBase
         }
         catch (error) {}
 
-        return { key, title, fields, thumbnail };
+        const editable = this.mEditable ? true : false;
+        
+        return { key, title, fields, thumbnail, editable };
     }
 
     addToList(item)
