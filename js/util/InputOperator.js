@@ -372,6 +372,33 @@ class InputOperator
         return image;
     }
 
+    /**
+     * Returns an entry value from the component map
+     * 
+     * @param  {string} key 
+     * @return {any}
+     */
+    getEditorEntry( key )
+    {
+        let result = undefined;
+
+        const component = this.mComponentMap[ key ];
+        const editor = component.querySelector( '[data-input]' );
+        if ( editor )
+        {
+            const value = editor.value;
+            if ( value ) result = value;
+            else
+            if ( originals )
+            {
+                const labelElement = component.querySelector( '[data-label]' );
+                result   = labelElement.value;
+            }    
+        }
+
+        return result;
+    }
+
     getEditorDto( originals = false )
     {
         const resultSet = {};
