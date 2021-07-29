@@ -56,13 +56,13 @@ class EntryHeader extends WCBase
                     ? options.thumbnail
                     : undefined;
 
-     
+        this.mEditable = options.hasOwnProperty('editable')
+                    ? options.editable
+                    : false;
         /**
-         * Build the button set
+         * Create an edit button when editable is true in the options
          */
-        
-
-        const html = this.mKey === 'title'
+        const html = this.mEditable
                    ? `<button class='action edit'></button>`
                    : '';
    
