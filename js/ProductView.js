@@ -51,7 +51,7 @@ template.innerHTML =
   </div>
   <!-- Existing products frame -->
   <div class='uploader__frame--scroll product_list'>
-    <entry-browser data-browser='product_browser'>Products:</entry-browser>
+    <entry-browser data-browser='product_browser' data-edit=true>Products:</entry-browser>
   </div>
 </div>`;
 
