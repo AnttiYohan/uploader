@@ -3,8 +3,7 @@ import { deleteChildren } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 import { WCBase, props, LOGIN_URL } from './WCBase.js';
 
-const 
-template = document.createElement("template");
+const template = document.createElement("template");
 template.innerHTML =
 `<div class='login'>
 
