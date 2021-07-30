@@ -326,6 +326,13 @@ class LoginView extends WCBase
     connectedCallback()
     {
         console.log("LoginView - connected");
+
+        this.listen( 'logout-signal', e => 
+        {
+            // ' Send a auth-status Request
+            console.log( `LoginView: 'logout-signal' received` );
+        });
+
     }
 
     disconnectedCallback()
