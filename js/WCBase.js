@@ -33,6 +33,11 @@ class WCBase extends HTMLElement
 
         this.shadowRoot.dispatchEvent(new CustomEvent( type, options ));
     }
+
+    listen( type, callback )
+    {
+        this.shadowRoot.addEventListener( type, e => callback( e ) );
+    }
 }
 
 const props = 
