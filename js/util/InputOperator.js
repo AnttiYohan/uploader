@@ -1,6 +1,3 @@
-import { EditorComponent } from "../EditorComponent";
-
-
 /**
  * Acts as an input hub.
  * Store all view input refereces here,
