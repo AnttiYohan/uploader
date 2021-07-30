@@ -164,6 +164,7 @@ const API_URL = 'http://localhost:8080';
 //const API_URL = 'https://babyfoodworld.app';
 const LOGIN_URL = `${API_URL}/perform_login`;
 const LOGOUT_URL = `${API_URL}/logout`;
+const AUTH_STATUS_URL = `${API_URL}/auth-status`;
 const ARTICLE_URL = `${API_URL}/article`;
 const RECIPE_URL = `${API_URL}/recipe`;
 const RECIPE_ALL_URL = `${RECIPE_URL}/all`;
@@ -191,6 +192,7 @@ export
      API_URL,
      LOGIN_URL,
      LOGOUT_URL,
+     AUTH_STATUS_URL,
      ARTICLE_URL,
      RECIPE_URL,
      RECIPE_ALL_URL,
