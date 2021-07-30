@@ -1,7 +1,7 @@
 import { UploaderView } from './UploaderView.js';
 import { deleteChildren } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
-import { WCBase, props, LOGIN_URL } from './WCBase.js';
+import { WCBase, props, LOGIN_URL, AUTH_STATUS_URL } from './WCBase.js';
 
 const template = document.createElement("template");
 template.innerHTML =
@@ -319,6 +319,27 @@ class LoginView extends WCBase
         return undefined;
     }
 
+    async checkAuthStatus()
+    {
+        const bearer = `Bearer ${FileCache.getToken()}`;
+ 
+        const response = await fetch
+        (
+            AUTH_STATUS_URL,
+            {
+                method: 'POST',
+                credentials: 'include',
+                headers: 
+                {
+                    'Authorization' : bearer,
+                },
+            }
+        );
+    
+        console.log( `LoginView::checkAuthStatus() status: ${response.status}` );
+
+    }
+
     // ----------------------------------------------
     // - Update method section
     // ----------------------------------------------
@@ -331,6 +352,9 @@ class LoginView extends WCBase
         {
             // ' Send a auth-status Request
             console.log( `LoginView: 'logout-signal' received` );
+            
+            this.checkAuthStatus();
+        
         });
 
     }
