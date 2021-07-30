@@ -167,6 +167,12 @@ class ResponseNotifier extends WCBase
         console.log(`addProduct response status ${status} : ok? ${ok}`);
 
         /**
+         * Check whether the response is 403.
+         * In that case, send a logout event broadcat
+         */
+        if ( status == 403 ) this.emit( 'logout-signal' );
+
+        /**
          * When response status is OK, attempt to parse the response body
          */
         if ( ok )
