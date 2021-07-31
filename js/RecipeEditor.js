@@ -7,6 +7,7 @@ import
     UPDATE_STEPS_ADD_URL
 
 } from './WCBase.js';
+import { FileCache } from './util/FileCache.js';
 import { EditorBase } from './EditorBase.js';
 import { EditorList } from './EditorList.js';
 import { EditorStepList } from './EditorStepList.js';
