@@ -22,20 +22,26 @@ class EditorBase extends WCBase
      * @param {Object}      dto, holds the data of selected article
      * @param {Context}     parent, article view 
      * @param {HTMLElement} viewNode, the article view root node 
+     * @param {String}      route, the update endpoint
+     * @param {Object}      options, additional options
      */
-    constructor( key, dto, parent, viewNode, options = {} )
+    constructor( key, dto, parent, viewNode, route, options = {} )
     {
         super();
         
         // -----------------------------------------------
         // - Setup member properties
         // -----------------------------------------------
-
+        
         this.mEntityKey         = key;
         this.mEntityId          = dto.id;
         this.mEntityDto         = dto;
         this.mParentContext     = parent;
         this.mViewNode          = viewNode;
+        this.ENTITY_URL         = route;
+        this.mRelatedSet        = options.hasOwnProperty( 'relatedSet' ) 
+                                ? options.relatedSet 
+                                : [];
 
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
@@ -46,11 +52,12 @@ class EditorBase extends WCBase
          * Build the editor component struct
          */
 
-        this.attachShadow({mode : "open"});
+        this.attachShadow( { mode: 'open'} );
         this.setupTemplate(
         `<link rel='stylesheet' href='assets/css/components.css'>
          <div class='notifier'></div>
          <div class='editor' data-input-frame>
+            ${'template' in options ? options.template : ''}
             <button class='button exit'>Exit</button>
         </div>`);
 
@@ -61,6 +68,7 @@ class EditorBase extends WCBase
         .notifier { position: absolute; }
         .dialog { top: 1000px; z-index:1; }
         .editor { max-width: 1200px; margin: 24px auto; padding: 0; box-shadow: 0 0 4px -1px rgba(0,0,0,.25); border-radius: 24px; border: 6px solid #abd; }
+        ${'style' in options ? options.style : ''}
         `);
 
         this.mRootElement    = this.shadowRoot.querySelector( '.notifier' );
@@ -71,7 +79,7 @@ class EditorBase extends WCBase
         (
             Array.from( dataInputFrame.querySelectorAll( '.editor__component' ) ),
             dto,
-            []
+            this.mRelatedSet
         );
 
         const exitButton = this.shadowRoot.querySelector( '.button.exit' );
@@ -99,11 +107,9 @@ class EditorBase extends WCBase
             
             if ( ! data && ! image ) return;
 
-            this.updateArticle( { 'title': 'article', 'data': JSON.stringify( data ) }, image );
+            this.updateArticle( { 'title': key, 'data': JSON.stringify( data ) }, image );
                     
         });
-
-    
     }
 
     /**
@@ -113,25 +119,33 @@ class EditorBase extends WCBase
      */
     async updateEntity( dto, image )
     {
-        const capitalized = `${this.mEntityKey.charAt(0).toUpperCase()}${this.mEntityKey.substring(1)}`;
-        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
-        const offsetLeft = Number(this.mClickedButton.offsetLeft);
+        const capitalized  = `${this.mEntityKey.charAt(0).toUpperCase()}${this.mEntityKey.substring(1)}`;
+        const offsetTop    = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft   = Number(this.mClickedButton.offsetLeft);
+        const bounds       = this.mClickedButton.getBoundingClientRect();
+        const buttonCenter = bounds.left + bounds.width / 2;
         const responseNotifier = new ResponseNotifier
         (
             `${this.mEntityKey}Dto`,
             `Update ${capitalized}`, 
             `${capitalized} Updated Succesfully`,
             `The ${capitalized} Could Not Be Updated`,
-            { top: `${offsetTop}px`, left: `${20}px` }
+            { top: `${offsetTop}px`, left: `${20}px`, center: buttonCenter }
         );
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( entity => this.reloadEditor( entity ) );
         responseNotifier.onFail(( status, message ) =>
-            console.log( `ArticleEditor::update article fail: status ${status}, ${message}`)
+            console.log( `ArticleEditor::update ${this.mEntityKey} fail: status ${status}, ${message}`)
         );
-        responseNotifier.begin( FileCache.putDtoAndImage( ARTICLE_URL, dto, image ) ); 
+        responseNotifier.begin( FileCache.putDtoAndImage( this.ENTITY_URL, dto, image ) ); 
     }
 
+    /**
+     * Reloads the editor with updated entity,
+     * broadcasts entity-edited event
+     * @emits entity-edited
+     * @param {dto} entity
+     */
     reloadEditor( entity )
     {
         this.mInputOperator.reloadEditor( entity );
@@ -139,11 +153,9 @@ class EditorBase extends WCBase
     }
 
     /**
-     * Closes the editor, if response is set,
-     * Send it as a detail with 'recipe-edit-ok'-event
-     * @param {boolean} response 
+     * Closes the editor 
      */
-    closeEditor( response = undefined )
+    closeEditor()
     {
         this.remove();
         delete this;
@@ -154,24 +166,22 @@ class EditorBase extends WCBase
     // - Lifecycle callbacks and child component event callbackcs
     // ----------------------------------------------------------------
 
+    /**
+     * Turn the parent view off for now
+     */
     connectedCallback()
     {
         this.emit( `${this.mEntityKey}-editor-connected` );
-        /**
-         * Turn the parent view off for now
-         */
         this.mViewNode.style.display = 'none';
-
     }
 
+    /**
+     * Turn the parent view on
+     */
     disconnectedCallback()
     {
-        /**
-         * Turn the parent view on again
-         */
         this.mViewNode.style.display = 'flex';
     }  
-
 }
 
 export { EditorBase };
