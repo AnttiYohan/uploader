@@ -355,40 +355,27 @@ class ProductView extends WCBase
     connectedCallback()    
     {
         /**
-         * Listen to remove events
+         * @listens remove-by-id
+         * Initiates a HTTP DELETE /article/{id} Request
+         * Remove only products without claims
          */
-        this.shadowRoot.addEventListener( 'remove-by-id', e =>
-        {
-            const id = e.detail.entry.id;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log(`ProductView: remove-by-id ${id}`);
-
-            this.removeProduct( id );
-
-        }, true);
-
+        // Turned off for now
+        //this.listen( 'remove-by-id', e => this.removeProduct( e.detail.entry.id ) );
+    
         /**
-         * Listen to edit events
+         * @listens edit-by-id
+         * Requests the product by the id,
+         * Opens the ProductEditor with the DTO in response
          */
-        this.shadowRoot.addEventListener( 'edit-by-id', e =>
-        {
-            const id = e.detail.entry.id;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log( `ProductView: edit-by-id ${id}`);
-
-            this.openEditorById( id );
-
-        }, true);
-
+        this.listen( 'edit-by-id',   e => this.openEditorById( e.detail.entry.id ) );
+        
+        /**
+         * @listens product-edited
+         * Realoads product on receipt
+         */
+        this.listen( 'product-edited', e => this.loadProducts() );
 
         this.loadProducts();
-
     }
 
     disconnectedCallback()
