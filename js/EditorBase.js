@@ -107,7 +107,7 @@ class EditorBase extends WCBase
             
             if ( ! data && ! image ) return;
 
-            this.updateArticle( { 'title': key, 'data': JSON.stringify( data ) }, image );
+            this.updateEntity( { 'title': key, 'data': JSON.stringify( data ) }, image );
                     
         });
     }
