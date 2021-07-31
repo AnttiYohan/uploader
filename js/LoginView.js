@@ -28,6 +28,7 @@ class LoginView extends WCBase
             document.body.appendChild(new UploaderView(token));
             this.remove();
             console.log(`LoginView: token found, terminated loginview, uploaderview at body root.`);
+            delete this;
             return;    
 
 
@@ -57,7 +58,7 @@ class LoginView extends WCBase
         // - from template 
         // -----------------------------------------------
 
-        this.attachShadow({mode : "open"});
+        this.attachShadow( {mode : "open"} );
         this.setupTemplate(
        `<div class='login'>
             <div class='login__rowset login_form'>
@@ -315,17 +316,19 @@ class LoginView extends WCBase
     {
         console.log("LoginView - connected");
 
-        this.listen( 'logout-signal', e => 
+        if ( this.shadowRoot )
         {
-            // ' Send a auth-status Request
-            console.log( `LoginView: 'logout-signal' received` );
+            this.listen( 'logout-signal', e => 
+            {
+                // ' Send a auth-status Request
+                console.log( `LoginView: 'logout-signal' received` );
+                
+                LoginView
+                .checkAuthStatus()
+                .then( status => console.log( `Status: ${status}` ) );
             
-            LoginView
-            .checkAuthStatus()
-            .then( status => console.log( `Status: ${status}` ) );
-        
-        });
-
+            });
+        }
     }
 
     disconnectedCallback()
