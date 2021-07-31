@@ -6,6 +6,7 @@ import { ImageInputRow } from './ImageInputRow.js';
 import { ArticleEditor } from './ArticleEditor.js';
 import { InputOperator } from './util/InputOperator.js';
 import { ResponseNotifier } from './ResponseNotifier.js';
+import { newTagAttrsChildList } from './util/elemfactory.js';
 
 /**
  * Article View is one of the Top Level Views in the
@@ -251,37 +252,23 @@ class ArticleView extends WCBase
     connectedCallback()    
     {
         /**
-         * Listen to remove events
+         * @listens remove-by-id
+         * Initiates a HTTP DELETE /article/{id} Request
          */
-        this.shadowRoot.addEventListener( 'remove-by-id', e =>
-        {
-            const id = e.detail.entry.id;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log(`ArticleView: remove-by-id ${id}`);
-
-            this.removeArticle(id);
-
-        }, true);
-
+        this.listen( 'remove-by-id', e => this.removeArticle( e.detail.entry.id ) );
+    
         /**
-         * Listen to edit events
+         * @listens edit-by-id
+         * Requests the article by the id,
+         * Opens the ArticleEditor with the DTO in response
          */
-        this.shadowRoot.addEventListener( 'edit-by-id', e =>
-        {
-            const id = e.detail.entry.id;
-
-            e.preventDefault();
-            e.stopPropagation();
-
-            console.log(`ArticleView: remove-by-id ${id}`);
-
-            this.openEditorById( id );
-
-        }, true);
-
+        this.listen( 'edit-by-id',   e => this.openEditorById( e.detail.entry.id ) );
+        
+        /**
+         * @listens 'article-edited
+         * Realoads articles on receipt
+         */
+        this.listen( 'article-edited', e => this.loadArticles() );
 
         this.loadArticles();
 
