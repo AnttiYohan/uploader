@@ -204,11 +204,11 @@
     }
 }
 
-
 .uploader {
     display: flex;
     margin: 0 auto;
     max-width: 1700px;
+    height: calc(100vh - 49px);
     position: relative;
 }
 .uploader__header {
@@ -241,7 +241,6 @@
     flex-flow: row-reverse;
     padding: 16px;
     margin: 0 8px;
-    border-bottom: 2px solid var(--light-grey, #eeeeee);
 }
 .component {
     padding: var(--component-pad, 8px);
