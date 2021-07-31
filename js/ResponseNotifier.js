@@ -15,7 +15,7 @@ class ResponseNotifier extends WCBase
     ( 
         dtoKey, 
         header,
-        msgOk = 'Request succeeded', 
+        msgOk   = 'Request succeeded', 
         msgFail = 'Request failed',
         options = {}
     )
@@ -335,16 +335,17 @@ class ResponseNotifier extends WCBase
                 if ( key === 'mediaDto' )
                 {
                     const media = dto.mediaDto;
-                    keyString = 'image';
+                    keyString   = 'image';
 
                     if ( media.image )
                     {
-                        value = media.image.fileName;
+                        value   = media.image.fileName;
                     }
-                    else if ( media.thumbnail )
+                    else 
+                    if ( media.thumbnail )
                     {
                         keyString = 'thumbnail';
-                        value = media.thumbnail.fileName;
+                        value     = media.thumbnail.fileName;
                     }
                 }
                     

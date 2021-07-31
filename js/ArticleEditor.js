@@ -129,29 +129,26 @@ class ArticleEditor extends WCBase
      */
     async updateArticle( dto, image )
     {
-        const serialized = image ? JSON.stringify( dto ) : null;
-        const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
-        const offsetLeft = Number(this.mClickedButton.offsetLeft);
+        const offsetTop    = Number(this.mClickedButton.offsetTop - 200);
+        const offsetLeft   = Number(this.mClickedButton.offsetLeft);
+        const bounds       = this.mClickedButton.getBoundingClientRect();
+        const buttonCenter = bounds.left + bounds.width / 2; 
+
         const responseNotifier = new ResponseNotifier
         (
             'articleDto',
             'Update Article', 
             'Article Updated Succesfully',
             'The Article Could Not Be Updated',
-            { top: `${offsetTop}px`, left: `${20}px` }
+            { top: `${offsetTop}px`, left: `${20}px`, center: buttonCenter }
         );
         //this.mViewNode.appendChild( responseNotifier );
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( article => this.mInputOperator.reloadEditor( article ) );
-        responseNotifier.onFail(( status, message ) =>
+        responseNotifier.onFail( ( status, message ) =>
             console.log( `ArticleEditor::update article fail: status ${status}, ${message}`)
         );
-        responseNotifier.begin( image
-
-            ? FileCache.putDtoAndImage( ARTICLE_URL, dto, image )
-            : FileCache.putDtoAndImage( ARTICLE_URL, dto, null )
-
-        ); 
+        responseNotifier.begin( FileCache.putDtoAndImage( ARTICLE_URL, dto, image ) ); 
     }
 
     /**
