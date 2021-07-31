@@ -144,13 +144,18 @@ class ArticleEditor extends WCBase
         );
         //this.mViewNode.appendChild( responseNotifier );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( article => this.mInputOperator.reloadEditor( article ) );
+        responseNotifier.onSuccess( article => this.reloadEditor( article ) );
         responseNotifier.onFail( ( status, message ) =>
             console.log( `ArticleEditor::update article fail: status ${status}, ${message}`)
         );
         responseNotifier.begin( FileCache.putDtoAndImage( ARTICLE_URL, dto, image ) ); 
     }
 
+    reloadEditor( article )
+    {
+        this.mInputOperator.reloadEditor( article );
+        this.emit( 'article-edited' );
+    }
     /**
      * Closes the editor, if response is set,
      * Send it as a detail with 'recipe-edit-ok'-event
