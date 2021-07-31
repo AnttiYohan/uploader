@@ -72,12 +72,12 @@ class EditorBase extends WCBase
         `);
 
         this.mRootElement    = this.shadowRoot.querySelector( '.notifier' );
-        const dataInputFrame = this.shadowRoot.querySelector( '[data-input-frame]' );
-        this.mInputOperator  = new InputOperator( key, Array.from(dataInputFrame.querySelectorAll('[data-input]')));
-        this.mInputOperator.setComponentFrame( dataInputFrame );
+        this.mDataInputFrame = this.shadowRoot.querySelector( '[data-input-frame]' );
+        this.mInputOperator  = new InputOperator( key, Array.from( this.mDataInputFrame.querySelectorAll('[data-input]')));
+        this.mInputOperator.setComponentFrame( this.mDataInputFrame );
         this.mInputOperator.loadComponents
         (
-            Array.from( dataInputFrame.querySelectorAll( '.editor__component' ) ),
+            Array.from( this.mDataInputFrame.querySelectorAll( '.editor__component' ) ),
             dto,
             this.mRelatedSet
         );
