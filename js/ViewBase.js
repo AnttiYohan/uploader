@@ -74,70 +74,85 @@ class ViewBase extends WCBase
         // ------------------------------
         // - Setup button click listeners
         // ------------------------------
-
-        this.mAddButton.addEventListener( 'click', e =>
-        {
-            // --------------------------------------
-            // - Obtain input values and validate
-            // - If dto and image file present, send
-            // - To the server
-            // --------------------------------------
-   
-            const dto = this.mInputOperator.processInputs();
-            console.log(`Product dto key ${dto.title}, data: ${dto.data}`);
-
-            if ( ! dto ) return;
-
-            const imageFile = this.mInputOperator.imageFile();
-            
-            if ( dto && imageFile )
-            {
-                const responseNotifier = new ResponseNotifier
-                (
-                    this.mResponseKey,
-                    `Create ${capitalized}`, 
-                    `${capitalized} Created Succesfully`,
-                    `${capitalized} Could Not Be Created` 
-                );
-                this.mRootElement.appendChild( responseNotifier );
-                responseNotifier.onSuccess( 
-                    () => {
-                        this.loadEntities();
-                        this.mInputOperator.reset();
-                    }
-                );
-                responseNotifier.onFail( (status, message) => console.log( `Status: ${status}: ${message}`) );
-                responseNotifier.begin
-                ( 
-                    FileCache.postDtoAndImage
-                    ( 
-                        this.ENTITY_URL, 
-                        dto, 
-                        imageFile
-                    ) 
-                );
-            }
-            else
-            {
-                console.log(`Add proper data and image file`);
-            }
-        });
+        this.mAddButton.addEventListener( 'click', e => this.addEntity() );
 
     }
 
+    addEntity()
+    {
+        // --------------------------------------
+        // - Obtain input values and validate
+        // - If dto and image file present, send
+        // - To the server
+        // --------------------------------------
+
+        const dto = this.mInputOperator.processInputs();
+        console.log(`Product dto key ${dto.title}, data: ${dto.data}`);
+
+        if ( ! dto ) return;
+
+        const imageFile = this.mInputOperator.imageFile();
+        
+        if ( dto && imageFile )
+        {
+            const responseNotifier = new ResponseNotifier
+            (
+                this.mResponseKey,
+                `Create ${capitalized}`, 
+                `${capitalized} Created Succesfully`,
+                `${capitalized} Could Not Be Created` 
+            );
+            this.mRootElement.appendChild( responseNotifier );
+            responseNotifier.onSuccess( 
+                () => {
+                    this.loadEntities();
+                    this.mInputOperator.reset();
+                }
+            );
+            responseNotifier.onFail( (status, message) => console.log( `Status: ${status}: ${message}`) );
+            responseNotifier.begin
+            ( 
+                FileCache.postDtoAndImage
+                ( 
+                    this.ENTITY_URL, 
+                    dto, 
+                    imageFile
+                ) 
+            );
+        }
+        else
+        {
+            console.log(`Add proper data and image file`);
+        }
+    }
     /**
      * Read entities from cache or from server
      */
-    async loadEntities()
+    async loadEntities( fields = [] )
     {
         const { ok, status, text } = await FileCache.getCached( this.ENTITY_URL );
+        let entities;
 
         console.log(`GET /${this.mEntityKey} response status: ${status}`);
 
         if ( ok )
         {
-            this.generateList( text );
+            try
+            {
+                entities = JSON.parse( text );
+            }
+            catch (error) 
+            {
+                console.log( `ViewBase::loadEntities error ${error}` );
+            }
+
+            if ( entities && Array.isArray( entities ) )
+            {
+                this.generateList( entities, fields );
+            }
         }
+
+        return entities;
     }
 
 
@@ -146,35 +161,14 @@ class ViewBase extends WCBase
      * 
      * @param {array} list 
      */
-    generateList( response )
+    generateList( entities, fields = [] )
     {
-        let list = undefined;
+        const model = {
+            titlekey: this.mEntityTitleKey,
+            fields
+        };
 
-        try
-        {
-            list = JSON.parse( response );
-        }
-        catch (error) 
-        {
-            console.log( `ViewBase::generateList error ${error}` );
-        }
-
-        if ( Array.isArray( list ) )
-        { 
-            const model = {
-                titlekey: this.mEntityTitleKey,
-                fields: [
-                    'productCategory',
-                    'hasAllergens',
-                    'hasNuts',
-                    'hasEggs',
-                    'hasLactose',
-                    'hasGluten'
-                ]
-            };
-
-            this.mBrowser.pushDataSet( list, model );
-        }
+        this.mBrowser.pushDataSet( entities, model );
     }
 
     /**
