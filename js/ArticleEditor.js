@@ -1,20 +1,10 @@
-import 
-{
-    WCBase,
-    ARTICLE_URL
-
-} from './WCBase.js';
-import { FileCache } from './util/FileCache.js';
-import { EditorLabel } from './EditorLabel.js';
-import { EditorImage } from './EditorImage.js';
-import { InputOperator } from './util/InputOperator.js';
-import { ResponseNotifier } from './ResponseNotifier.js';
-
+import { ARTICLE_URL } from './WCBase.js';
+import { EditorBase } from './EditorBase.js';
 
 /**
  * This is an Editor Popup for ArticleView  
  */
-class ArticleEditor extends WCBase
+class ArticleEditor extends EditorBase
 {
     /**
      * ArticleEditor Constructor function 
@@ -25,28 +15,8 @@ class ArticleEditor extends WCBase
      */
     constructor( articleDto, parent, viewNode )
     {
-        super();
-        
-        // -----------------------------------------------
-        // - Setup member properties
-        // -----------------------------------------------
-
-        this.mArticleId         = articleDto.id;
-        this.mArticleDto        = articleDto;
-        this.mParentContext     = parent;
-        this.mViewNode          = viewNode;
-
-        // -----------------------------------------------
-        // - Setup ShadowDOM: set stylesheet and content
-        // - from template 
-        // -----------------------------------------------
-
-        this.attachShadow({mode : "open"});
-        this.setupTemplate(
-        `<link rel='stylesheet' href='assets/css/components.css'>
-         <div class='notifier'></div>
-         <div class='editor' data-input-frame>
-            <div class='editor__component'>
+        const template =
+            `<div class='editor__component'>
                 <editor-label data-label='title'>Current</editor-label> 
                 <text-input-row data-input='title'>New Title</text-input-row>
             </div>
@@ -66,131 +36,19 @@ class ArticleEditor extends WCBase
                 <editor-label    data-label='mainImageLink'>Main Image Link</editor-label>
                 <text-input-row  data-input='mainImageLink'>Edited</text-input-row>
             </div>
-            <button class='button update update--one-to-one'>Update</button>
-            <button class='button exit'>Exit</button>
-        </div>`);
-
-        this.setupStyle
-        (`
-        .button { margin: 32px auto; display: block; }
-        .update--one-to-one { margin-top: 32px; margin-bottom: 42px; display: block; }
-        .notifier { position: absolute; }
-        .dialog { top: 1000px; z-index:1; }
-        .editor { max-width: 1200px; margin: 24px auto; padding: 0; box-shadow: 0 0 4px -1px rgba(0,0,0,.25); border-radius: 24px; border: 6px solid #abd; }
-        `);
-
-        this.mRootElement    = this.shadowRoot.querySelector( '.notifier' );
-        const dataInputFrame = this.shadowRoot.querySelector( '[data-input-frame]' );
-        this.mInputOperator  = new InputOperator( 'article', Array.from(dataInputFrame.querySelectorAll('[data-input]')));
-        this.mInputOperator.setComponentFrame( dataInputFrame );
-        this.mInputOperator.loadComponents
-        (
-            Array.from( dataInputFrame.querySelectorAll( '.editor__component' ) ),
-            articleDto,
-            []
-        );
-
-        const exitButton = this.shadowRoot.querySelector( '.button.exit' );
-        exitButton.addEventListener( 'click', e => this.closeEditor() );
-
-        /**
-         * HTMLElement, use this to store the clicked
-         * button into it
-         */
-        this.mClickedButton = null;
-
-        /**
-         * Listen to update--one-to-one button
-        */
-        const updateButton = dataInputFrame.querySelector( '.update--one-to-one' );
-        updateButton.addEventListener( 'click', e => 
-        {
-            /**
-             * Store the reference into the clickedbutton
-             */
-            this.mClickedButton = updateButton;
-
-            const image = this.mInputOperator.getUpdateImage();
-            const data =  this.mInputOperator.getEditorDto();
+            <button class='button update update--one-to-one'>Update</button>`;
             
-            if ( ! data && ! image ) return;
-
-            this.updateArticle( { 'title': 'article', 'data': JSON.stringify( data ) }, image );
-                    
-        });
-
-    
-    }
-
-    /**
-     * Updae methods for recipe 1:1 fields
-     * @param   {object} dto 
-     * @return 
-     */
-    async updateArticle( dto, image )
-    {
-        const offsetTop    = Number(this.mClickedButton.offsetTop - 200);
-        const offsetLeft   = Number(this.mClickedButton.offsetLeft);
-        const bounds       = this.mClickedButton.getBoundingClientRect();
-        const buttonCenter = bounds.left + bounds.width / 2; 
-
-        const responseNotifier = new ResponseNotifier
-        (
-            'articleDto',
-            'Update Article', 
-            'Article Updated Succesfully',
-            'The Article Could Not Be Updated',
-            { top: `${offsetTop}px`, left: `${20}px`, center: buttonCenter }
-        );
-        //this.mViewNode.appendChild( responseNotifier );
-        this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( article => this.reloadEditor( article ) );
-        responseNotifier.onFail( ( status, message ) =>
-            console.log( `ArticleEditor::update article fail: status ${status}, ${message}`)
-        );
-        responseNotifier.begin( FileCache.putDtoAndImage( ARTICLE_URL, dto, image ) ); 
-    }
-
-    reloadEditor( article )
-    {
-        this.mInputOperator.reloadEditor( article );
-        this.emit( 'article-edited' );
-    }
-    /**
-     * Closes the editor, if response is set,
-     * Send it as a detail with 'recipe-edit-ok'-event
-     * @param {boolean} response 
-     */
-    closeEditor( response = undefined )
-    {
-        if ( response ) this.emit( 'article-edit-ok', { response } );
-        this.remove();
-        delete this;
-    }
-
-    
-    // ----------------------------------------------------------------
-    // - Lifecycle callbacks and child component event callbackcs
-    // ----------------------------------------------------------------
-
-    connectedCallback()
-    {
-        this.emit( 'article-editor-connected' );
         /**
-         * Turn the parent view off for now
+         * Pass to the parent
+         * - Entity key
+         * - dto
+         * - parent
+         * - viewNode
+         * - update url
+         * - options { relatedSet, template, style }
          */
-        this.mViewNode.style.display = 'none';
-
+         super( 'article', articleDto, parent, viewNode, ARTICLE_URL, { template } ); 
     }
-
-    disconnectedCallback()
-    {
-        /**
-         * Turn the parent view on again
-         */
-        this.mViewNode.style.display = 'flex';
-    }  
-
 }
 
 window.customElements.define( 'article-editor', ArticleEditor );
