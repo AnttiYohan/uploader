@@ -149,13 +149,18 @@ class ProductEditor extends WCBase
         );
         //this.mViewNode.appendChild( responseNotifier );
         this.mRootElement.appendChild( responseNotifier );
-        responseNotifier.onSuccess( entity => this.mInputOperator.reloadEditor( entity ) );
+        responseNotifier.onSuccess( entity => this.reloadEditor( entity ) );
         responseNotifier.onFail(( status, message ) =>
             console.log( `ProductEditor::update article fail: status ${status}, ${message}`)
         );
         responseNotifier.begin( FileCache.putDtoAndImage( PRODUCT_URL, dto, image ) ); 
     }
 
+    reloadEditor( entity )
+    {
+        this.mInputOperator.reloadEditor( entity );
+        this.emit( 'product-edited' );
+    }
     /**
      * Closes the editor, if response is set,
      * Send it as a detail with 'recipe-edit-ok'-event
@@ -163,7 +168,6 @@ class ProductEditor extends WCBase
      */
     closeEditor( response = undefined )
     {
-        if ( response ) this.emit( 'product-edit-ok', { response } );
         this.remove();
         delete this;
     }
