@@ -94,7 +94,7 @@ class EditorBase extends WCBase
         /**
          * Listen to update--one-to-one button
         */
-        const updateButton = dataInputFrame.querySelector( '.update--one-to-one' );
+        const updateButton = this.mDataInputFrame.querySelector( '.update--one-to-one' );
         updateButton.addEventListener( 'click', e => 
         {
             /**
