@@ -3,45 +3,9 @@ import { deleteChildren } from './util/elemfactory.js';
 import { FileCache } from './util/FileCache.js';
 import { WCBase, props, LOGIN_URL, AUTH_STATUS_URL } from './WCBase.js';
 
-const template = document.createElement("template");
-template.innerHTML =
-`<div class='login'>
-
-    <!-- LOGIN FORM -->
-
-    <div class='login__rowset login_form'>
-
-        <!-- INPUT FIELDS -->
-
-        <div class='login__frame'>
-            <div class='login__row'>
-                <input class='login__input email' type='text' name='email' required/>
-                <label class='login__label' for="email">email</label>
-            </div>
-            <div class='login__row'>
-                <input class='login__input password' type='password' name='password' required/>
-                <label class='login__label' for="password">password</label>
-            </div>
-        </div>
-
-        <!-- SUBMIT BUTTON -->
-
-        <div class='login__frame'>
-          <button class='login__button'></button>
-        </div>
-
-    </div>
-
-    <!-- USER NOTIFICATION AREA -->
-
-    <div class='notification__frame'>
-        <p class='notification__text'></p>
-    </div>
-
-</div>`;
 
 /**
- * 
+ * This is a Login Form View, the root view of the app
  */
 class LoginView extends WCBase
 {
@@ -53,23 +17,36 @@ class LoginView extends WCBase
         // - Setup member properties
         // -----------------------------------------------
 
-        const token = localStorage.getItem('token');
+        const token = FileCache.getToken()
 
-        if (token && token.length)
+        if ( token && token.length )
         {
-            console.log(`Token found: ${token}`);
+            console.log( `Token found: ${token}` );
             this.mToken = token;
-            FileCache.setToken(token);
 
-            // - Send ensure request
-
-            // - Start UploaderView and shut this view down
             deleteChildren(document.body);
             document.body.appendChild(new UploaderView(token));
             this.remove();
             console.log(`LoginView: token found, terminated loginview, uploaderview at body root.`);
-            console.log(`Token: ${token}`);
-            return;
+            return;    
+
+
+            /** Test the token */
+/*            LoginView
+            .checkAuthStatus()
+            .then( status => 
+            {
+                console.log( `LoginView status: ${status}` );
+                if ( status != 403 )
+                {
+                    deleteChildren(document.body);
+                    document.body.appendChild(new UploaderView(token));
+                    this.remove();
+                    console.log(`LoginView: token found, terminated loginview, uploaderview at body root.`);
+                    return;    
+                }
+            })
+            .catch( error => console.log( `LoginView::constructor error: ${error}` ) );*/
         }
         else
         {
@@ -81,6 +58,29 @@ class LoginView extends WCBase
         // -----------------------------------------------
 
         this.attachShadow({mode : "open"});
+        this.setupTemplate(
+       `<div class='login'>
+            <div class='login__rowset login_form'>
+                <div class='login__frame'>
+                    <div class='login__row'>
+                        <input class='login__input email' type='text' name='email' required/>
+                        <label class='login__label' for="email">email</label>
+                    </div>
+                    <div class='login__row'>
+                        <input class='login__input password' type='password' name='password' required/>
+                        <label class='login__label' for="password">password</label>
+                    </div>
+                </div>
+                <div class='login__frame'>
+                <button class='login__button'></button>
+                </div>
+            </div>
+            <div class='notification__frame'>
+                <p class='notification__text'></p>
+            </div>
+        </div>`
+        );
+    
         this.setupStyle
         (`* {
             font-family: 'Roboto', sans-serif;
@@ -184,22 +184,15 @@ class LoginView extends WCBase
         }
         `);
 
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-
         // ---------------------------
         // - Save element references
         // ---------------------------
-
         this.mRootElement       = this.shadowRoot.querySelector('.login');
         this.mNotificationText  = this.shadowRoot.querySelector('.notification__text');
-        // ----------------------------------------------------------------
-        // - Define event listeners to listen for TableView's custom events
-        // ----------------------------------------------------------------
-
+    
         // ---------------------------
         // - Setup login functionality
         // ---------------------------
-
         this.mEmailInput    = this.shadowRoot.querySelector('.login__input.email');
         this.mPasswordInput = this.shadowRoot.querySelector('.login__input.password');
         const button        = this.shadowRoot.querySelector('.login__button');
@@ -208,7 +201,6 @@ class LoginView extends WCBase
         // - Add a focus listener fot email in order to empty the possible
         // - Error message when new login attempt begins
         // -----------------------------------------------------------------
-
         this.mEmailInput.addEventListener
         ('focus', e => 
         {
@@ -217,53 +209,29 @@ class LoginView extends WCBase
 
         const handler = () => 
         {
-            const email     = this.mEmailInput.value;
-            const password  = this.mPasswordInput.value;
-
-            LoginView.performLogin(email, password)
-                .then(response => 
-                {
-                    console.log(`Login response: ${response}`);
-                    const json = JSON.parse(response);
-
-                    if (json) for (let key in json)
-                    {
-                        console.log(`key: ${key}, value: ${json[key]}`);
-                        this.handleResponse(json);
-                    }      
-                })
-                .catch(error => 
-                {
-                    this.displayLoginFail('Invalid credentials.'); 
-                    console.log(`Login fail: ${error}`); 
-                });
+            LoginView.performLogin( this.mEmailInput.value, this.mPasswordInput )
+            .then( response => this.handleResponse( JSON.parse( response ) ) )
+            .catch( error => this.displayLoginFail( 'Invalid credentials.' ) );
         }
 
-        this.shadowRoot.addEventListener('keydown', e => 
+        this.shadowRoot.addEventListener( 'keydown', e => 
         {
-            if (e.keyCode === this.ENTER)
-            {
-                handler();
-            }
+            if ( e.keyCode === this.ENTER ) handler();
         });
 
-        button.addEventListener
-        ('click', e => 
-        {
-            handler();    
-        });
+        button.addEventListener( 'click', e => handler() );
 
     }
 
-    handleResponse(json)
+    handleResponse( json )
     {
-        if (json.hasOwnProperty('token'))
+        if ( json && json.hasOwnProperty( 'token' ) )
         {
-            const token = json['token'];
+            const token = json.token;
 
             // - Store token to the localstorage
-            localStorage.setItem('token', token);
-            FileCache.setToken(token);
+            localStorage.setItem( 'token', token );
+            FileCache.setToken( token );
 
             // -----------------------------------
             // - NEW SYSTEM, ANCHOR UploaderView
@@ -272,14 +240,14 @@ class LoginView extends WCBase
             // -----------------------------------
 
             deleteChildren(document.body);
-            document.body.appendChild(new UploaderView(token));
+            document.body.appendChild( new UploaderView( token ) );
             this.remove();
-            return;           
+            return;
         }
         else throw 'Login failed due to a bad server response';
     }
 
-    displayLoginFail(error)
+    displayLoginFail( error )
     {
         this.mNotificationText.textContent = `${error}. Please try again.`;
         this.mEmailInput.value = '';
@@ -293,22 +261,20 @@ class LoginView extends WCBase
      * @param {string} email 
      * @param {string} password 
      */
-    static async performLogin(email, password)
+    static async performLogin( email, password )
     {
         if ( email.length > 1 && password.length > 5 )
         {
             const 
             formData = new FormData();
-            formData.append('email', email);
-            formData.append('password', password);
+            formData.append( 'email', email );
+            formData.append( 'password', password );
 
             const response = await fetch
             (
                 LOGIN_URL,
                 {
                     method: 'POST',
-                    /*credentials: 'include',*/
-                    /*mode: 'no-cors',*/
                     body: formData
                 }
             );
@@ -319,7 +285,7 @@ class LoginView extends WCBase
         return undefined;
     }
 
-    async checkAuthStatus()
+    static async checkAuthStatus()
     {
         const bearer = `Bearer ${FileCache.getToken()}`;
  
@@ -338,6 +304,7 @@ class LoginView extends WCBase
     
         console.log( `LoginView::checkAuthStatus() status: ${response.status}` );
 
+        return response.status;
     }
 
     // ----------------------------------------------
@@ -353,7 +320,9 @@ class LoginView extends WCBase
             // ' Send a auth-status Request
             console.log( `LoginView: 'logout-signal' received` );
             
-            this.checkAuthStatus();
+            LoginView
+            .checkAuthStatus()
+            .then( status => console.log( `Status: ${status}` ) );
         
         });
 
@@ -366,6 +335,6 @@ class LoginView extends WCBase
 
 }
 
-window.customElements.define('login-view', LoginView);
+window.customElements.define( 'login-view', LoginView );
 
 export { LoginView };
