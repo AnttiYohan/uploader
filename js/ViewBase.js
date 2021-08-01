@@ -4,6 +4,7 @@ import { EntryBrowser } from './EntryBrowser.js';
 import { TextInputRow } from './TextInputRow.js';
 import { ImageInputRow } from './ImageInputRow.js';
 import { InputOperator } from './util/InputOperator.js';
+import { NumberInputRow } from './NumberInputRow.js'
 import { ResponseNotifier } from './ResponseNotifier.js';
 import { EditorBase } from './EditorBase.js';
 
@@ -78,7 +79,17 @@ class ViewBase extends WCBase
 
     }
 
-    addEntity()
+    /**
+     * Reads the input operator inputs and
+     * generates a DTO of the values.
+     * First param controls the dto serialization
+     * Second param will be embedded into the dto,
+     * if it has content
+     * 
+     * 
+     * @returns 
+     */
+    addEntity( serialize = true, embed = {} )
     {
         // --------------------------------------
         // - Obtain input values and validate
@@ -86,7 +97,7 @@ class ViewBase extends WCBase
         // - To the server
         // --------------------------------------
 
-        const dto = this.mInputOperator.processInputs();
+        const dto = this.mInputOperator.processInputs( serialize, embed );
         console.log(`Product dto key ${dto.title}, data: ${dto.data}`);
 
         if ( ! dto ) return;
@@ -125,6 +136,7 @@ class ViewBase extends WCBase
             console.log(`Add proper data and image file`);
         }
     }
+    
     /**
      * Read entities from cache or from server
      */
