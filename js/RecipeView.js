@@ -94,12 +94,6 @@ class RecipeView extends ViewBase
         // -----------------------------------------------
         // - Setup member properties
         // -----------------------------------------------
-
-        this.mDisplay = 'flex';
-        this.mToken   = '';
-        this.mRecipeObjects = [];
-        this.mProductObjects = [];
-        this.mProductMap = {};
         this.mAvailableProducts = [];
 
         // --------------------------------------------
