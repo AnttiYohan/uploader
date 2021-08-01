@@ -178,20 +178,40 @@ class InputOperator
         return undefined;
     }
 
-    processInputs(stringify = true, embed = undefined)
+    /**
+     * Iterate through every input, store
+     * the input key/value pairs.
+     * 
+     * Param 'serialize' controls whether the
+     * result is returned as an object, or as 
+     * a serialized string 
+     * 
+     * Param 'ember' is used to optionally embed
+     * extra entries into the result set
+     *  
+     * @param  {boolean},      serialize flag
+     * @param  {embed},        embedded entries 
+     * @return {object|string} result set 
+     */
+    processInputs( serialize = true, embed = undefined )
     {
-        const obj = {};
-        let   success = true;
+        const resultSet = {};
+        let   success   = true;
 
         console.log(`InputOperator::processInputs()`);
 
-        if ( embed && typeof(embed) === 'object')
+        /**
+         * Embed the embed object into the 'obj'
+         */
+        if ( embed && typeof( embed ) === 'object' )
         {
-            const key = Object.keys(embed)[0];
-            obj[key] = embed[key];
+            for ( const key of Object.keys( embed ) )
+            {
+                resultSet[ key ] = embed[ key ];
+            }
         }
 
-        this.mStore.forEach(element => 
+        this.mStore.forEach( element => 
         {
             console.log(`Processing ${element.mKey}`);
 
@@ -210,8 +230,8 @@ class InputOperator
             else
             {
                 console.log(`${element.mKey} result: ${result}`);
-                const entry = Object.entries(result)[0];
-                obj[entry[0]] = entry[1];
+                const entry = Object.entries( result )[0];
+                resultSet[ entry[0] ] = entry[1];
             }
         });
 
@@ -230,12 +250,12 @@ class InputOperator
 
         if ( success )
         {
-            console.log(`data: ${JSON.stringify(obj)}`);
+            console.log(`data: ${JSON.stringify( resultSet )}`);
             const title = this.mKey;
 
-            return stringify 
-                 ? { title, data: JSON.stringify( obj ) }
-                 : { title, data: obj };
+            return serialize
+                 ? { title, data: JSON.stringify( resultSet ) }
+                 : { title, data: resultSet };
 
         }
         
