@@ -234,7 +234,6 @@
     width: var(--frame-width, 40%);
     overflow-x: hidden;
     overflow-y: scroll;
-    height: 40%;
 }
 .uploader__row--last {
     display: flex;
