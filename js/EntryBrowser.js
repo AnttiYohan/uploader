@@ -474,7 +474,6 @@ class EntryBrowser extends WCBase
         let thumbnail = undefined;
 
         try {
-
             thumbnail = `data:${item.mediaDto.thumbnail.type};base64,${item.mediaDto.thumbnail.data}`
         }
         catch (error) {}
