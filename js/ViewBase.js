@@ -63,7 +63,7 @@ class ViewBase extends WCBase
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
         refreshButton.addEventListener( 'click', e => 
         { 
-            FileCache.clearCache( this.ENTITY_URL);
+            FileCache.clearCache( this.ENTITY_URL );
             this.loadEntities();
         });
 
@@ -147,9 +147,13 @@ class ViewBase extends WCBase
     /**
      * Read entities from cache or from server
      */
-    async loadEntities( fields = [] )
+    async loadEntities( fields = [], overwriteUrl = null )
     {
-        const { ok, status, text } = await FileCache.getCached( this.ENTITY_URL );
+        const { ok, status, text } = await FileCache.getCached
+        (  
+            overwriteUrl ? overwriteUrl : this.ENTITY_URL
+        );
+
         let entities;
 
         console.log(`GET /${this.mEntityKey} response status: ${status}`);
