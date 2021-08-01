@@ -91,6 +91,7 @@ class ViewBase extends WCBase
      */
     addEntity( serialize = true, embed = {} )
     {
+        this.mClickedButton = this.mAddButton;
         // --------------------------------------
         // - Obtain input values and validate
         // - If dto and image file present, send
@@ -106,12 +107,18 @@ class ViewBase extends WCBase
         
         if ( dto && imageFile )
         {
+            const offsetTop    = Number(this.mAddButton.offsetTop - 200);
+            const offsetLeft   = Number(this.mAddButton.offsetLeft);
+            const bounds       = this.mAddButton.getBoundingClientRect();
+            const buttonCenter = bounds.left + bounds.width / 2;
+        
             const responseNotifier = new ResponseNotifier
             (
                 this.mResponseKey,
                 `Create ${capitalized}`, 
                 `${capitalized} Created Succesfully`,
-                `${capitalized} Could Not Be Created` 
+                `${capitalized} Could Not Be Created`,
+                { top: `${offsetTop}px`, left: `${20}px`, center: buttonCenter }
             );
             this.mRootElement.appendChild( responseNotifier );
             responseNotifier.onSuccess( 
@@ -136,7 +143,7 @@ class ViewBase extends WCBase
             console.log(`Add proper data and image file`);
         }
     }
-    
+
     /**
      * Read entities from cache or from server
      */
@@ -193,13 +200,17 @@ class ViewBase extends WCBase
     {
         console.log(`Remove ${this.mEntityKey} with ${id} called`);
         const capitalized = this.mEntityKey[0].toUpperCase() + this.mEntityKey.substring(1);
-                
+        const offsetTop    = Number(this.mBrowser.offsetTop);
+        const offsetLeft   = Number(this.mBrowser.offsetLeft);
+        
         const responseNotifier = new ResponseNotifier
         ( 
             this.mResponseKey,
             `Remove ${capitalized}`, 
             `${capitalized} Removed Succesfully`,
-            `${capitalized} Could Not Be Removed` 
+            `${capitalized} Could Not Be Removed`,
+            { top: `${offsetTop}px`, left: `${offsetLeft}px` }
+     
         );
         this.mRootElement.appendChild( responseNotifier );
         responseNotifier.onSuccess( () => this.loadEntities() );
