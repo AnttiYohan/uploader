@@ -166,7 +166,7 @@ class RecipeEditor extends EditorBase
             {
                 template,
                 style, 
-                relateSet: availableProducts
+                relatedSet: availableProducts
             } 
         ); 
     
