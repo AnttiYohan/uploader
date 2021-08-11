@@ -9,7 +9,9 @@ import { ResponseNotifier } from './ResponseNotifier.js';
 import { EditorBase } from './EditorBase.js';
 
 /**
- * ViewBase is the base View which is extended for a concrete view
+ * ViewBase is the base View for all BabyFoodWorld Main views.
+ * Main views are the ones, which are preloaded, and directly
+ * under the header menu tabs.
  */
 class ViewBase extends WCBase
 {
@@ -86,8 +88,8 @@ class ViewBase extends WCBase
      * Second param will be embedded into the dto,
      * if it has content
      * 
-     * 
-     * @returns 
+     * @param {boolean} serialize, serializes the request dto if set
+     * @param {object}  emded, embeds the contents of this to the dto    
      */
     addEntity( serialize = true, embed = {} )
     {
@@ -146,6 +148,9 @@ class ViewBase extends WCBase
 
     /**
      * Read entities from cache or from server
+     * 
+     * @param {array}  fields, a model, array of keys
+     * @param {string} overwriteUrl, overwrite entity url with this
      */
     async loadEntities( fields = [], overwriteUrl = null )
     {
@@ -172,6 +177,13 @@ class ViewBase extends WCBase
             if ( entities && Array.isArray( entities ) )
             {
                 this.generateList( entities, fields );
+            }
+        }
+        else
+        {
+            if ( status == 403 )
+            {
+                this.emit( 'logout-signal' );
             }
         }
 
@@ -203,7 +215,7 @@ class ViewBase extends WCBase
     removeEntity( id )
     {
         console.log(`Remove ${this.mEntityKey} with ${id} called`);
-        const capitalized = this.mEntityKey[0].toUpperCase() + this.mEntityKey.substring(1);
+        const capitalized  = this.mEntityKey[0].toUpperCase() + this.mEntityKey.substring(1);
         const offsetTop    = Number(this.mBrowser.offsetTop);
         const offsetLeft   = Number(this.mBrowser.offsetLeft);
         
@@ -248,8 +260,6 @@ class ViewBase extends WCBase
 
             if ( entity )
             {
-                console.table( entity );
-
                 /**
                  * Import the editor dynamically
                  */
@@ -286,7 +296,7 @@ class ViewBase extends WCBase
     
         /**
          * @listens edit-by-id
-         * Requests the entityt by the id,
+         * Requests the entity by the id,
          * Opens the Editor with the DTO in response
          */
         this.listen( 'edit-by-id',   e => this.openEditorById( e.detail.entry.id ) );
