@@ -14,17 +14,19 @@ class StoreComponent extends WCBase
         /** Unique string as key for HTTP Request */
         this.mKey   = this.dataset.input ? this.dataset.input : '';
 
+        this.mRequired = this.hasOwnProperty('required') ? true : false;
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
         // -----------------------------------------------
+
 
         this.attachShadow( { mode: 'open' } );
         this.setupTemplate
         (`<link rel='stylesheet' href='assets/css/components.css'>
           <div class='component component--root'>
             <div class='component__row'>
-               <p class='component__label required'><slot></p>
+               <p class='component__label${this.mRequired ? ' required' : ''}'><slot></p>
             </div>
             ${'template' in options ? options.template : ''}
             <div class='store'>
@@ -102,7 +104,7 @@ class StoreComponent extends WCBase
      */
     get required()
     {
-        return false;
+        return this.mRequired;
     }
 
     reset()
