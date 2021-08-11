@@ -39,6 +39,12 @@ class StepEntry extends WCBase
         
         this.setupStyle
          (`
+         :host {
+            border: 2px solid transparent;
+         }
+         :host(.dragged) {
+             border: 2px solid rgba(0, 0, 0, .25);
+         }
         .entry { 
             display: flex;
             position: relative;
@@ -158,10 +164,22 @@ class StepEntry extends WCBase
 
         removeButton.addEventListener( 'click', e => this.remove() );
          
-        this.shadowRoot.addEventListener( 'dragstart', e =>
+        this.addEventListener( 'dragstart', e =>
         {
-            e.dataTransfer.setData( 'text', '434124' );
+            console.log( `Drag start, ${e.target}` );
+            //console.table(e.target);
+            e.dataTransfer.setData( 'text', this.stepNumber );
         });
+
+        /*
+        this.addEventListener( 'dragend', e =>
+        {
+            console.log( `Drag stop, ${e.target}` );
+            //console.table(e);
+            const data = e.dataTransfer.getData( 'text' );
+            console.log( `Data: ${data}` );
+            //e.dataTransfer.setData( 'text', '434124' );
+        });*/
     }
 
     /**
@@ -211,9 +229,11 @@ class StepEntry extends WCBase
 
     setImage( obj )
     {
+        if ( ! obj.hasOwnProperty( 'data' ) ) return;
+        
         const byteString = atob( obj.data );
-        let   index = byteString.length;
-        const byteArray = new Uint8Array( index );
+        let   index      = byteString.length;
+        const byteArray  = new Uint8Array( index );
         
         while ( index-- )
         {
@@ -239,6 +259,7 @@ class StepEntry extends WCBase
 
     connectedCallback()
     {
+        this.emit( 'step-entry-connected' );
         console.log("<step-entry> connected");
 
         if ( this.mText && this.mImage )
@@ -250,6 +271,7 @@ class StepEntry extends WCBase
 
     disconnectedCallback()
     {
+        this.emit( 'step-entry-disconnected' );
         console.log("<step-entry> disconnected");
     }
 }
