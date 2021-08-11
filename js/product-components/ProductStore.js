@@ -10,12 +10,7 @@ class ProductStore extends StoreComponent
 {
     constructor()
     {
-        const template = 
-        `<div class='component__row'>
-            <p class='component__label'>Baby template</p>
-        </div>`;
-
-        super( { template } );
+        super();
 
         /**
          * @property currentProduct
@@ -218,8 +213,8 @@ class ProductStore extends StoreComponent
          * Listen to product-entry-removed events, 
          * broadcast the allergen map into the recipes
          */
-        this.shadowRoot.addEventListener( 'product-entry-added',   sendAllergens, true );
-        this.shadowRoot.addEventListener( 'product-entry-removed', sendAllergens, true );
+        this.listen( 'product-entry-added', sendAllergens );
+        this.listen( 'product-entry-removed', sendAllergens );
     }
 
 
