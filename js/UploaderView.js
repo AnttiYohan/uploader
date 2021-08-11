@@ -235,6 +235,17 @@ class UploaderView extends WCBase
 
     }
 
+    /**
+     * Perform logout
+     */
+    logout()
+    {
+        FileCache.clearToken();
+        deleteChildren(document.body);
+        document.body.appendChild(new LoginView());
+        this.remove();
+    }
+
     openAdminView()
     {
         this.mAdminView.style.display    = 'block';
@@ -284,7 +295,7 @@ class UploaderView extends WCBase
         /**
          * Adjust views
          */
-         this.mAdminView.style.display    = 'none';
+        this.mAdminView.style.display    = 'none';
         this.mArticleView.style.display   = 'none';
         this.mRecipeView.style.display    = 'block';
         this.mProductView.style.display   = 'none';
@@ -331,6 +342,17 @@ class UploaderView extends WCBase
     // - (4) updateStepByStep
     // - (5) removeStepByStep
     // ----------------------------------------------
+
+    connectedCallback()
+    {
+        console.log("UploaderView - connected");
+        this.listen( 'logout-signal', e => this.logout() );
+    }
+
+    disconnectedCallback()
+    {
+        console.log( `UploaderView - disconnected` );
+    }
     
 }
 
