@@ -15,12 +15,18 @@ class StepStore extends StoreComponent
             <button class='button'>Add</button>
         </div>`;
 
-        const style = `.row--button { margin-bottom: 24px; }`;
+        const style = 
+        `.row--button { margin-bottom: 24px; }
+        .store {
+            min-height:600px;
+            justify-content: center;
+        }`;
 
         super( { template, style } );
 
         const addButton = this.shadowRoot.querySelector( '.button' );
         addButton.addEventListener( 'click', e => this.addStep() );
+
     }
 
     /**
@@ -60,6 +66,7 @@ class StepStore extends StoreComponent
     addStep( step = {} )
     {
         this.addEntry( new StepEntry( step ) );
+        this.enumerate();
     }
 
     /**
@@ -108,9 +115,71 @@ class StepStore extends StoreComponent
     {
         console.log( '<step-store> connected' );
         this.emit( 'step-store-connected' );
+        this.listen( 'step-entry-connected', e => this.enumerate() );
+        this.listen( 'step-entry-disconnected', e => this.enumerate() );
+        
+        /**
+         * Add dragover listener
+         */
+        this.mStore.addEventListener( 'dragover', e => {
+
+            e.preventDefault();
+            const y = e.clientY;
+            const parentTop = this.offsetTop;
+        
+            for ( const child of this.children )
+            {
+                const entryTop = child.offsetTop - parentTop;
+
+                if ( y >= entryTop && y <= entryTop + 114 )
+                {
+                    child.classList.add('dragged');
+                }
+                else
+                {
+                    child.classList.remove('dragged');
+                }
+            }
+
+        });
+
+        this.mStore.addEventListener( 'drop', e => {
+
+            e.preventDefault();
+
+            const y = e.clientY;
+    
+            // - Check the index
+            const parentTop = this.offsetTop;
+            let index = 1;
+            let dropIndex = 1;
+            let dropped = false;
+
+            for ( const child of this.children )
+            {
+                const entryTop = child.offsetTop - parentTop;
+                child.classList.remove('dragged');
+
+                if ( y >= entryTop && y <= entryTop + 114 )
+                {
+                    dropped = true;
+                    dropIndex = index;
+                }
+        
+                index++;
+            }
+
+            if ( dropped )
+            {
+                const original = Number(e.dataTransfer.getData("text"));                
+                
+                if ( original !== dropIndex )
+                {
+                    this.swap( original, dropIndex );
+                }
+            }
+        });
     }
-
-
 }
 
 
