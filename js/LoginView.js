@@ -210,7 +210,7 @@ class LoginView extends WCBase
 
         const handler = () => 
         {
-            LoginView.performLogin( this.mEmailInput.value, this.mPasswordInput )
+            LoginView.performLogin( this.mEmailInput.value, this.mPasswordInput.value )
             .then( response => this.handleResponse( JSON.parse( response ) ) )
             .catch( error => this.displayLoginFail( 'Invalid credentials.' ) );
         }
