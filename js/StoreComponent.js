@@ -45,6 +45,11 @@ class StoreComponent extends WCBase
 
     }
     
+    get count()
+    {
+        return this.mStore.children.length;
+    }
+
     /**
      * Return the store entry objects in an array
      * 
@@ -106,15 +111,64 @@ class StoreComponent extends WCBase
         this.checkAsterisk();
     }
 
+    swap( indexA, indexB )
+    {
+        /**
+         * Ensure that the indices are numbers, and there are entries like these
+         */
+        if ( typeof indexA !== 'number' || typeof indexB !== 'number' ) return;
+
+        /**
+         * Ensure that the indices are not the same
+         */
+        if ( indexA === indexB ) return;
+
+        /**
+         * Ensure the range, less that one is not allowed
+         */
+        if ( indexA < 1 || indexB < 1 ) return;
+
+        const count = this.count;
+
+        /**
+         * Ensure that the indices are not larges than the entry count
+         */
+        if ( indexA > count || indexB > count ) return;
+
+        /**
+         * Create clones
+         */
+        const entryA = this.mStore.children[indexA - 1];
+        const entryB = this.mStore.children[indexB - 1];
+
+        /**
+         * Disconnet everything
+         */
+        const nodes = this.children;
+        
+        deleteChildren(this.mStore);
+
+        /**
+         * Repositon
+         */
+        nodes[indexA - 1] = entryB;
+        nodes[indexB - 1] = entryA;
+
+        //this.mStore.append( nodes );
+        for ( const node of nodes )
+        {
+            this.mStore.appendChild( node );
+        }
+    }
     /**
      * Ensures that the asterisk of requirement
      * is properly set
      */
-     checkAsterisk()
-     {
-         const clist = this.mAsteriskLabel.classList;
-         this.count ? clist.add( 'off' ) : clist.remove( 'off' );
-     }
+    checkAsterisk()
+    {
+        const clist = this.mAsteriskLabel.classList;
+        this.count ? clist.add( 'off' ) : clist.remove( 'off' );
+    }
 
     /**
      * Return the stored entry count
