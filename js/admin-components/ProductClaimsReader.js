@@ -1,4 +1,4 @@
-import { ReaderBase } from "./ReaderBase";
+import { ReaderBase } from "./ReaderBase.js";
 import { newTagClassHTML, newTagClassChildren } from '../util/elemfactory.js';
 
 
