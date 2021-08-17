@@ -1,4 +1,4 @@
-import { newTagAttrsHTML, newTagClassHTML, newTagClassChildren } from "../util/elemfactory";
+import { newTagAttrsHTML, newTagClassHTML, newTagClassChildren } from "../util/elemfactory.js";
 
 /**
  * ReaderBase is a response DTO parser tool base object,
@@ -6,7 +6,7 @@ import { newTagAttrsHTML, newTagClassHTML, newTagClassChildren } from "../util/e
  * ProductClaimsReader, which reads a product claims response.
  * The Readers are intended to parse one entity,
  * If an array of entities are expected, iterate through the 
- * entities, and parse the DTOs with reader one itaration at time
+ * entities, and parse the DTOs with the reader one itaration at time
  */
 class ReaderBase
 {
