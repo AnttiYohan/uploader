@@ -117,10 +117,13 @@ class ViewBase extends WCBase
         
         if ( dto && imageFile )
         {
-            const offsetTop    = Number(this.mAddButton.offsetTop - 200);
-            const offsetLeft   = Number(this.mAddButton.offsetLeft);
+            const offsetTop    = this.mAddButton.offsetTop - 400 > 100 
+                               ? this.mAddButton.offsetTop 
+                               : 100;
+            const offsetLeft   = this.mAddButton.offsetLeft;
             const bounds       = this.mAddButton.getBoundingClientRect();
             const buttonCenter = bounds.left + bounds.width / 2;
+            const capitalized  = this.mEntityKey.charAt(0).toUpperCase() + key.substring(1);
         
             const responseNotifier = new ResponseNotifier
             (
@@ -128,7 +131,7 @@ class ViewBase extends WCBase
                 `Create ${capitalized}`, 
                 `${capitalized} Created Succesfully`,
                 `${capitalized} Could Not Be Created`,
-                { top: `${offsetTop}px`, left: `${20}px`, center: buttonCenter }
+                { top: `${offsetTop}px`, left: `${offsetLeft}px`, center: buttonCenter }
             );
             this.mRootElement.appendChild( responseNotifier );
             responseNotifier.onSuccess( 
@@ -138,13 +141,18 @@ class ViewBase extends WCBase
                 }
             );
             responseNotifier.onFail( (status, message) => console.log( `Status: ${status}: ${message}`) );
+            
+            const eventHandlerMap = new Map();
+            eventHandlerMap.set( 'progress', responseNotifier.progressHandler );
+            
             responseNotifier.begin
             ( 
-                FileCache.postDtoAndImage
+                FileCache.uploadDtoAndImage
                 ( 
                     this.ENTITY_URL, 
                     dto, 
-                    imageFile
+                    imageFile,
+                    eventHandlerMap
                 ) 
             );
         }
