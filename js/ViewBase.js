@@ -140,11 +140,7 @@ class ViewBase extends WCBase
                     this.mInputOperator.reset();
                 }
             );
-            responseNotifier.onFail( (status, message) => console.log( `Status: ${status}: ${message}`) );
-            
-            const eventHandlerMap = new Map();
-            eventHandlerMap.set( 'progress', responseNotifier.progressHandler );
-            
+            responseNotifier.onFail( (status, message) => console.log( `Status: ${status}: ${message}`) );    
             responseNotifier.begin
             ( 
                 FileCache.uploadDtoAndImage
@@ -152,7 +148,7 @@ class ViewBase extends WCBase
                     this.ENTITY_URL, 
                     dto, 
                     imageFile,
-                    eventHandlerMap
+                    responseNotifier
                 ) 
             );
         }
