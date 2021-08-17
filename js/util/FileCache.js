@@ -1035,6 +1035,88 @@ class FileCache
         return { ok, status, text };
     }
 
+    // -------------------------------------------------
+    // -
+    // - Upload methods with progress events
+    // -
+    // -------------------------------------------------
+
+    /**
+     * Performs an HTTP POST Request with XMLHttpRequest object, 
+     * The request is multipart, the parts:
+     * - serialized json dto, param 'dto'
+     * - image file, param 'imageFile'
+     * 
+     * @param  {string}  route
+     * @param  {object}  dto
+     * @param  {File}    imageFile
+     * @param  {Map}     eventHandlerMap 
+     * @return {Promise} response
+     */
+    static async uploadDtoAndImage( route, dto, imageFile, responseNotifier )
+    {
+        return new Promise( ( resolve, reject ) => {
+
+            const bearer = `Bearer ${FileCache.getToken()}`;
+
+            /**
+             * Generate the multipart payload
+             */
+            const 
+            formData = new FormData();
+            formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+            formData.append('image', imageFile);
+
+            /**
+             * Create the XHR and add event listeners
+             */
+            const xhr = new XMLHttpRequest();
+
+            xhr.open( 'post', route );
+            xhr.withCredentials = true;
+            xhr.setRequestHeader( 'Authorization', bearer );
+        
+            xhr.upload.addEventListener( 'progress', e => responseNotifier.progressHandler( e ) );
+            xhr.upload.addEventListener( 'load', e => 
+            {
+                resolve({
+
+                    'ok'    : xhr.status > 299 ? true : false,
+                    'status': xhr.status,
+                    'text'  : xhr.responseText,
+                    'size'  : e.total 
+
+                });
+            });
+
+            xhr.upload.addEventListener( 'error', e => 
+            {
+                reject({
+                    
+                    'text':   `error: ${xhr.statusText}`,
+                    'status': xhr.status
+
+                })
+            });
+
+            xhr.upload.addEventListener( 'abort', e => 
+            {
+                reject({
+                    
+                    'text'  : `Request aborted`,
+                    'loaded': e.loaded
+
+                })
+            });
+
+            /**
+             * Execute the request and invalidate route cache
+             */
+            xhr.send( formData );
+            FileCache.clearCache(route);
+        });
+    }
+     
 }
 
 export { FileCache }
