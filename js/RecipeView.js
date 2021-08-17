@@ -8,6 +8,7 @@ import { TextInputArea } from './TextInputArea.js';
 import { MultiEntryRow } from './MultiEntryRow.js';
 import { IngredientMenu } from './IngredientMenu.js';
 import { BinaryButtonRow } from './BinaryButtonRow.js';
+import { ResponseNotifier } from './ResponseNotifier.js';
 import { BinarySwitchGroup } from './BinarySwitchGroup.js';
 
 /**
@@ -163,6 +164,16 @@ class RecipeView extends ViewBase
     }
 
     /**
+     * Resets the cache for RECIPE_ALL_URL here,
+     * and the route RECIPE_URL in the parent
+     */
+    invalidateCacheAndReload()
+    {
+        FileCache.clearCache( RECIPE_ALL_URL );
+        super.invalidateCacheAndReload();   
+    }
+     
+    /**
      * Overrides the ViewBase addEntity in order
      * to handle the request with steps
      */
@@ -204,7 +215,6 @@ class RecipeView extends ViewBase
             const stepImages = { title: 'stepImages', images: [] };
             for ( const step of dto.data.steps )
             {
-                console.log(`Step ${step}`);
                 stepDto.data.push( { text: step.text, stepNumber: step.stepNumber } );
                 stepImages.images.push( step.image );
             }
