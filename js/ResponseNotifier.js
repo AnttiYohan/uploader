@@ -28,6 +28,36 @@ class ResponseNotifier extends WCBase
         this.mMsgOk     = msgOk;
         this.mMsgFail   = msgFail;
 
+        const center = window.innerWidth / 2;
+        
+        /**
+         * Minimum width
+         */
+        let elemW = 300
+
+        if ( window.innerWidth > 1000 )
+        {
+            /**
+             * Max width
+             */
+            elemW = 900;
+        }
+        else if ( window.innerWidth <= 1000 && window.innerWidth > 400 )
+        {
+            /**
+             * elem is 100px narrower that the window
+             * until it reaches 300px
+             */
+            elemW = window.innerWidth - 100;
+        }
+
+        if ( elemW > window.innerWidth )
+        {
+            elemW = window.innerWidth - 20;
+        }
+
+        const halfWidth = elemW / 2;
+        const left = center - halfWidth;
         /**
          * Setup the shadow DOM
          */
@@ -36,18 +66,24 @@ class ResponseNotifier extends WCBase
         (`.dialog {
             position: absolute;
             top: ${'top' in options ? options.top : '0'};
-            left: ${'left' in options ? options.left : '0'};
-            right: 0;
+            left: 0;
             z-index: 1;
-            min-width: 300px;
-            width: 95vw;
-            max-width: 700px;
+            opacity: 0;
+            width: ${elemW}px;
             margin: auto;
             padding: 32px;
             background-color: #45d838;
             border-radius: 6px;
             border: 1px solid rgba(0,0,0,0.15);
             box-shadow: 2px 4px 12px -3px rgba(0,0,0,0.25);
+            transform: translate3d(0, 0, 0);
+            transition:
+            transform 300ms ease-out,
+            opacity 300ms;
+        }
+        .dialog.visible {
+            opacity: 1;
+            transform: translate3d(${left}px, 0, 0);
         }
         .progress {
             position: absolute;
@@ -73,14 +109,61 @@ class ResponseNotifier extends WCBase
             border: 1px solid rgba(0,0,0,.33);    
         }
         .progress-bar {
+            position: relative;
             text-transform: uppercase;
             font-weight: 500;
             font-size: 15px;
             color: #fff
             height: 32px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,.33);
-            box-shadow: 0 2px 5px -1px rgba(0,0,0,.5);
+            border-radius: 16px;
+            border: 4px solid #3888f8;
+            background-color: #031128; 
+            box-shadow: 
+            0 2px 5px -1px rgba(0,0,0,.5),
+            inset -12px 0 12px -5px rgba(255, 255, 255, .45),
+            inset 7px 0 7px -3px rgba(0, 0, 0, .7);
+        }
+        .progress-bar__state {
+            display: inline;
+            color: #fff;
+            text-align: center;
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-top: 3px;
+            width: 0%;
+            height: 24px;
+            border-radius: 12px;
+            background-color: #b83858;
+            box-shadow:
+            inset 0 -8px 11px -4px rgba(0, 0, 0, .35),
+            inset 0 8px 8px -3px rgba(255, 255, 255, .45);
+        }
+        .progress-bar__notification {
+            position: absolute;
+            top: -32px;
+            right: 0;
+            height: 32px;
+            width: 150px;
+            text-align: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .progress-bar__layer {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            right: 0;
+            bottom: -3px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .progress-bar__percentage {
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
         }
         .component__row.header-bar {
             height: 120px;
@@ -131,6 +214,11 @@ class ResponseNotifier extends WCBase
                 <p class='header'>Processing ${header} Request</p>
             </div>
             <div class='component__row progress-bar'>
+                <div class='progress-bar__state'></div>
+                <h2 class='progress-bar__notification'></h2>
+                <div class='progress-bar__layer'>
+                    <p class='progress-bar__percentage'></p>
+                </div>
             </div>
             <div class='component__row header-bar'>
             </div>
@@ -146,11 +234,14 @@ class ResponseNotifier extends WCBase
         /**
          * Map the crucial elements into members
          */
-        this.mProgressBar = this.shadowRoot.querySelector('.progress-bar');
-        this.mHeaderBar   = this.shadowRoot.querySelector('.header-bar');
-        this.mMessageBar  = this.shadowRoot.querySelector('.message-bar');
-        this.mResponseDto = this.shadowRoot.querySelector('.response-dto');
-        const buttonExit  = this.shadowRoot.querySelector('.button.exit');
+        this.mProgressBar           = this.shadowRoot.querySelector('.progress-bar');
+        this.mProgressState         = this.shadowRoot.querySelector('.progress-bar__state');
+        this.mProgressNotification  = this.shadowRoot.querySelector('.progress-bar__notification');
+        this.mProgressPercentage    = this.shadowRoot.querySelector('.progress-bar__percentage');
+        this.mHeaderBar             = this.shadowRoot.querySelector('.header-bar');
+        this.mMessageBar            = this.shadowRoot.querySelector('.message-bar');
+        this.mResponseDto           = this.shadowRoot.querySelector('.response-dto');
+        const buttonExit            = this.shadowRoot.querySelector('.button.exit');
 
         buttonExit.addEventListener( 'click', e => this.remove() );
     }
@@ -162,61 +253,98 @@ class ResponseNotifier extends WCBase
      */
     async begin( promise )
     {
-        const { ok, status, text } = await promise;
-
-        console.log(`addProduct response status ${status} : ok? ${ok}`);
-
         /**
-         * Check whether the response is 403.
-         * In that case, send a logout event broadcat
+         * Try to fetch the promise,
+         * if the fetch / xhr fails in any way,
+         * notify the user
          */
-        if ( status == 403 ) this.emit( 'logout-signal' );
-
-        /**
-         * When response status is OK, attempt to parse the response body
-         */
-        if ( ok )
-        {    
-            const { dto, message } = parseDtoAndMessage( text, this.mDtoKey );
-            this.doSuccess( status, message, dto );
-        }
-        else /** When response status is not okay, display the message if available */ 
+        try 
         {
-            let message = text;
-            const body  = parseResponse( text, false );
+            const { ok, status, text } = await promise;
+            console.log(`Notifier: response status ${status} : ok? ${ok}`);
 
-            if ( body )
-            {
-                if ( typeof body === 'string' )
-                {
-                    message = body;
-                }
-                else 
-                if ( 'message' in body )
-                {
-                    message = body.message;
-                }
+            /**
+             * Check whether the response is 403.
+             * In that case, send a logout event broadcat
+             */
+            if ( status == 403 ) this.emit( 'logout-signal' );
+
+            /**
+             * When response status is OK, attempt to parse the response body
+             */
+            if ( ok )
+            {    
+                const { dto, message } = parseDtoAndMessage( text, this.mDtoKey );
+                this.doSuccess( status, message, dto );
             }
+            else /** When response status is not okay, display the message if available */ 
+            {
+                let message = text;
+                const body  = parseResponse( text, false );
 
-            this.doFail( status, message );        
+                if ( body )
+                {
+                    if ( typeof body === 'string' )
+                    {
+                        message = body;
+                    }
+                    else 
+                    if ( 'message' in body )
+                    {
+                        message = body.message;
+                    }
+                }
+
+                this.doFail( status, message );        
+            }
+        }
+        catch ( error )
+        {
+            /**
+             * Extract status and message
+             */
+            this.doFail(
+                
+                error.status  ? error.status  : 500,
+                error.message ? error.message : 'Request failed'
+
+            );
         }
     }
 
+    /**
+     * Display the response status code
+     * on top of the progress bar
+     * 
+     * @param {number} status 
+     */
     setStatus( status )
     {
-        this.mProgressBar.innerHTML = `status: ${status}`;
+        this.mProgressState.textContent = `status: ${status}`;
     }
 
+    /**
+     * Display the predefined success message
+     */
     setOkHeader()
     {
         this.mHeaderBar.textContent = this.mMsgOk;
     }
 
+    /**
+     * Display the predefined fail message
+     */
     setFailHeader()
     {
         this.mHeaderBar.textContent = this.mMsgFail;
     }
 
+    /**
+     * Display the Data Transfer Object in the
+     * response notifier
+     * 
+     * @param {object} dto 
+     */
     setDto( dto )
     {
         if ( dto )
@@ -375,11 +503,23 @@ class ResponseNotifier extends WCBase
         }
     }
 
+    /**
+     * Display the error message
+     * 
+     * @param {string} error 
+     */
     doError( error )
     {
         this.mMessageBar.innerHTML = error;
     }
 
+    /**
+     * Display the faulty message / status code,
+     * and execute the fail callback with the provided params
+     * 
+     * @param {number} status 
+     * @param {string} message 
+     */
     doFail( status, message )
     {
         this.setStatus( status );
@@ -387,6 +527,16 @@ class ResponseNotifier extends WCBase
         this.mMessageBar.innerHTML = message;
         if ( typeof this.mFailCallback === 'function' ) this.mFailCallback( status, message );
     }
+
+    /**
+     * Display the success message,
+     * status code and the dto contents.
+     * Execute the success callback with the dto
+     * 
+     * @param {number} status 
+     * @param {string} message
+     * @param {dto}    dto
+     */
 
     doSuccess( status, message, dto )
     {
@@ -397,15 +547,78 @@ class ResponseNotifier extends WCBase
         if ( typeof this.mSuccessCallback === 'function' ) this.mSuccessCallback( dto );
     }
 
+    /**
+     * Execute the success callback
+     * @param {function} callback 
+     */
     onSuccess( callback )
     {
         this.mSuccessCallback = callback;
     }
 
+    /**
+     * Execute the fail callback
+     * @param {function} callback 
+     */
     onFail( callback )
     {
         this.mFailCallback = callback;
     }
+
+    /**
+     * Update the progess bar and progress data
+     * @param {ProgressEvent} e 
+     */
+    progressHandler( e )
+    {
+        const loaded          = e.loaded;
+        const total           = e.total; 
+        const percentage      = `${Math.round(loaded / total * 100)}%`;
+        const formattedLoaded = formatBytes( loaded );
+        const formattedTotal  = formatBytes( total );
+
+        console.log( `Uploaded ${formattedLoaded} ( ${percentage} ) of ${formattedTotal} bytes` );
+
+        this.mProgressState.style.width        = percentage;
+        this.mProgressNotification.textContent = `${formattedLoaded} / ${formattedTotal}`;
+        this.mProgressPercentage.textContent   = percentage;
+    }
+
+    /**
+     * Execute entry transition when the element
+     * is connected to the DOM
+     */
+    connectedCallback()
+    {
+        const rootElement   = this.shadowRoot.querySelector( '.dialog' );
+        if ( rootElement )
+        {
+            rootElement.classList.add( 'visible' );
+        } 
+    }
+}
+
+/**
+ * Formats an byte amount into a proper power
+ * bytes, kb, Mb, Gb
+ * 
+ * @param  {number} bytes 
+ * @return {string} formatted byte value 
+ */
+function formatBytes( bytes )
+{
+    let result      = bytes;
+    let currentUnit = 'bytes';
+    
+    if ( typeof bytes === 'number' ) for ( const unit of [ 'kb', 'Mb', 'Gb' ] )
+    {
+        if ( result / 1024 < 1 ) break;
+
+        result      = result / 1024;
+        currentUnit = unit;
+    }
+
+    return `${Math.round(result * 10) / 10} ${currentUnit}`;
 }
 
 /**
