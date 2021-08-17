@@ -63,11 +63,7 @@ class ViewBase extends WCBase
         this.mBrowser     = this.shadowRoot.querySelector( `[data-browser="${key}_browser"]` );
         
         const refreshButton = this.shadowRoot.querySelector('.button--refresh');
-        refreshButton.addEventListener( 'click', e => 
-        { 
-            FileCache.clearCache( this.ENTITY_URL );
-            this.loadEntities();
-        });
+        refreshButton.addEventListener( 'click', e => this.invalidateCacheAndReload() );
 
         this.mInputFrame = this.shadowRoot.querySelector('.uploader__frame[data-input-frame]');
         const inputArray = Array.from( this.mInputFrame.querySelectorAll('[data-input]') );
@@ -81,6 +77,18 @@ class ViewBase extends WCBase
 
     }
 
+    /**
+     * Resets the cache for entity url
+     * and reload the entities.
+     * In order to invalidate another route,
+     * extend this in the concrete class, and
+     * call the this afterwards
+     */
+    invalidateCacheAndReload()
+    {
+        FileCache.clearCache( this.ENTITY_URL );
+        this.loadEntities();
+    }
     /**
      * Reads the input operator inputs and
      * generates a DTO of the values.
