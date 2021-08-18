@@ -156,8 +156,8 @@ class RecipeEditor extends EditorBase
          * - update url
          * - options { relatedSet, template, style }
          */
-         super
-         (
+        super
+        (
             'recipe', 
             recipeDto, 
             parent, 
@@ -241,16 +241,11 @@ class RecipeEditor extends EditorBase
         );
         responseNotifier.begin
         ( 
-            addmode
-            ? await FileCache.putDto
+            FileCache.updateDto
             (
-                UPDATE_PRODUCTS_ADD_URL,
-                serialized
-            )
-            : await FileCache.putDto
-            (
-                UPDATE_PRODUCTS_URL,
-                serialized
+                addmode ? UPDATE_PRODUCTS_ADD_URL : UPDATE_PRODUCTS_URL,
+                serialized,
+                responseNotifier
             )
         );
     }
@@ -265,7 +260,6 @@ class RecipeEditor extends EditorBase
     async updateRecipeSteps( steps, addmode )
     {
         const offsetTop  = Number(this.mClickedButton.offsetTop - 200);
-        const offsetLeft = Number(this.mClickedButton.offsetLeft);
     
         const responseNotifier = new ResponseNotifier
         (
@@ -282,18 +276,12 @@ class RecipeEditor extends EditorBase
         );
         responseNotifier.begin
         ( 
-            addmode
-            ? await FileCache.putDtoAndImageList
+            FileCache.updateDtoAndImageList
             (
-                UPDATE_STEPS_ADD_URL,
+                addmode ? UPDATE_STEPS_ADD_URL : UPDATE_STEPS_URL,
                 steps.dto,
-                steps.images
-            )
-            : await FileCache.putDtoAndImageList
-            (
-                UPDATE_STEPS_URL,
-                steps.dto,
-                steps.images
+                steps.images,
+                responseNotifier
             )
         );           
     }
