@@ -137,7 +137,10 @@ class EditorBase extends WCBase
         responseNotifier.onFail(( status, message ) =>
             console.log( `ArticleEditor::update ${this.mEntityKey} fail: status ${status}, ${message}`)
         );
-        responseNotifier.begin( FileCache.putDtoAndImage( this.ENTITY_URL, dto, image ) ); 
+        responseNotifier.begin
+        ( 
+            FileCache.updateDtoAndImage( this.ENTITY_URL, dto, image, responseNotifier ) )
+        ; 
     }
 
     /**
