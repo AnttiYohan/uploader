@@ -1,3 +1,5 @@
+import { ResponseNotifier } from "../ResponseNotifier.js";
+
 class FileCache
 {
     /**
@@ -1038,7 +1040,8 @@ class FileCache
     // -------------------------------------------------
     // -
     // - Upload methods with progress events
-    // -
+    // - POST -- upload*,
+    // - PUT  -- update*
     // -------------------------------------------------
 
     /**
@@ -1068,46 +1071,16 @@ class FileCache
             formData.append('image', imageFile);
 
             /**
-             * Create the XHR and add event listeners
+             * Generate the xhr
              */
-            const xhr = new XMLHttpRequest();
-
-            xhr.open( 'post', route );
-            xhr.withCredentials = true;
-            xhr.setRequestHeader( 'Authorization', bearer );
-        
-            xhr.upload.addEventListener( 'progress', e => responseNotifier.progressHandler( e ) );
-            xhr.upload.addEventListener( 'load', e => 
-            {
-                resolve({
-
-                    'ok'    : xhr.status > 299 ? true : false,
-                    'status': xhr.status,
-                    'text'  : xhr.responseText,
-                    'size'  : e.total 
-
-                });
-            });
-
-            xhr.upload.addEventListener( 'error', e => 
-            {
-                reject({
-                    
-                    'text':   `error: ${xhr.statusText}`,
-                    'status': xhr.status
-
-                })
-            });
-
-            xhr.upload.addEventListener( 'abort', e => 
-            {
-                reject({
-                    
-                    'text'  : `Request aborted`,
-                    'loaded': e.loaded
-
-                })
-            });
+            const xhr = FileCache.createXhr
+            ( 
+                route,
+                responseNotifier,
+                bearer,
+                resolve,
+                reject
+            );
 
             /**
              * Execute the request and invalidate route cache
@@ -1116,7 +1089,278 @@ class FileCache
             FileCache.clearCache(route);
         });
     }
+
+
+
+    /**
+     * Performs an HTTP POST Request with XMLHttpRequest object, 
+     * The request is multipart, the parts:
+     * - serialized json dto, param 'dto'
+     * - image file, param 'imageFile'
+     * 
+     * @param  {string}  route
+     * @param  {object}  dto
+     * @param  {File}    imageFile
+     * @param  {object}  childrenDto
+     * @param  {object}  childrenImageDto
+     * @param  {Map}     eventHandlerMap 
+     * @return {Promise} response
+     */
+    static async uploadDtoAndImageWithChildren
+    ( 
+        route, 
+        dto, 
+        imageFile, 
+        childrenDto, 
+        childrenImageDto,
+        responseNotifier 
+    )
+    {
+        return new Promise( ( resolve, reject ) => {
+
+            const bearer = `Bearer ${FileCache.getToken()}`;
+
+            /**
+             * Generate the multipart payload
+             * with four main categories:
+             * - main dto
+             * - main image file associated with main dto
+             * - multiple related child dtos
+             * - multiple image files associated with child dtos
+             */
+            const 
+            formData = new FormData();
+            formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+            formData.append('image', imageFile); 
+            formData.append(childrenDto.title, new Blob([childrenDto.data],{type:'application/json'}));
+        
+            for (const image of childrenImageDto.images)
+            {
+                 formData.append(childrenImageDto.title, image);
+            }
      
+            /**
+             * Generate the xhr
+             */
+            const xhr = FileCache.createXhr
+            ( 
+                route,
+                responseNotifier,
+                bearer,
+                resolve,
+                reject
+            );
+
+            /**
+             * Execute the request and invalidate route cache
+             */
+            xhr.send( formData );
+            FileCache.clearCache(route);
+        });
+    }
+
+    /**
+     * Performs an HTTP PUT Request with XMLHttpRequest object, 
+     * The request is multipart, the parts:
+     * - serialized json dto, param 'dto'
+     * - image file list, param 'images'
+     * 
+     * @param  {string}             route
+     * @param  {object}             dto
+     * @param  {object}             images
+     * @param  {ResponseNotifier}   responseNotifier 
+     * @return {Promise}            response
+     */
+    static async updateDtoAndImageList( route, dto, images, responseNotifier )
+    {
+        return new Promise( ( resolve, reject ) => {
+
+            const bearer = `Bearer ${FileCache.getToken()}`;
+
+            /**
+             * Generate the payload:
+             * - dto
+             * - images
+             */
+            const 
+            formData = new FormData();
+            formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+        
+            for (const image of images.data)
+            {
+                formData.append(images.title, image);
+            }
+
+            /**
+             * Generate the xhr
+             */
+            const xhr = FileCache.createXhr
+            ( 
+                route,
+                responseNotifier,
+                bearer,
+                resolve,
+                reject,
+                'put'
+            );
+
+            /**
+             * Execute the request and invalidate route cache
+             */
+            xhr.send( formData );
+            FileCache.clearCache(route);
+        });
+    }
+ 
+     /**
+      * Performs an HTTP PUT Request with XMLHttpRequest object, 
+      * The request sends an serailized json object string as its
+      * payload
+      * 
+      * @param  {string}             route
+      * @param  {string}             serial
+      * @param  {ResponseNotifier}   responseNotifier 
+      * @return {Promise}            response
+      */
+    static async updateDto( route, serial, responseNotifier )
+    {
+        return new Promise( ( resolve, reject ) => {
+
+            const bearer = `Bearer ${FileCache.getToken()}`;
+
+            /**
+             * Generate the xhr
+             */
+            const xhr = FileCache.createXhr
+            ( 
+                route,
+                responseNotifier,
+                bearer,
+                resolve,
+                reject,
+                'put'
+            );
+
+            /**
+             * Execute the request and invalidate route cache
+             */
+            xhr.send( serial );
+            FileCache.clearCache(route);
+        });
+    }
+ 
+    /**
+     * Performs an HTTP PUT Request with XMLHttpRequest object, 
+     * The request is multipart, the parts:
+     * - serialized json dto, param 'dto'
+     * - image file, param 'imageFile'
+     * 
+     * @param  {string}           route
+     * @param  {object}           dto
+     * @param  {File}             imageFile
+     * @param  {ResponseNotifier} responseNotifier 
+     * @return {Promise}          response
+     */
+    static async updateDtoAndImage( route, dto, imageFile, responseNotifier )
+    {
+        return new Promise( ( resolve, reject ) => {
+
+            const bearer = `Bearer ${FileCache.getToken()}`;
+
+            /**
+             * Generate the multipart payload
+             */
+            const 
+            formData = new FormData();
+            formData.append(dto.title, new Blob([dto.data],{type:'application/json'}));
+            formData.append('image', imageFile);
+
+            /**
+             * Generate the xhr
+             */
+            const xhr = FileCache.createXhr
+            ( 
+                route,
+                responseNotifier,
+                bearer,
+                resolve,
+                reject,
+                'put'
+            );
+
+            /**
+             * Execute the request and invalidate route cache
+             */
+            xhr.send( formData );
+            FileCache.clearCache(route);
+        });
+    }
+ 
+    /**
+     * Generates an XHR with event handlers,
+     * that invoke promise methods
+     * 
+     * @param  {string}                  route 
+     * @param  {ResponseNotifier}        notifier 
+     * @param  {string}                  bearer 
+     * @param  {PromiseFulfilledResult}  resolve 
+     * @param  {PromiseRejectedResult}   reject 
+     * @param  {string}                  method
+     * @param  {boolean}                 credentials
+     * @return {XMLHttpRequest}
+     */
+    static createXhr( route, notifier, bearer, resolve, reject, method = 'post', credentials = true )
+    {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open( method, route );
+        xhr.withCredentials = credentials;
+        xhr.setRequestHeader( 'Authorization', bearer );
+        xhr.upload.addEventListener( 'progress', e => notifier.progressHandler( e ) );
+        xhr.addEventListener( 'load', e => 
+        {
+            resolve({
+
+                'ok'    : xhr.status < 300 ? true : false,
+                'status': xhr.status,
+                'text'  : xhr.responseText,
+                'size'  : e.total 
+
+            });
+        });
+
+        xhr.addEventListener( 'error', e => 
+        {
+            reject({
+                
+                'text':   `error: ${xhr.statusText}`,
+                'status': xhr.status
+
+            });
+        });
+
+        xhr.upload.addEventListener( 'error', e => 
+        {
+            reject({
+                
+                'text':   `error: ${xhr.statusText}`,
+                'status': xhr.status
+
+            });
+        });
+
+        xhr.upload.addEventListener( 'abort', e => 
+        {
+            reject({
+                
+                'text'  : `Request aborted`,
+                'loaded': e.loaded
+
+            });
+        });
+
+        return xhr;
+    }
 }
 
 export { FileCache }
