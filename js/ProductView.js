@@ -83,7 +83,7 @@ class ProductView extends ViewBase
      */
     async loadEntities()
     {
-        let products = await super.loadEntities( [ 'productCategory', 'hasAllerges' ] );
+        const products = await super.loadEntities( [ 'productCategory', 'hasAllerges' ] );
         if ( products && Array.isArray( products ) )
         {
             window.dispatchEvent
