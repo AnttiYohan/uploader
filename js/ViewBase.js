@@ -123,7 +123,7 @@ class ViewBase extends WCBase
             const offsetLeft   = this.mAddButton.offsetLeft;
             const bounds       = this.mAddButton.getBoundingClientRect();
             const buttonCenter = bounds.left + bounds.width / 2;
-            const capitalized  = this.mEntityKey.charAt(0).toUpperCase() + key.substring(1);
+            const capitalized  = this.mEntityKey.charAt(0).toUpperCase() + this.mEntityKey.substring(1);
         
             const responseNotifier = new ResponseNotifier
             (
