@@ -263,13 +263,14 @@ class RecipeView extends ViewBase
             );
             responseNotifier.onFail( ( status, message ) => console.log( `status: ${status}: ${message}` ) );
             responseNotifier.begin( 
-                FileCache.postDtoAndImageWithChildren
+                FileCache.uploadDtoAndImageWithChildren
                 (
                     RECIPE_WITH_STEPS,
                     finalDto,
                     image,
                     finalStepDto,
-                    stepImages
+                    stepImages,
+                    responseNotifier
                 )
             );
         }    
