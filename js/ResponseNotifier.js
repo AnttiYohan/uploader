@@ -72,10 +72,11 @@ class ResponseNotifier extends WCBase
             width: ${elemW}px;
             margin: auto;
             padding: 32px;
-            background-color: #45d838;
-            border-radius: 6px;
-            border: 1px solid rgba(0,0,0,0.15);
-            box-shadow: 2px 4px 12px -3px rgba(0,0,0,0.25);
+            background-color: rgba(128, 170, 200, .85);
+            border-radius: 24px;
+            border: 10px solid #aaccfc;
+            box-shadow: 0px 0px 9px -2px rgba(0, 0, 80, .65);
+            backdrop-filter: invert(.85) blur(3px);
             transform: translate3d(0, 0, 0);
             transition:
             transform 300ms ease-out,
@@ -92,13 +93,21 @@ class ResponseNotifier extends WCBase
             top: 14px;
             left: 14px;
         }
-        .header-row { display: flex; justify-content: center; }
+        .header-row { 
+            display: flex; 
+            justify-content: center;
+            border-radius: 16px !important;
+            border-width: 0 !important;
+            box-shadow: 
+            inset 0 -4px 8px -3px rgba(0, 0, 0, .42),
+            inset 0 8px 12px -3px rgba(255, 255, 255, .35);
+        }
         .header {
             text-transform: uppercase;
             font-weight: 500;
             font-size: 15px;
             color: #fff;
-            height: 32px;
+            padding: 10px;
         }
         .component__row {
             color: #fff;
@@ -126,7 +135,7 @@ class ResponseNotifier extends WCBase
         .progress-bar__state {
             display: inline;
             color: #fff;
-            text-align: center;
+            text-align: right;
             padding-left: 16px;
             padding-right: 16px;
             padding-top: 3px;
@@ -138,9 +147,12 @@ class ResponseNotifier extends WCBase
             inset 0 -8px 11px -4px rgba(0, 0, 0, .35),
             inset 0 8px 8px -3px rgba(255, 255, 255, .45);
         }
+        .progress-bar__state.finished {
+            width: 100%;
+        }
         .progress-bar__notification {
             position: absolute;
-            top: -32px;
+            top: -36px;
             right: 0;
             height: 32px;
             width: 150px;
@@ -205,6 +217,16 @@ class ResponseNotifier extends WCBase
         .response {
             width: 110px;
             height: auto;
+        }
+        .button.exit {
+            border: 4px solid #f8f8f8;
+            background-color: #124441;
+            border-radius: 16px;
+            text-transform: uppercase;
+            font-weight: 600;
+            box-shadow:
+            inset 0 8px 10px -7px rgba(240, 240, 255, .8),
+            0 2px 8px 0 rgba(60, 0, 0, .4);
         }`);
 
         this.setupTemplate
@@ -272,7 +294,7 @@ class ResponseNotifier extends WCBase
             /**
              * When response status is OK, attempt to parse the response body
              */
-            if ( ok )
+            if ( ok || status < 300 )
             {    
                 const { dto, message } = parseDtoAndMessage( text, this.mDtoKey );
                 this.doSuccess( status, message, dto );
@@ -510,6 +532,7 @@ class ResponseNotifier extends WCBase
      */
     doError( error )
     {
+        this.mProgressState.classList.add( 'finished' );
         this.mMessageBar.innerHTML = error;
     }
 
@@ -522,6 +545,7 @@ class ResponseNotifier extends WCBase
      */
     doFail( status, message )
     {
+        this.mProgressState.classList.add( 'finished' );
         this.setStatus( status );
         this.setFailHeader();
         this.mMessageBar.innerHTML = message;
@@ -540,6 +564,7 @@ class ResponseNotifier extends WCBase
 
     doSuccess( status, message, dto )
     {
+        this.mProgressState.classList.add( 'finished' );
         this.setStatus( status );
         this.setOkHeader();
         this.mMessageBar.innerHTML = message;
