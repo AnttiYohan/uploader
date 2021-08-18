@@ -67,7 +67,27 @@ class EditorBase extends WCBase
         .update--one-to-one { margin-top: 32px; margin-bottom: 42px; display: block; }
         .notifier { position: absolute; }
         .dialog { top: 1000px; z-index:1; }
-        .editor { max-width: 1200px; margin: 24px auto; padding: 0; box-shadow: 0 0 4px -1px rgba(0,0,0,.25); border-radius: 24px; border: 6px solid #abd; }
+        .editor { 
+            max-width: 1200px; 
+            margin: 24px auto; 
+            padding: 0; 
+            box-shadow: 0 0 4px -1px rgba(0,0,0,.25); 
+            border-radius: 24px; 
+            border: 6px solid #abd;
+            opacity: 0; 
+            transform: scale3D(4, 4, 1);
+            transition:
+            transform 300ms ease-out,
+            opacity 400ms ease-out;
+        }
+        .editor.turn-on {
+            opacity: 1;
+            transform: scale3D(1, 1, 1);
+        }
+        .editor.turn-on.shutdown {
+            transform: scale3D(1, 0, 1);
+            opacity: 0;
+        }
         ${'style' in options ? options.style : ''}
         `);
 
@@ -139,8 +159,8 @@ class EditorBase extends WCBase
         );
         responseNotifier.begin
         ( 
-            FileCache.updateDtoAndImage( this.ENTITY_URL, dto, image, responseNotifier ) )
-        ; 
+            FileCache.updateDtoAndImage( this.ENTITY_URL, dto, image, responseNotifier ) 
+        ); 
     }
 
     /**
@@ -160,8 +180,14 @@ class EditorBase extends WCBase
      */
     closeEditor()
     {
-        this.remove();
-        delete this;
+        const editor = this.shadowRoot.querySelector( '.editor' );
+        let timeout = 0;
+        if ( editor )
+        {
+            timeout = 400;
+            editor.classList.add( 'shutdown' );
+        }
+        setTimeout( () => this.remove(), timeout );
     }
 
     
@@ -174,6 +200,8 @@ class EditorBase extends WCBase
      */
     connectedCallback()
     {
+        const editor = this.shadowRoot.querySelector( '.editor' );
+        setTimeout( () => { editor.classList.add( 'turn-on' ); }, 100 );
         this.emit( `${this.mEntityKey}-editor-connected` );
         this.mViewNode.style.display = 'none';
     }
