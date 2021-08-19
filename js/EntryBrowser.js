@@ -2,6 +2,7 @@ import { WCBase, props } from './WCBase.js';
 import { ScrollContainer } from './ScrollContainer.js';
 import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML, newTagClassAttrs } from './util/elemfactory.js';
 import { EntryHeader } from './EntryHeader.js';
+import { RecipeReader } from './admin-components/RecipeReader.js';
 
 /**
  * Product and Recipe entry container,
@@ -186,14 +187,9 @@ class EntryBrowser extends WCBase
         .component__popup {
             display: none;
             position: absolute;
-            left: 50%;
+            right: 0;
             top: 0;
-            z-index: 30;
-            background-color: #fff;
-            border-radius: 4px;
-            border: 2px solid rgba(0,128,0,0.75);
-            padding: 8px;
-            width: 50%;
+            z-index: 1;
         }
         .component__popup .popup__item {
             padding: 4px;
@@ -582,7 +578,11 @@ class EntryBrowser extends WCBase
         /**
          * Create the content
          */
-        for (const key in entry)
+
+        const reader    = new RecipeReader( entry );
+        const popupItem = reader.parse();
+        this.mPopupElement.appendChild( popupItem );
+        /*for (const key in entry)
         {
             const popupItem = newTagClassHTML
             (
@@ -590,7 +590,7 @@ class EntryBrowser extends WCBase
             );
 
             this.mPopupElement.appendChild( popupItem );
-        }
+        }*/
 
         /**
          * Set the display on
