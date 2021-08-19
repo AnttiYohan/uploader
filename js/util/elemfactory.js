@@ -642,9 +642,14 @@ function imgClassSrc( cls = '', src = undefined )
 {
     const elem = document.createElement( 'img' );
     if ( cls.length ) elem.setAttribute( 'class', cls );
-    if ( src && 'type' in src && 'data' in src )
+    if ( typeof src === 'string' )
     {
-        elem.src = `data:${src.type};base64,${src.data}`;
+        elem.src = src;
+    }
+    else
+    if ( src && typeof src.fileType === 'string' && typeof src.data === 'string' )
+    {
+        elem.src = `data:${src.fileType};base64,${src.data}`;
     }
 
     return elem;
