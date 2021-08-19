@@ -2,7 +2,6 @@ import { WCBase, props } from './WCBase.js';
 import { ScrollContainer } from './ScrollContainer.js';
 import { deleteChildren, newTagClassChildren, newTagClassAttrsChildren, newTagClassHTML, newTagClassAttrs } from './util/elemfactory.js';
 import { EntryHeader } from './EntryHeader.js';
-import { RecipeReader } from './admin-components/RecipeReader.js';
 
 /**
  * Product and Recipe entry container,
@@ -45,13 +44,24 @@ class EntryBrowser extends WCBase
                      ? true
                      : false;
         
-        this.mEditable = this.dataset.edit;
+        this.mEditable  = this.dataset.edit;
+        this.mEntityKey = this.dataset.key;
 
         /**
          * List actions
          **/
         const group  = this.getAttribute('data-actions');
-        const parsed = group ? JSON.parse(group) : undefined;
+
+        let parsed = null;
+
+        try 
+        {
+            parsed = group ? JSON.parse(group) : undefined;
+        }
+        catch (error)
+        {
+            console.log( `EntryBrowser::constructor() group parse error: ${error}` );
+        }
 
         this.mActionList = Array.isArray(parsed) ? parsed : [];
 
@@ -364,7 +374,6 @@ class EntryBrowser extends WCBase
         this.shadowRoot.addEventListener('focus', e => 
         {
             const target = e.target;
-            //console.log(`Focus event from ${target.localName}.${target.className}`);
             e.stopPropagation();
             this.closePopup();
             componentFrame.classList.add('active');
@@ -373,7 +382,6 @@ class EntryBrowser extends WCBase
         this.shadowRoot.addEventListener('blur', e =>
         {
             const target = e.target;
-            //console.log(`Blur event from ${target.localName}.${target.className}`);
             e.stopPropagation();
             componentFrame.classList.remove('active');
         }, true);
@@ -558,7 +566,8 @@ class EntryBrowser extends WCBase
     findMatches(needle)
     {
         const  key = this.mTitleKey;
-        return this.mList
+        return this
+            .mList
             .filter( entry => entry[key].toLowerCase().startsWith( needle.toLowerCase() ) );
     }
 
@@ -571,26 +580,22 @@ class EntryBrowser extends WCBase
         this.lastPopup = '';
     }
 
-    openPopup(entry)
+    async openPopup(entry)
     {
         deleteChildren(this.mPopupElement);
 
         /**
          * Create the content
          */
-
-        const reader    = new RecipeReader( entry );
-        const popupItem = reader.parse();
+        const className =
+        this.mEntityKey[0].toUpperCase() +
+        this.mEntityKey.substring(1) +
+        'Reader';
+        
+        const readerClass = ( await import( `./${className}.js` ) )[ className ];
+        const reader      = new readerClass( entry );
+        const popupItem   = reader.parse();
         this.mPopupElement.appendChild( popupItem );
-        /*for (const key in entry)
-        {
-            const popupItem = newTagClassHTML
-            (
-                'p', 'popup__item', `${key}: ${entry[key]}`
-            );
-
-            this.mPopupElement.appendChild( popupItem );
-        }*/
 
         /**
          * Set the display on
