@@ -1,4 +1,4 @@
-import { newTagAttrsHTML, newTagClassHTML, newTagClassChildren } from "../util/elemfactory.js";
+import { newTagClassHTML, newTagClassChildren } from "../util/elemfactory.js";
 
 /**
  * ReaderBase is a response DTO parser tool base object,
@@ -30,7 +30,7 @@ class ReaderBase
 
         if ( this.mModel && Array.isArray( this.mModel ) ) 
         {     
-            let empty = '';
+            let empty  = '';
             let phrase = '';
 
             for ( const entry of this.mModel )
