@@ -492,3 +492,73 @@
         flex-direction: column;
     }
 }
+
+/**
+ * Styles for MapReaderBase and its derived classes:
+ * - RecipeReader
+ * - ProductReader
+ * - ArticleReader
+ */
+.report {
+    margin: auto;
+    min-width: 280px;
+    max-width: 500px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 6px solid #c8d8f8;
+    background-color: rgba(90, 120, 240, 0.8);
+    backdrop-filter: invert(.8) blur(3px);
+    box-shadow:
+    0 0 10px 0 rgba(20, 0, 60, 0.3),
+    inset 0 12px 12px -5px rgba(0, 0, 0, .3),
+    inset 0 -12px 8px -4px rgba(255, 255, 255, .45);
+}
+.report__entry--image {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 32px;
+    margin-bottom: 16px;
+}
+.report__dto-image {
+    height: 96px;
+    object-fit: contain;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .3);
+}
+.report__image--thumbnail {
+    height: 32px;
+    object-fit: contain;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, .3);
+}
+.report__entry--simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.report__entry--child {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.report__entry--deep {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+.report__span {
+    color: #fff;
+    font-size: 14px;
+}
+.report__span--child {
+    color: #fff;
+    font-size: 12px;
+}
+.report__header {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
