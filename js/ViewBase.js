@@ -46,7 +46,10 @@ class ViewBase extends WCBase
             </div>
             <!-- Existing products frame -->
             <div class='uploader__frame--scroll ${key}_list'>
-                <entry-browser data-browser='${key}_browser' data-edit=true>${capitalized}s:</entry-browser>
+                <entry-browser 
+                    data-browser='${key}_browser' 
+                    data-key='${key}'
+                    data-edit=true>${capitalized}s:</entry-browser>
             </div>
          </div>`);
 
