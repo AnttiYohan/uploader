@@ -56,7 +56,8 @@ class ProductStore extends StoreComponent
         if ( ! conflict )
         {
             const productEntry = new ProductEntry( product );
-            if ( productEntry instanceof ProductEntry ) this.addEntry( productEntry );
+            this.addEntry( productEntry );
+            //if ( ! productEntry.fail ) this.addEntry( productEntry );
             if ( this.count && this.mFrame.classList.contains( 'notify-required' ) ) 
             {
                 this.mFrame.classList.remove( 'notify-required' );
@@ -78,38 +79,36 @@ class ProductStore extends StoreComponent
         {
             
             const model = 
-            [
-                {
-                    prop: 'name',
-                    type: 'string',
-                    empty: 'false'
-                },
-                {
-                    prop: 'userId',
-                    type: 'number',
-                    empty: 'false'
-                },
-                {
-                    prop: 'productCategory',
-                    type: 'string',
-                    empty: 'false'
-                },
-                {
-                    prop: 'systemProductId',
-                    type: 'number',
-                    empty: 'false'
-                },
-                {
-                    prop: 'amount',
-                    type: 'number',
-                    empty: 'false'
-                },
-                {
-                    prop: 'measureUnit',
-                    type: 'string',
-                    empty: 'false'
-                }
-            ];
+            [{
+                prop: 'name',
+                type: 'string',
+                empty: 'false'
+            },
+            {
+                prop: 'userId',
+                type: 'number',
+                empty: 'false'
+            },
+            {
+                prop: 'productCategory',
+                type: 'string',
+                empty: 'false'
+            },
+            {
+                prop: 'systemProductId',
+                type: 'number',
+                empty: 'false'
+            },
+            {
+                prop: 'amount',
+                type: 'number',
+                empty: 'false'
+            },
+            {
+                prop: 'measureUnit',
+                type: 'string',
+                empty: 'false'
+            }];
 
             /**
              * Validate
