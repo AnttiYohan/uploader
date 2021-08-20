@@ -477,8 +477,16 @@ class EntryBrowser extends WCBase
 
         let thumbnail = undefined;
 
-        try {
-            thumbnail = `data:${item.mediaDto.thumbnail.type};base64,${item.mediaDto.thumbnail.data}`
+        try 
+        {
+            let image   = item.mediaDto.thumbnail;
+            let typeKey = 'type';
+            if ( ! image ) 
+            {
+                image   = item.mediaDto.image;
+                typeKey = 'fileType';
+            }
+            if ( image )   thumbnail = `data:${image[typeKey]};base64,${image.data}`
         }
         catch (error) {}
 
@@ -500,7 +508,7 @@ class EntryBrowser extends WCBase
         if ( ! this.mList.length ) return;
 
         const amount = this.mList.length > 5 ? 5 : this.mList.length;
-        const size = this.mList.length - 1;
+        const size   = this.mList.length - 1;
         let   i;
 
         for ( i = 0; i < amount; i++ ) 
@@ -540,7 +548,6 @@ class EntryBrowser extends WCBase
 
         this.populateContentList();
         this.renderStats();
-
         this.stopProgress();
     }
 
@@ -592,7 +599,7 @@ class EntryBrowser extends WCBase
         this.mEntityKey.substring(1) +
         'Reader';
         
-        const readerClass = ( await import( `./${className}.js` ) )[ className ];
+        const readerClass = ( await import( `./admin-components/${className}.js` ) )[ className ];
         const reader      = new readerClass( entry );
         const popupItem   = reader.parse();
         this.mPopupElement.appendChild( popupItem );
@@ -609,10 +616,7 @@ class EntryBrowser extends WCBase
         /**
          * Create a closing system
          */
-        this.mPopupElement.addEventListener('click', e =>
-        {
-            return this.closePopup();
-        });
+        this.mPopupElement.addEventListener( 'click', () => this.closePopup() );
     }
 
     // ----------------------------------------------
