@@ -55,6 +55,7 @@ class AdminView extends WCBase
             height: calc(100vh - 57px);
         }
         .admin__detail {
+            width: -webkit-fill-available;
             overflow-y: scroll;
         }`);
 
