@@ -202,12 +202,16 @@ class MapReaderBase
          * Iterate throuhg the child entities,
          * and get fetch the entries by 'child_keys'
          */
-        
+        const largeKeys = actions.has( 'large' ) 
+                        ? actions.get( 'large' )
+                        : [];
+
         const childParagraphs = [];
         
         for ( const entity of actions.get( 'value' ) )
         {
-            const spans = [];
+            const spans  = [];
+            const larges = [];
             spans.push( newTagClassHTML(
 
                 'span', 
@@ -242,6 +246,31 @@ class MapReaderBase
                     continue;
                 }
 
+                /**
+                 * Check if the key is intended to be a large dataset
+                 */
+                let isLarge = false;
+                for ( const largeKey of largeKeys )
+                {
+                    if ( key === largeKey )
+                    {
+                        isLarge = true;
+                        break;
+                    }
+                }
+
+                if ( isLarge )
+                {
+                    larges.push( newTagClassHTML(
+
+                        'p',
+                        'report__row',
+                        entity[ key ]
+
+                    ));
+                    continue;
+                }
+
                 spans.push( newTagClassHTML(
 
                     'span',
@@ -251,12 +280,30 @@ class MapReaderBase
                 ));
             }
 
-            childParagraphs.push( newTagClassChildren(
+            const spansAndLarges = [];
+            spansAndLarges.push(newTagClassChildren(
 
                 'p',
                 'report__entry--child',
                 spans
 
+            ));
+            spansAndLarges.push(...larges);
+
+            childParagraphs.push( newTagClassChildren(
+                
+                'div',
+                'report__entry--deep',
+                [
+                    newTagClassChildren(
+
+                        'p',
+                        'report__entry--child',
+                        spans
+        
+                    ),
+                    ...larges
+                ]   
             ));
         }
 
@@ -286,13 +333,26 @@ class MapReaderBase
      */
     static imageFromMediaDto( mediaDto )
     {
+        let data  = null;
+        let type  = '';
+
         let image = mediaDto.image;
+        if ( image )
+        {
+            data = image.data;
+            type = image.fileType;
+        }
         if ( ! image )
         {
-            image = mediaDto.thumnail;
+            image = mediaDto.thumbnail;
+            if ( image )
+            {
+                data = image.data;
+                type = image.type;
+            }
         }
 
-        return image;
+        return { data, type }
     }
 
     /**
@@ -342,16 +402,16 @@ class MapReaderBase
      */
     static getImageData( title, mediaDto )
     {
-        const fileEntity = MapReaderBase.imageFromMediaDto( mediaDto );
+        const { data, type } = MapReaderBase.imageFromMediaDto( mediaDto );
 
-        if ( fileEntity && fileEntity.data && fileEntity.fileType )
+        if ( data )
         {
             const result = new Map();
 
             result.set( 'type', 'image' );
             result.set( 'title', title );
-            result.set( 'data', fileEntity.data );
-            result.set( 'fileType', fileEntity.fileType );
+            result.set( 'data', data );
+            result.set( 'fileType', type );
 
             return result;
         }
@@ -381,13 +441,19 @@ class MapReaderBase
         return actions;
     }
 
-    static getObjectActions( singular, childKeys, value )
+
+    static getObjectActions( singular, childKeys, value, options = new Map )
     {
         const actions = new Map();
         actions.set( 'type', 'object' );
         actions.set( 'value', value );
         actions.set( 'singular', singular );
         actions.set( 'child_keys', childKeys );
+
+        if ( options.has( 'large' ) )
+        {
+            actions.set( 'large', options.get( 'large' ) );
+        }
         
         return actions;
     }
