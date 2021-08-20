@@ -1244,8 +1244,8 @@ class FileCache
             /**
              * Set the content-type to json
              */
-            xhr.setRequestHeader( 'Content-Type', 'appliaction/json' );
-            
+            xhr.setRequestHeader( 'Content-Type', 'application/json' );
+
             /**
              * Execute the request and invalidate route cache
              */
