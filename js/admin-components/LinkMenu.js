@@ -64,9 +64,9 @@ class LinkMenu extends WCBase
             margin: 0 auto; 
             display: flex; 
             flex-direction: column;
-            max-width: 200px;
+            min-width: 200px;
             height: -webkit-fill-available;
-            overlow-y: scroll;
+            overflow-y: scroll;
             background-color: rgba(255, 240, 240, 0.75);
         }
         .menu__entry {
