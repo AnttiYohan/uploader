@@ -79,7 +79,20 @@ class RecipeReader extends MapReaderBase
             else
             if ( key === 'steps' )
             {
-                model.set( key, MapReaderBase.getObjectActions( 'step', [ 'stepNumber', 'text', 'mediaDto' ], value ) );
+                const options = new Map();
+                options.set( 'large', [ 'text' ] );
+
+                model.set
+                ( 
+                    key, 
+                    MapReaderBase.getObjectActions
+                    ( 
+                        'step', 
+                        [ 'stepNumber', 'text', 'mediaDto' ], 
+                        value,
+                        options
+                    )
+                );
             }
             else
             if ( key === 'mealTypes' )
