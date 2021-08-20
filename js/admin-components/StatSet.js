@@ -8,17 +8,22 @@ import { deleteChildren, newTagClassChildren, newTagClassHTML } from '../util/el
  */
 class StatSet extends WCBase
 {
-    constructor()
+    constructor( route = null, entities = null, reader = null )
     {
         super();
         
 
         this.mRoute = this.dataset.route;
+        
+        if ( route ) this.mRoute = route;
 
         this.mPluralKey = this.dataset.entities;
         this.mEntityKey = this.dataset.entity;
         this.mRelated   = this.dataset.related;
         this.mReader    = this.dataset.reader;
+
+        if ( entities ) this.mPluralKey = entities;
+        if ( reader )   this.mReader    = reader;
         // -----------------------------------------------
         // - Setup ShadowDOM: set stylesheet and content
         // - from template 
@@ -40,7 +45,20 @@ class StatSet extends WCBase
         );    
         
         this.setupStyle
-        (`.stat { margin: 8px auto; padding: 8px; display: flex; flex-direction: column; width: 100%; box-shadow -2px 2px 13px -3px rgba(0,0,0,.25); background-color: #f0f2ff; border-radius: 6px; border: 1px solid rgba(0,0,20,.25); }
+        (`.stat 
+        { 
+            margin: 8px auto; 
+            padding: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%;
+            height: -webkit-fill-available;
+            overflow-y: scroll;
+            box-shadow -2px 2px 13px -3px rgba(0,0,0,.25);
+            background-color: #f0f2ff;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,20,.25); 
+        }
           .stat__entry { display: flex; border-bottom: 1px solid rgba(0,0,0,.12); justify-content: space-between; }
           .stat__header { flex-basis: 50%; display: flex; flex-direction: row; }
           .stat__entity { flex-basis: 50%; display: flex; flex-direction: column; }
