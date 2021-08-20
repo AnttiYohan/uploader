@@ -22,10 +22,12 @@ class ProductEntry extends WCBase
             id = product.id;
         }
 
-        if ( 'systemProductId'  in product )
+        if ( 'systemProductId'  in product && product.systemProductId )
         {
             id = product.systemProductId;
         }
+
+        this.mFail = false;
 
         if ( 
             ! 'name'            in product ||
@@ -33,8 +35,10 @@ class ProductEntry extends WCBase
             ! id 
         )
         {
-            this.remove();
-            return;
+            console.log(`ProductEntry::FAIL!`);
+            this.mFail = true;
+            //this.remove();
+            //return;
         }
 
         /**
@@ -44,48 +48,6 @@ class ProductEntry extends WCBase
         this.mProductCategory = product.productCategory;
         this.mSystemProductId = id;
 
-        /**
-         * If these are set, the product is about to be edited
-         */
-        this.mAmount          = product.amount;
-        this.mMeasureUnit     = product.measureUnit
-        
-        this.mProductReference = product;
-                       
-        /**
-         * Get the allergen data
-         */
-
-        this.mHasAllergens = false;
-        this.mHasEggs      = false;
-        this.mHasNuts      = false;
-        this.mHasGluten    = false;
-        this.mHasLactose   = false;
-
-        if ( 'hasAllerges' in product )
-        {
-            this.mHasAllergens = product.hasAllergens;
-        }
-
-        if ( 'hasEggs' in product )
-        {
-            this.mHasEggs = product.hasEggs;
-        }
-
-        if ( 'hasNuts' in product )
-        {
-            this.mHasNuts = product.hasNuts;
-        }
-
-        if ( 'hasGluten' in product )
-        {
-            this.mHasGluten = product.hasGluten;
-        }
-
-        if ( 'hasLactose' in product )
-        {
-            this.mHasLactose = product.hasLactose;
-        }
         // -----------------------------------------------
         // - Setup ShadowDOM and possible local styles
         // -----------------------------------------------
@@ -229,6 +191,50 @@ class ProductEntry extends WCBase
         }`);
 
 
+    
+        /**
+         * If these are set, the product is about to be edited
+         */
+        this.mAmount          = product.amount;
+        this.mMeasureUnit     = product.measureUnit
+        
+        this.mProductReference = product;
+                       
+        /**
+         * Get the allergen data
+         */
+
+        this.mHasAllergens = false;
+        this.mHasEggs      = false;
+        this.mHasNuts      = false;
+        this.mHasGluten    = false;
+        this.mHasLactose   = false;
+
+        if ( 'hasAllerges' in product )
+        {
+            this.mHasAllergens = product.hasAllergens;
+        }
+
+        if ( 'hasEggs' in product )
+        {
+            this.mHasEggs = product.hasEggs;
+        }
+
+        if ( 'hasNuts' in product )
+        {
+            this.mHasNuts = product.hasNuts;
+        }
+
+        if ( 'hasGluten' in product )
+        {
+            this.mHasGluten = product.hasGluten;
+        }
+
+        if ( 'hasLactose' in product )
+        {
+            this.mHasLactose = product.hasLactose;
+        }
+        
         this.mAmountInput   = this.shadowRoot.querySelector( '.entry__amount' );
         this.mUnitInput     = this.shadowRoot.querySelector( '.select__toggler' );
         this.mUnitTitle     = this.shadowRoot.querySelector( '.unit__title' );
@@ -435,6 +441,11 @@ class ProductEntry extends WCBase
             hasLactose:   this.mHasLactose
 
         };
+    }
+
+    get fail()
+    {
+        return this.mFail;
     }
 
     setMeasureUnit( unit )
