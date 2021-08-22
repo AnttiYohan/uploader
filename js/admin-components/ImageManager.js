@@ -1,6 +1,6 @@
 import { WCBase } from '../WCBase.js';
 import { deleteChildren } from '../util/elemfactory.js';
-import { ImageManagerEntry } from './ImageManagerEntry.js';
+import { ImageManagerStore } from './ImageManagerStore.js';
 
 /**
  * ImageManager is a place where 
@@ -59,7 +59,8 @@ class ImageManager extends WCBase
               <div class='image-manager__category-tab category--recipe'>Recipe</div>
               <div class='image-manager__category-tab category--user'>User</div>
             </nav>
-            <div class='image-manager__store'>
+            <div class='image-manager__stores'>
+              <image-manager-store data-category='recipe'>Recipe Media</image-manager-store>
             </div>
           </div>`);
 
@@ -131,9 +132,7 @@ class ImageManager extends WCBase
             0 0 12px 0 rgba(85, 0, 0, .25),
             inset 0 8px 9px -3.5px rgba(255, 240, 250, .4); 
         }
-        .image-manager__store {
-            display: flex; 
-            flex-direction: column;
+        .image-manager__stores {
             height: -webkit-fill-available; 
         }
         `);
