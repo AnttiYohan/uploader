@@ -33,21 +33,25 @@ class LinkEntry extends WCBase
         this.setupTemplate
         (`<li class='link'>
             <div class='link__icon'></div>
-            <h3  class='link__header'>${header}<h3>
+            <h3  class='link__header'>${header}</h3>
          </li>`);    
         
         this.setupStyle
         (`.link {
             cursor: pointer;
             position: relative;
+            width: 200px;
             height: 48px;
+            overflow-x: hidden;
             display: flex;
             align-items: center;
             justify-content: flex-start;
             bodrer-bottom: 1px dashed rgba(0, 0, 68, 0.25);
+            /*transition:
+            width: 360ms ease-in;*/
         }
         .link__icon {
-            width: 48px;
+            min-width: 48px;
             height: 48px;
             background-repeat: no-repeat;
             background-size: cover;
@@ -59,6 +63,18 @@ class LinkEntry extends WCBase
             text-transform: uppercase;
             padding: 8px;
             text-align: left;
+            transform: scale3d(1, 1, 1);
+            transform-origin: left;
+            transition:
+            transform 330ms ease-in;
+        }
+        @media screen and (max-width: 850px) {
+
+            .link { width: 48px; }
+            .link__header { 
+                transform: scale3d(0, 1, 1); 
+            }
+
         }`);
 
         
