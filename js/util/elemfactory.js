@@ -812,6 +812,29 @@ function setImageThumbnail(elem, file)
     reader.readAsDataURL(file);
 }
 
+/**
+ * Formats an byte amount into a proper power
+ * bytes, kb, Mb, Gb
+ * 
+ * @param  {number} bytes 
+ * @return {string} formatted byte value 
+ */
+function formatBytes( bytes )
+{
+    let result      = bytes;
+    let currentUnit = 'bytes';
+    
+    if ( typeof bytes === 'number' ) for ( const unit of [ 'kb', 'Mb', 'Gb' ] )
+    {
+        if ( result / 1024 < 1 ) break;
+
+        result      = result / 1024;
+        currentUnit = unit;
+    }
+
+    return `${Math.round(result * 10) / 10} ${currentUnit}`;
+}
+ 
 export
 {
     newTag,
@@ -855,5 +878,6 @@ export
     imgClassSrc,
     setSelectedIndex,
     setImageFileInputThumbnail,
-    setImageThumbnail
+    setImageThumbnail,
+    formatBytes
 }
