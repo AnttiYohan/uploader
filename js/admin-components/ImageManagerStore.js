@@ -51,19 +51,23 @@ class ImageManagerStore extends WCBase
         }
         .store__title {
             color: #fff;
+            width: 153px;
+            overflow-x: hidden;
             font-size: 20px;
             text-transform: uppercase;
+            transition:
+            width 330ms ease-in;
         }
         .store__container {
             margin: 0;
             padding: 0;
         }
         .store__pagination {
+            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: rgba(200, 67, 67, .5);
-            height: 48px;
         }
         .pagination__prev,
         .pagination__next {
@@ -77,16 +81,22 @@ class ImageManagerStore extends WCBase
             margin: 0;
             padding: 0;
             min-width: 64px;
+            width: fit-content;
+            max-width: 300px;
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             list-style-type: none;   
         }
         .pagination__page {
             cursor: pointer;
             color: #fff;
+            width: fit-content;
+            margin: 0;
             padding-left: 4px;
             padding-right: 4px;
-            line-height: 42px;
+            line-height: 36px;
+            border-top: 6px solid transparent;
             border-bottom: 6px solid transparent;
             transition:
             border-bottom-color 400ms;
@@ -103,7 +113,7 @@ class ImageManagerStore extends WCBase
         .store__button { 
             cursor: pointer;
             display: inline-block; 
-            margin: auto; 
+            margin-left: 16px; 
             height: 32px;
             min-width: 128px;
             border-radius: 16px;
@@ -125,6 +135,11 @@ class ImageManagerStore extends WCBase
         }
         .store__button.focus {
             outline-color: rgba(80, 40, 40, .35);
+        }
+        @media screen and (max-width: 550px) {
+            .store__title {
+                width: 0px;
+            }
         }`);
 
         this.mFrame         = this.shadowRoot.querySelector( '.store' );
