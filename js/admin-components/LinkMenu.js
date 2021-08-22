@@ -64,10 +64,14 @@ class LinkMenu extends WCBase
             margin: 0 auto; 
             display: flex; 
             flex-direction: column;
-            min-width: 200px;
+            width: 200px;
+            /*min-width: 200px;*/
             height: -webkit-fill-available;
+            overflow-x: hidden;
             overflow-y: scroll;
             background-color: rgba(255, 240, 240, 0.75);
+            transition:
+            width 360ms ease-in;
         }
         .menu__entry {
             position: relative;
@@ -84,6 +88,11 @@ class LinkMenu extends WCBase
         .menu__header {
             padding: 8px;
             text-align: left;
+        }
+        @media screen and (max-width: 850px) {
+
+            .menu { width: 48px; }
+
         }`);
 
         
