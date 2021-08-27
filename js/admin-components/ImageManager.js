@@ -1,4 +1,4 @@
-import { WCBase } from '../WCBase.js';
+import { MEDIA_WS, WCBase } from '../WCBase.js';
 import { deleteChildren } from '../util/elemfactory.js';
 import { ImageManagerStore } from './ImageManagerStore.js';
 
@@ -160,8 +160,32 @@ class ImageManager extends WCBase
                 }
             });
         }
+
+        /**
+         * Create WebSocket conection
+         */
+        const ws = new WebSocket( MEDIA_WS );
+        ws.addEventListener( 'message', e => this.displayWebSocketMessage( e.data ) );
     }
     
+    displayWebSocketMessage( data )
+    {
+        console.log( `Raw message: ${data}` );
+
+        let message;
+
+        try 
+        {
+            message = JSON.parse( data );
+        }
+        catch ( error )
+        {
+            console.log( `Error: ${error}` );
+            return;
+        }
+
+        console.log( `Parsed message: ${message}` );
+    }
     /**
      * Return the store entry objects in an array
      * 
