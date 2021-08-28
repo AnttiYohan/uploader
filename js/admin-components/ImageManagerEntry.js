@@ -65,7 +65,7 @@ class ImageManagerEntry extends WCBase
                 <div class='entry__frame--action action--image-upload'>
                   <div class='entry__action--select-image'>
                     <img class='entry__preview' src='assets/icon_placeholder.svg'>
-                    <input  id='image-upload-input'  class='entry__input--file' type='file'>
+                    <input  id='image-upload-input'  class='entry__input--file' type='file' accept='image/*'>
                     <label for='image-upload-input'  class='entry__label--file'></label>
                   </div>
                   <button class='entry__button button--image-upload'>upload</button>
@@ -77,25 +77,6 @@ class ImageManagerEntry extends WCBase
                 <li class='entry__info-row'><span class='field--name'></span><span class='field--id-size'></span></li>
                 <li class='entry__info-row'><span class='field--uploaded'></li>
               </ul>
-              <!--ul class='entry__info-list--thumbnail'>
-                <li class='entry__info-row'><span class='key key--name'></span><span class='value value--size'></span></li>
-                <li class='entry__info-row'><span class='key'></span><span class='value value--id'></span></li>
-              </ul-->
-            </div>
-            <div class='entry__tool-row'>
-              <label class='entry__label'>x:
-                <input class='entry__input--number' type='number'>
-              </label>
-              <label class='entry__label'>y:
-                <input class='entry__input--number' type='number'>
-              </label>
-              <label class='entry__label'>width:
-                <input class='entry__input--number' type='number'>
-              </label>
-              <label class='entry__label'>height:
-                <input class='entry__input--number' type='number'>
-              </label>
-              <button class='entry__button'>crop</button>
             </div>
           </div>`);
         
@@ -334,7 +315,6 @@ class ImageManagerEntry extends WCBase
             width: 64px;
             height: 64px;
             position: relative;
-            border: 3px solid #d8d8ff;
             border-radius: 5px;
             background-color: #d4d4f8;
         }
@@ -533,15 +513,27 @@ class ImageManagerEntry extends WCBase
         /**
          * Grab the fullsize and thumbnail info lists
          */
-        const fullsize  = this.shadowRoot.querySelector( '.entry__info-list--fullsize' );
-        const thumbnail = this.shadowRoot.querySelector( '.entry__sub-data--thumbnail' );
-        
-        const imagePreview = this.shadowRoot.querySelector( '.entry__preview' );
-        const imageInput = this.shadowRoot.querySelector( '.entry__input--file' );
+        const fullsize      = this.shadowRoot.querySelector( '.entry__info-list--fullsize' );
+        const thumbnail     = this.shadowRoot.querySelector( '.entry__sub-data--thumbnail' );
+        const imagePreview  = this.shadowRoot.querySelector( '.entry__preview' );
+        const imageInput    = this.shadowRoot.querySelector( '.entry__input--file' );
 
-        imageInput.addEventListener( 'input', e => 
+        /**
+         * Add event listener into the image file input to 
+         * detect if the selected image has changed.
+         * 
+         * When an image file is selected, create a preview
+         * of the image
+         */
+        imageInput.addEventListener( 'change', e => 
         {
-
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.addEventListener('loadend', pe => 
+            {
+                imagePreview.src = reader.result;
+            });
+            reader.readAsDataURL(file);
         });
 
         /**
