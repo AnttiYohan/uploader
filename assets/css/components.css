@@ -4,7 +4,6 @@
     font-weight: normal;
     src: local('Baskerville Normal'), url('baskvl.woff') format('woff');
 }
-
 :root {
     --gray:   #656565;
     --light:  #E2E0E0;
@@ -27,13 +26,11 @@
     --max-frame-width: 600px;
     --font-size-header: 14px;
     --font-size-text: 12px;
-
     --text-color: #222;
     --grey: #bcbcbc;
     --dark-grey: #6d6d6d;
-    --light-grey: #eeeeee;
+    --light-grey: #eeeeee;   
 }
-
 * {
     margin: 0;
     padding: 0;
@@ -78,23 +75,19 @@
     border: 1px solid transparent;
     text-align: center;
 }
-
 .button--save:hover {
     background-color: #00c800;
 }
-
 .button--save:focus {
     outline: none;
     height: 30px;
     border: 2px solid #004810;
     box-shadow: 0 0 10px 3px rgba(0,34,20,0.33);
 }
-
 .button--save:active {
     outline: none;
     border-color: rgba(0,0,0,0.5);
 }
-
 .button--refresh {
     cursor: pointer;
     color: #fff;
@@ -106,23 +99,19 @@
     border: 1px solid transparent;
     text-align: center;
 }
-
 .button--refresh:hover {
     background-color: #48a2ff;
     box-shadow: 0 2px 5px -2px rgba(10,10,20,0.33);
 }
-
 .button--refresh:focus {
     outline: none;
     height: 30px;
     border: 2px solid #48488c;
 }
-
 .button--refresh:active {
     outline: none;
     border-color: rgba(0,0,0,0.5);
 }
-
 /** Common styles for 
  *  panels, backgrounds, elements 
  *  and buttons.
@@ -155,7 +144,6 @@
     background-color: #c8d8f8;
     border: 1px solid#6878a8;
 }
-
 .editor__component {
     display: flex;
     justify-content: space-between;
@@ -163,20 +151,17 @@
     width: 100%;
     box-shadow: inset 0 -8px 20px -10px rgba(0,0,0,0.25);
 }
-
 .editor__component.products,
 .editor__component.steps,
 .editor__component.tips {
     flex-direction: column;
     justify-content: center;
 }
-
 .current {
     min-width: 192px;
     max-width: 288px;
     width: 100%;
 }
-
 .current .component__value {
     width: 100%;
     min-height: 24px;
@@ -185,12 +170,10 @@
     border: 1px solid #6878a8;
     border-radius: 6px;
 }
-
 .current .component__label {
     position: absolute;
     transform: translate3d(0, -20px, 0);
 }
-
 @media screen and (max-width:640px) {
     .editor__component {
         flex-direction: column;
@@ -200,10 +183,8 @@
     }
     .current .component__value {
         width: 100%;
-        /*min-width: 320px;*/
     }
 }
-
 .uploader {
     display: flex;
     margin: 0 auto;
@@ -313,8 +294,6 @@
 }
 .window__image .label--width {
     position: absolute;
-    /*top: 8px;
-    left: 8px;*/
     color: rgba(0,0,0,0.5);
     min-width: 32px;
     min-height: 24px;
@@ -345,7 +324,6 @@
         border-bottom: 3px solid rgba(255,140,105,1.0);
     }
 }
-
 .component__rowset {
     display: flex;
     flex-direction: row;
@@ -492,7 +470,6 @@
         flex-direction: column;
     }
 }
-
 /**
  * Styles for MapReaderBase and its derived classes:
  * - RecipeReader
