@@ -54,12 +54,13 @@ class ImageManager extends WCBase
                <h1 class='image-manager__title'>Image Manager</h1>
             </div>
             <nav class='image-manager__category-nav'>
-              <div class='image-manager__category-tab category--article'>Article</div>
-              <div class='image-manager__category-tab category--product'>Product</div>
-              <div class='image-manager__category-tab category--recipe'>Recipe</div>
+              <div class='image-manager__category-tab category--article' data-category='article'>Article</div>
+              <div class='image-manager__category-tab category--product' data-category='product'>Product</div>
+              <div class='image-manager__category-tab category--recipe active' data-category='recipe'>Recipe</div>
               <div class='image-manager__category-tab category--user'>User</div>
             </nav>
             <div class='image-manager__stores'>
+              <image-manager-store data-category='article'>Article Media</image-manager-store>
               <image-manager-store data-category='recipe'>Recipe Media</image-manager-store>
             </div>
           </div>`);
@@ -139,26 +140,48 @@ class ImageManager extends WCBase
 
         this.mRootElement = this.shadowRoot.querySelector( '.image-manager' );
         this.mCategoryNav = this.shadowRoot.querySelector( '.image-manager__category-nav' );
-        this.mStore       = this.shadowRoot.querySelector( '.image-manager__store' );
+        this.mStore       = this.shadowRoot.querySelector( '.image-manager__stores' );
 
         /**
          * Add event listeners into the category tabs
          */
-
-        const tabs = Array.from( this.mCategoryNav.querySelectorAll( '.image-manager__category-tab' ) );
-        
+        const tabs          = Array.from( this.mCategoryNav.querySelectorAll( '.image-manager__category-tab' ) );
+        const storeElements = Array.from( this.mStore.querySelectorAll( 'image-manager-store' ) );
+        const stores        = new Map();
+        for ( const elem of storeElements )
+        {
+            stores.set( elem.dataset.category, elem );
+        }
+        const setStore = (tab) => {
+            for ( const [ key, elem ] of stores )
+            {
+                if ( tab.dataset.category === key )
+                {
+                    elem.style.display = `block`;
+                }
+                else 
+                {
+                    elem.style.display = `none`;
+                }
+            }
+        }
         for ( const tab of tabs )
         {
             tab.addEventListener( 'click', e => {
-                console.log( `Tab clicked: ${e.target.textContent}` );
-
                 for ( const t of tabs )
                 {
                     ! t.isEqualNode( e.target )
                     ? t.classList.remove('active')
                     : t.classList.add('active');
                 }
+
+                setStore( e.target );
             });
+
+            if ( tab.classList.contains( 'active' ) )
+            {
+                setStore( tab );
+            }
         }
 
         /**
