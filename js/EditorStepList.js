@@ -116,7 +116,7 @@ import { deleteChildren, newTagClass, newTagClassChildren, newTagClassHTML } fro
 
             if ( image )
             {
-                imageField.src = `data:${image.fileType};base64,${image.data}`;;
+                imageField.src = `data:${image.fileType};base64,${image.data}`;
             }
 
             // - Setup the content

@@ -159,7 +159,7 @@ const PRODUCT_CATEGORY_ENUM =
 // ---------------------------------------
 // - HTTP Request constants
 // ---------------------------------------
-
+const WS_URL  = 'ws://localhost:8080';
 const API_URL = 'http://localhost:8080';
 //const API_URL = 'https://babyfoodworld.app';
 const LOGIN_URL = `${API_URL}/perform_login`;
@@ -179,8 +179,12 @@ const UPDATE_PRODUCTS_ADD_URL = `${UPDATE_PRODUCTS_URL}/add`;
 const UPDATE_STEPS_URL = `${RECIPE_URL}/steps`;
 const UPDATE_STEPS_ADD_URL = `${UPDATE_STEPS_URL}/add`;
 const RECIPE_STEP_THUMBNAILS_URL = `${RECIPE_URL}/thumbnail`;
-const RECIPE_MEDIA_URL = `${RECIPE_URL}/media`;
-const RECIPE_STEPS_MEDIA_URL = `${RECIPE_URL}/steps/media`;
+const MEDIA_URL = `${API_URL}/media`;
+const MEDIA_WS  = `${WS_URL}/media`;
+const ARTICLE_MEDIA_URL = `${MEDIA_URL}/article`;
+const PRODUCT_MEDIA_URL = `${MEDIA_URL}/product`;
+const RECIPE_MEDIA_URL = `${MEDIA_URL}/recipe`;
+const RECIPE_STEPS_MEDIA_URL = `${MEDIA_URL}/recipe-steps`;
 
 export 
 {
@@ -192,8 +196,10 @@ export
      API_URL,
      LOGIN_URL,
      LOGOUT_URL,
+     MEDIA_URL,
      AUTH_STATUS_URL,
      ARTICLE_URL,
+     ARTICLE_MEDIA_URL,
      RECIPE_URL,
      RECIPE_ALL_URL,
      RECIPE_MEDIA_URL,
@@ -201,6 +207,7 @@ export
      RECIPE_STEPS_MEDIA_URL,
      PRODUCT_URL,
      PRODUCT_TEXT_URL,
+     PRODUCT_MEDIA_URL,
      FRIDGE_PRODUCT_URL,
      RECIPE_STEP_THUMBNAILS_URL,
      UPDATE_RECIPE_URL,
@@ -208,5 +215,7 @@ export
      UPDATE_PRODUCTS_URL,
      UPDATE_PRODUCTS_ADD_URL,
      UPDATE_STEPS_URL,
-     UPDATE_STEPS_ADD_URL
+     UPDATE_STEPS_ADD_URL,
+     WS_URL,
+     MEDIA_WS
 };

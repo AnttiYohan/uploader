@@ -168,6 +168,7 @@ class StoreComponent extends WCBase
      */
     checkAsterisk()
     {
+        if ( ! this.mAsteriskLabel ) return;
         const clist = this.mAsteriskLabel.classList;
         this.count ? clist.add( 'off' ) : clist.remove( 'off' );
     }
